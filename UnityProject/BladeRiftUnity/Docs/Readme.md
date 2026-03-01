@@ -28,3 +28,10 @@ Mobil odaklı, 1. şahıs dungeon koridorunda geçen, **tek input (swipe)** ile 
 ## Çalışma Kuralları
 - Kod değişiklikleri küçük parçalara bölünür (dosya dosya).
 - Her oturum sonunda `Docs/CHAT_STATE.md` güncellenir.
+
+## Docs
+- Docs/GAME_CONCEPT_TR.md
+- Docs/GAME_RULES_TR.md
+- Docs/ARCHITECTURE_TR.md
+- Docs/TODO_TR.md
+- Docs/CHAT_STATE.md

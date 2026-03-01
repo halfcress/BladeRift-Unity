@@ -1,99 +1,107 @@
-# ARCHITECTURE (TR) - BladeRift
+# GAME RULES (TR) - BladeRift
 
-## Hedef
-Combat tasarımı değişse bile sistemi çöpe atmadan ilerlemek:
-- Modüler yapı
-- Data-driven kurallar
-- Event tabanlı haberleşme
-- Küçük, bağımsız script dosyaları
+## Amaç
+Bu doküman oyunun “kurallarını” ve ayarlanabilir parametrelerini tanımlar.
+Kod yazarken sabit (hardcode) değerlerden kaçınmak için referans alınır.
 
-## Scene / High-level
-- UIRoot (Canvas)
-  - WeakpointOverlay
-  - HUD (HP/Rage/Score)
-  - DebugText (prototipte)
-- GameRoot
-  - GameStateMachine
-  - Input (SwipeInput)
-  - CombatDirector
-  - (sonra) SpawnDirector, EnemyRoot, CorridorRoot
+---
 
-## Modüller
+## 1) Core Combat (Şu anki tasarım)
 
-### 1) Input
-**Sorumluluk:** Parmağın basılı tutulması + pozisyon akışı
-- `SwipeInput`
-  - Mouse + Touch unify
-  - Olaylar:
-    - FingerDown(pos)
-    - FingerMove(pos)
-    - FingerUp()
+- Oyuncu sabit, tek input: **continuous swipe**.
+- Düşmanın weakpoint zinciri **2D UI overlay** olarak görünür.
+- Weakpoint’ler sırayla yanar (telegraph) ve her adımda **tick** sinyali verir.
+- Sonrasında **Execution Window** açılır:
+  - Süre: **2 saniye**
+  - Mini slow motion: `timeScale ~ 0.8`
+- Parmak kalkarsa: chain **iptal/reset**.
+- Execution window sırasında:
+  - Tüm weakpoint’ler görünür
+  - **Sadece sıradaki hedef** güçlü highlight olur
+  - Weakpoint’ler **micro jitter** yapar (çok küçük)
 
-> Input sistemi "weakpoint" bilmez. Sadece pozisyon yayınlar.
+---
 
-### 2) Weakpoint Overlay (UI)
-**Sorumluluk:** Weakpoint marker üretme/gösterme, highlight, jitter
-- `WeakpointOverlayController`
-  - Marker pool
-  - Marker yerleşimi (2D overlay)
-  - Sıradaki hedef highlight
-  - Micro jitter
-  - Tick tetikleyici (event)
+## 2) Başarı / Başarısızlık
 
-### 3) Sequence / Rules
-**Sorumluluk:** Zincir mantığı (sırayla yanma, execution window vs)
-- `WeakpointSequence`
-  - Zincir listesi
-  - Index takibi
-  - Telegraph phase
-  - Execution window phase
+### Başarı
+- Oyuncu parmağını kaldırmadan, sırayla doğru weakpoint’e temas ederse zincir ilerler.
+- Zincir tamamlanırsa **Execution Success** oluşur.
 
-### 4) Combat Orchestrator
-**Sorumluluk:** Kuralların tek kapısı (doğru/yanlış, success/fail)
-- `CombatDirector`
-  - Input eventlerini dinler
-  - "Sıradaki hedefe dokundu mu?" hit test yapar
-  - Success => Advance / Execute
-  - Fail => Punish tetikler
+### Başarısızlık
+Aşağıdakilerden biri olursa:
+- Yanlış hedefe temas
+- Parmak kaldırma
+- Sürenin bitmesi
 
-### 5) Feedback
-**Sorumluluk:** Hit stop / flash / shake / UI feedback
-- `FeedbackController`
-  - Combat eventlerini dinler
-  - Prototipte: sadece UI text + basit flash
+Sonuç:
+- Düşman saldırır
+- Oyuncu hasar alır
+- Düşman **az hasar** yer (chip damage)
 
-### 6) Enemy (sonraki faz)
-**Sorumluluk:** Yaklaşma, saldırı, interrupt, stagger, HP
-- `EnemyController`
-  - Telegraph başlatır -> weakpoint sequence başlar
-  - Execute -> interrupt + stagger + damage
+---
 
-### 7) Spawn / Chapter (sonraki faz)
-- `SpawnDirector` (wave tabanlı)
-- `ChapterController` (60-90sn)
-- `ReviveController` (1 revive)
+## 3) Execution Sonucu (Çok önemli ilke)
 
-## Event Sözleşmesi (kural)
-Sistemler birbirini referansla çağırmak yerine event dinler.
+**Execution = Interrupt**
 
-Önerilen eventler:
-- Input
-  - OnFingerDown(Vector2)
-  - OnFingerMove(Vector2)
-  - OnFingerUp()
-- Weakpoint
-  - OnTelegraphStep(int index)
-  - OnExecutionWindowStart(float duration)
-  - OnExecutionWindowEnd()
-- Combat
-  - OnChainAdvance(int newIndex)
-  - OnChainSuccess()
-  - OnChainFail(string reason)
-- Feedback
-  - OnFlash(float intensity)
-  - OnHitStop(float seconds)
+- Basic düşman: çoğunlukla ölür.
+- Elite/Boss: her zaman tekte ölmez:
+  - Büyük hasar
+  - **Interrupt (saldırı iptali)**
+  - Stagger
 
-## Esneklik Kuralları
-- Süreler/şiddetler kodda hardcode olmayacak -> `GameConfig` üzerinden.
-- Prototip sahnesi ayrı tutulacak.
-- Kod değişiklikleri dosya dosya küçük tutulacak.
+> Oyuncu doğru execution yaptıysa “aynı anda” saldırı yememeli.
+> Bu kural kontrol hissini korur.
+
+---
+
+## 4) Rage
+
+- Rage dolumu: başarılı chain + streak
+- Rage aktifken:
+  - weakpoint şartı kalkar
+  - **anywhere execution**
+- Rage süre bazlıdır ve upgrade ile geliştirilebilir.
+
+---
+
+## 5) Revive
+
+- Chapter içinde **1 revive hakkı** (v0.1).
+
+---
+
+## 6) Pacing
+
+- Wave tabanlı ilerleme.
+- Aynı anda **2–3 düşman kombinasyonu** (adil telegraph şartıyla).
+- Chapter süresi hedef: **60–90 saniye** (v0.1)
+
+---
+
+## 7) Ayarlanabilir Parametreler (Config’te yaşar)
+
+Bu değerler kodda değil `GameConfig` (ScriptableObject) üzerinden ayarlanmalı:
+
+- `ExecutionWindowSeconds` (default 2.0)
+- `TimeScaleDuringExecution` (default 0.8)
+- `TelegraphStepSeconds` (default 0.35–0.50)
+- `WeakpointHitRadiusPx` (default 40–70)
+- `WeakpointJitterPx` (default 5–10)
+- `FailPunishDamage` (enemy -> player)
+- `FailChipDamage` (player -> enemy)
+- `BasicExecutionDamage`
+- `EliteExecutionDamage`
+- `BossExecutionDamage`
+- `RageGainOnHit`
+- `RageGainOnSuccess`
+- `RageDurationSeconds`
+
+---
+
+## 8) Değişiklik Protokolü (Esneklik)
+
+- Önce **config değerleriyle** dene.
+- Yetmezse yeni modül ekle (ör: guard phase).
+- En son refactor.

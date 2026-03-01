@@ -1,11 +1,16 @@
 # TODO (MASTER) - BladeRift
 
+## NEXT SESSION TARGET
+- GameConfig (ScriptableObject) oluştur
+- SwipeInput (touch+mouse) iskeleti
+- Prototype_CombatCore sahnesi oluştur
+
 ## PHASE 0 — Foundation
 - [x] Repo oluştur (BladeRift-Unity)
 - [x] Unity 6000.3.10f1 LTS proje (Universal 3D/URP)
 - [x] .gitignore ile Library/Temp/Logs vb. ignore
 - [x] İlk commit + push
-- [ ] Docs dosyaları (README + CHAT_STATE + TODO) repoya ekle
+- [x] Docs dosyaları (README + CHAT_STATE + TODO) repoya ekle
 
 ## PHASE 1 — Combat Core (Enemy yok, koridor yok)
 Amaç: sadece UI + input ile “weak point zinciri” prototipini çalıştırmak.
