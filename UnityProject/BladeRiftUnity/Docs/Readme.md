@@ -1,4 +1,4 @@
-![BladeRift Key Art](Media/bladerift_keyart.png)
+![BladeRift Key Art](../Media/bladerift_keyart.png)
 
 # BladeRift (Unity)
 
