@@ -1,3 +1,5 @@
+![BladeRift Key Art](Media/bladerift_keyart.png)
+
 # BladeRift (Unity)
 
 Mobil odaklı, 1. şahıs dungeon koridorunda geçen, **tek input (swipe)** ile oynanan aksiyon oyun prototipi.
