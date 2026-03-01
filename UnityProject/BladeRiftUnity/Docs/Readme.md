@@ -1,4 +1,6 @@
-![BladeRift Key Art](../Media/bladerift_keyart.png)
+<p align="center">
+  <img src="../Media/bladerift_keyart.png" width="350"/>
+</p>
 
 # BladeRift (Unity)
 
