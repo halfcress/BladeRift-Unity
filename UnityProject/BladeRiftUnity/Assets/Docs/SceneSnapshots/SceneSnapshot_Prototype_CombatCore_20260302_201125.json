@@ -1,0 +1,530 @@
+{
+    "unityVersion": "6000.3.10f1",
+    "sceneName": "Prototype_CombatCore",
+    "scenePath": "Assets/Scenes/Prototype_CombatCore.unity",
+    "exportedAtLocalTime": "2026-03-02 20:11:25",
+    "roots": [
+        {
+            "name": "GameRoot",
+            "activeSelf": true,
+            "path": "GameRoot",
+            "transform": {
+                "localPosition": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "localRotationEuler": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "localScale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "components": [
+                {
+                    "type": "UnityEngine.Transform"
+                },
+                {
+                    "type": "CorridorLoop"
+                }
+            ],
+            "children": [
+                {
+                    "name": "Corridor_01",
+                    "activeSelf": true,
+                    "path": "GameRoot/Corridor_01",
+                    "transform": {
+                        "localPosition": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "localRotationEuler": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "localScale": [
+                            1.0,
+                            1.0,
+                            1.0
+                        ]
+                    },
+                    "components": [
+                        {
+                            "type": "UnityEngine.Transform"
+                        }
+                    ],
+                    "children": [
+                        {
+                            "name": "Wall_Left",
+                            "activeSelf": true,
+                            "path": "GameRoot/Corridor_01/Wall_Left",
+                            "transform": {
+                                "localPosition": [
+                                    -3.0,
+                                    1.5,
+                                    0.0
+                                ],
+                                "localRotationEuler": [
+                                    0.0,
+                                    0.0,
+                                    0.0
+                                ],
+                                "localScale": [
+                                    0.20000000298023225,
+                                    3.0,
+                                    100.0
+                                ]
+                            },
+                            "components": [
+                                {
+                                    "type": "UnityEngine.Transform"
+                                },
+                                {
+                                    "type": "UnityEngine.MeshFilter"
+                                },
+                                {
+                                    "type": "UnityEngine.MeshRenderer"
+                                },
+                                {
+                                    "type": "UnityEngine.BoxCollider"
+                                }
+                            ],
+                            "children": []
+                        },
+                        {
+                            "name": "Wall_Right",
+                            "activeSelf": true,
+                            "path": "GameRoot/Corridor_01/Wall_Right",
+                            "transform": {
+                                "localPosition": [
+                                    3.0,
+                                    1.5,
+                                    0.0
+                                ],
+                                "localRotationEuler": [
+                                    0.0,
+                                    0.0,
+                                    0.0
+                                ],
+                                "localScale": [
+                                    0.20000000298023225,
+                                    3.0,
+                                    100.0
+                                ]
+                            },
+                            "components": [
+                                {
+                                    "type": "UnityEngine.Transform"
+                                },
+                                {
+                                    "type": "UnityEngine.MeshFilter"
+                                },
+                                {
+                                    "type": "UnityEngine.MeshRenderer"
+                                },
+                                {
+                                    "type": "UnityEngine.BoxCollider"
+                                }
+                            ],
+                            "children": []
+                        },
+                        {
+                            "name": "Floor",
+                            "activeSelf": true,
+                            "path": "GameRoot/Corridor_01/Floor",
+                            "transform": {
+                                "localPosition": [
+                                    0.0,
+                                    0.0,
+                                    0.0
+                                ],
+                                "localRotationEuler": [
+                                    0.0,
+                                    0.0,
+                                    0.0
+                                ],
+                                "localScale": [
+                                    6.0,
+                                    0.20000000298023225,
+                                    100.0
+                                ]
+                            },
+                            "components": [
+                                {
+                                    "type": "UnityEngine.Transform"
+                                },
+                                {
+                                    "type": "UnityEngine.MeshFilter"
+                                },
+                                {
+                                    "type": "UnityEngine.MeshRenderer"
+                                },
+                                {
+                                    "type": "UnityEngine.BoxCollider"
+                                }
+                            ],
+                            "children": []
+                        }
+                    ]
+                },
+                {
+                    "name": "Corridor_02",
+                    "activeSelf": true,
+                    "path": "GameRoot/Corridor_02",
+                    "transform": {
+                        "localPosition": [
+                            0.0,
+                            0.0,
+                            100.0
+                        ],
+                        "localRotationEuler": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "localScale": [
+                            1.0,
+                            1.0,
+                            1.0
+                        ]
+                    },
+                    "components": [
+                        {
+                            "type": "UnityEngine.Transform"
+                        }
+                    ],
+                    "children": [
+                        {
+                            "name": "Wall_Left",
+                            "activeSelf": true,
+                            "path": "GameRoot/Corridor_02/Wall_Left",
+                            "transform": {
+                                "localPosition": [
+                                    -3.0,
+                                    1.5,
+                                    -100.0
+                                ],
+                                "localRotationEuler": [
+                                    0.0,
+                                    0.0,
+                                    0.0
+                                ],
+                                "localScale": [
+                                    0.19999998807907105,
+                                    3.0,
+                                    100.0
+                                ]
+                            },
+                            "components": [
+                                {
+                                    "type": "UnityEngine.Transform"
+                                },
+                                {
+                                    "type": "UnityEngine.MeshFilter"
+                                },
+                                {
+                                    "type": "UnityEngine.MeshRenderer"
+                                },
+                                {
+                                    "type": "UnityEngine.BoxCollider"
+                                }
+                            ],
+                            "children": []
+                        },
+                        {
+                            "name": "Wall_Right",
+                            "activeSelf": true,
+                            "path": "GameRoot/Corridor_02/Wall_Right",
+                            "transform": {
+                                "localPosition": [
+                                    3.0,
+                                    1.5,
+                                    -100.0
+                                ],
+                                "localRotationEuler": [
+                                    0.0,
+                                    0.0,
+                                    0.0
+                                ],
+                                "localScale": [
+                                    0.19999998807907105,
+                                    3.0,
+                                    100.0
+                                ]
+                            },
+                            "components": [
+                                {
+                                    "type": "UnityEngine.Transform"
+                                },
+                                {
+                                    "type": "UnityEngine.MeshFilter"
+                                },
+                                {
+                                    "type": "UnityEngine.MeshRenderer"
+                                },
+                                {
+                                    "type": "UnityEngine.BoxCollider"
+                                }
+                            ],
+                            "children": []
+                        },
+                        {
+                            "name": "Floor",
+                            "activeSelf": true,
+                            "path": "GameRoot/Corridor_02/Floor",
+                            "transform": {
+                                "localPosition": [
+                                    0.0,
+                                    0.0,
+                                    -100.0
+                                ],
+                                "localRotationEuler": [
+                                    0.0,
+                                    0.0,
+                                    0.0
+                                ],
+                                "localScale": [
+                                    6.0,
+                                    0.19999998807907105,
+                                    100.0
+                                ]
+                            },
+                            "components": [
+                                {
+                                    "type": "UnityEngine.Transform"
+                                },
+                                {
+                                    "type": "UnityEngine.MeshFilter"
+                                },
+                                {
+                                    "type": "UnityEngine.MeshRenderer"
+                                },
+                                {
+                                    "type": "UnityEngine.BoxCollider"
+                                }
+                            ],
+                            "children": []
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "UIRoot",
+            "activeSelf": true,
+            "path": "UIRoot",
+            "transform": {
+                "localPosition": [
+                    540.0,
+                    960.0,
+                    0.0
+                ],
+                "localRotationEuler": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "localScale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "components": [
+                {
+                    "type": "UnityEngine.RectTransform"
+                },
+                {
+                    "type": "UnityEngine.Canvas"
+                },
+                {
+                    "type": "UnityEngine.UI.CanvasScaler"
+                },
+                {
+                    "type": "UnityEngine.UI.GraphicRaycaster"
+                }
+            ],
+            "children": []
+        },
+        {
+            "name": "EventSystem",
+            "activeSelf": true,
+            "path": "EventSystem",
+            "transform": {
+                "localPosition": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "localRotationEuler": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "localScale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "components": [
+                {
+                    "type": "UnityEngine.Transform"
+                },
+                {
+                    "type": "UnityEngine.EventSystems.EventSystem"
+                },
+                {
+                    "type": "UnityEngine.InputSystem.UI.InputSystemUIInputModule"
+                }
+            ],
+            "children": []
+        },
+        {
+            "name": "Main Camera",
+            "activeSelf": true,
+            "path": "Main Camera",
+            "transform": {
+                "localPosition": [
+                    0.0,
+                    1.2999999523162842,
+                    0.0
+                ],
+                "localRotationEuler": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "localScale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "components": [
+                {
+                    "type": "UnityEngine.Transform"
+                },
+                {
+                    "type": "UnityEngine.Camera"
+                },
+                {
+                    "type": "UnityEngine.AudioListener"
+                },
+                {
+                    "type": "UnityEngine.Rendering.Universal.UniversalAdditionalCameraData"
+                }
+            ],
+            "children": []
+        },
+        {
+            "name": "Directional Light",
+            "activeSelf": true,
+            "path": "Directional Light",
+            "transform": {
+                "localPosition": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "localRotationEuler": [
+                    50.0,
+                    330.0,
+                    0.0
+                ],
+                "localScale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "components": [
+                {
+                    "type": "UnityEngine.Transform"
+                },
+                {
+                    "type": "UnityEngine.Light"
+                },
+                {
+                    "type": "UnityEngine.Rendering.Universal.UniversalAdditionalLightData"
+                }
+            ],
+            "children": []
+        },
+        {
+            "name": "Player_Reference",
+            "activeSelf": true,
+            "path": "Player_Reference",
+            "transform": {
+                "localPosition": [
+                    0.0,
+                    1.0,
+                    0.0
+                ],
+                "localRotationEuler": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "localScale": [
+                    1.0,
+                    2.0,
+                    1.0
+                ]
+            },
+            "components": [
+                {
+                    "type": "UnityEngine.Transform"
+                },
+                {
+                    "type": "UnityEngine.MeshFilter"
+                },
+                {
+                    "type": "UnityEngine.MeshRenderer"
+                },
+                {
+                    "type": "UnityEngine.BoxCollider"
+                }
+            ],
+            "children": []
+        },
+        {
+            "name": "Global Volume",
+            "activeSelf": true,
+            "path": "Global Volume",
+            "transform": {
+                "localPosition": [
+                    69.7020263671875,
+                    51.10625457763672,
+                    96.34190368652344
+                ],
+                "localRotationEuler": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "localScale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "components": [
+                {
+                    "type": "UnityEngine.Transform"
+                },
+                {
+                    "type": "UnityEngine.Rendering.Volume"
+                }
+            ],
+            "children": []
+        }
+    ]
+}
