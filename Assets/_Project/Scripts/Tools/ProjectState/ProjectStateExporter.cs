@@ -73,6 +73,12 @@ public static class ProjectStateExporter
         Debug.Log("Snapshot index updated.");
     }
 
+    [MenuItem("Tools/BladeRift/Project State/Compare Latest Working vs Debug")]
+    public static void CompareLatestSnapshotsMenu()
+    {
+        ProjectStateCompare.CompareLatestSnapshots();
+    }
+
     [MenuItem("Tools/BladeRift/Project State/Open Docs Folder")]
     public static void OpenDocsFolderMenu()
     {
