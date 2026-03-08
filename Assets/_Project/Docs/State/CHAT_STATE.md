@@ -1,8 +1,8 @@
 # CHAT_STATE (Single Source of Truth)
 
 > Bu dosya: “Bugün en son nerede kaldık?” sorusunun tek cevabıdır.
-> Yeni sohbete başlarken referans alınır.
-> Kural: Varsayım yok. Debug/iterasyon sırasında ihtiyaç olduğunda FULL snapshot istenir ve kullanıcı yükler.
+> Yeni sohbete başlarken ilk referans bu dosyadır.
+> Varsayım yapılmaz. Kod, sahne ve debug durumu aşağıdaki kaynaklardan birlikte okunur.
 
 ---
 
@@ -12,176 +12,262 @@
 - Repo: BladeRift-Unity
 - Unity Version: 6000.3.10f1 LTS
 - Template: Universal 3D (URP)
-- Target Platform: Android (mobile-first) *(şimdilik PC üzerinde test ediliyor)*
-- Screen Target: 9:16 (1080x1920)
+- Target Platform: Android (mobile-first)
+- Current Main Test Platform: PC
 - Current Scene: `Prototype_CombatCore`
+- Screen Target: 9:16 (1080x1920)
 
 ---
 
-## 2) Core Decisions (Locked)
+## 2) Core Direction (Locked)
 
 - Perspektif: **First-person**
-- Hareket hissi: **Oyuncu sabit, dünya geriye akar (world comes to you)**
-- Kontrol: **Continuous swipe** (touch + mouse unified)
-- Weakpoint chain: telegraph → execution window (hedef ~2s)
-- Finger lift = chain reset
-- Execution = interrupt (doğru execution sonrası oyuncu “haksız” hit yememeli)
-- Elite/Boss tekte ölmek zorunda değil (heavy damage + stagger)
-- Rage: weakpoint kuralını geçici kaldırır
-- v0.1 hedefi: “paylaşılabilir APK + combat feel ultra”
+- Hareket hissi: **Oyuncu sabit, dünya üstüne akar**
+- Ana tema: **Stylized dungeon combat**
+- Ortam: **3D corridor**
+- Düşman yaklaşımı: **2D billboard / sprite enemy**
+- Combat yaklaşımı: **Swipe-driven weakpoint combat**
+- Ana kural: **Finger lift = chain reset**
+- v0.1 hedefi: **Paylaşılabilir combat prototype / APK**
 
 ---
 
-## 3) Scene Hierarchy (Baseline)
+## 3) Current Working State
 
-Scene root'ları:
-- `GameRoot`
-- `UIRoot` (Canvas)
-- `EventSystem`
-- `Main Camera`
-- `Directional Light`
+### Environment
+- Infinite corridor sistemi çalışıyor.
+- Corridor loop stabilize edildi.
+- Gap / pop / corridor stretching sorunları çözüldü.
+- Ceiling eklendi.
+- Fog eklendi.
+- Torch lights eklendi.
+- Işık loop problemi çözüldü.
+- Koridor akışı ve ışık akışı stabil.
 
-Koridor segmentleri (GameRoot altında):
-- `Corridor_01`
-- `Corridor_02`
-- `Corridor_03` *(varsa / önerilir)*
+### Camera
+- FOV yaklaşık 55
+- Far clip düşürülerek pop hissi azaltıldı / çözüldü
+- Aşırı FOV değerlerinden kaçınılacak
 
-Her segmentin içinde (hepsi segment root’un direct child’ı; Wall altına child yapılmaz):
-- `Floor` (Cube)
-- `Wall_Left` (Cube)
-- `Wall_Right` (Cube)
-- `Ceiling` (Cube)
-- `TorchLight_*` (Point Lights) *(segment root altında)*
+### Input
+- `SwipeInput` sistemi kuruldu.
+- Mouse + touch input okunuyor.
+- Debug text ile şu veriler ekranda görülüyor:
+  - `IsDown`
+  - `DeltaPx`
+  - `DeltaNormalized`
 
----
-
-## 4) Geometry Standard (Prototip)
-
-Amaç: Plane/Cube ölçek karmaşası bitsin; tek ölçü standardı olsun.
-
-Segment uzunluğu: **100** (Z ekseni)
-
-Önerilen standart ölçüler (local):
-- Floor: Scale (6, 0.2, 100)
-- Wall_Left:  Position (-2.9, 1.5, 0), Scale (0.2, 3, 100)
-- Wall_Right: Position ( 2.9, 1.5, 0), Scale (0.2, 3, 100)
-- Ceiling:    Position (0, 3, 0), Scale (6, 0.2, 100)
+### Combat
+- `CombatDirector` iskeleti oluşturuldu.
+- Combat state mantığı başlatıldı.
+- Finger lift = chain reset kuralı korunuyor.
+- Henüz gerçek combat flow tamamlanmadı.
 
 ---
 
-## 5) Camera (Critical)
+## 4) Current Technical Architecture
 
-- FOV: ~55 (40–60 bandında kal)
-- Near: 0.1
-- Far: **~140**  ✅ (pop / “koridor uzadı” hissini bitiren ana ayar)
-- Not: FOV yanlışlıkla çok yükselirse (örn 146) ciddi distorsiyon ve “V gibi duvar” hissi yapar.
+### Working Gameplay Stack
+- 3D corridor environment
+- 2D billboard enemy yaklaşımı
+- Swipe input
+- CombatDirector
+- Weakpoint system (henüz placeholder aşamasında)
+- Debug snapshot workflow
+- GitHub source-of-truth workflow
 
----
+### Selected Enemy Direction
+- Düşmanlar gerçek 3D karakter olmak zorunda değil.
+- Seçilen yaklaşım:
+  - 3D corridor
+  - 2D sprite/billboard enemy
+  - yaklaşırken scale büyümesi
+  - stylized okunabilir combat
 
-## 6) Infinite Corridor Loop (Current Working State)
-
-Durum: ✅ Stabil / Confirmed
-
-- Segment hizası bounds üzerinden düzgün.
-- “Gap/boşluk” problemi çözüldü.
-- Speed 50 testinde pop hissi yok (kamera Far ayarı sayesinde).
-
-Loop script:
-- `CorridorLoop.cs` (GameRoot üstünde)
-- segments list: Corridor_01/02/(03)
-- recycleBehind: ~20 (stabil test edildi)
-- speed: normal test 6; stres testi 50
+Bu karar özellikle üretim hızını, okunabilirliği ve solo dev sürdürülebilirliğini artırmak için alındı.
 
 ---
 
-## 7) Atmosphere: Fog + Ceiling (DONE)
+## 5) Folder / Project Structure (Current Standard)
 
-Fog (klasik RenderSettings/Lighting üzerinden):
-- Mode: Linear
-- Start: **5**
-- End: **120**
-- Color: #1B2430 (soğuk dungeon önerisi)
+Unity project root repo root’tadır.
 
-Ceiling:
-- Her segmentte mevcut (Cube)
-- Dungeon hissi + loop maskelenmesi sağlar.
+Ana oyun içeriği şu yapı altında tutulur:
 
-URP Volume Override’da Fog görünmedi; klasik fog ile devam edildi (şimdilik yeterli).
+- `Assets/_Project/Art`
+- `Assets/_Project/Audio`
+- `Assets/_Project/Docs`
+- `Assets/_Project/Prefabs`
+- `Assets/_Project/Scenes`
+- `Assets/_Project/ScriptableObjects`
+- `Assets/_Project/Scripts`
+- `Assets/_Project/Settings`
+- `Assets/_Project/UI`
+- `Assets/_Project/VFX`
 
----
+Docs yapısı:
 
-## 8) Lighting: Torch Lights (DONE + NOTE)
-
-Durum: ✅ İyi çalışıyor, loop sırasında “ışık kayboluyor” sorunu düzeltildi.
-
-TorchLight’lar:
-- Parent: Segment root (Corridor_01/02/03) ✅
-- Tip: Point Light, Realtime
-- Öneri değerler:
-  - Intensity: ~1.6–2.0
-  - Range: ~18
-  - Color: #FFB36A
-  - Shadows: performans için sınırlı sayıda açık tutulabilir
-
-Önemli bug & çözüm:
-- Segment sonuna çok yakın eklenen “4. ışıklar” (Z=95 civarı) kamera daha arkaya geçmeden recycle olunca “yakınlaşıp kayboluyor” gibi hissediyordu.
-- Çözüm: 4. ışıkları devre dışı bırakıldı (veya ileride Z=85 gibi daha erkene çekilebilir).
-
-Not:
-- URP’de “Additional Lights Per Object Limit” ayarı denenmişti ancak kök sebep ışıkların recycle timing’i idi.
+- `Assets/_Project/Docs/State`
+- `Assets/_Project/Docs/Design`
+- `Assets/_Project/Docs/Architecture`
+- `Assets/_Project/Docs/Snapshots/Working`
+- `Assets/_Project/Docs/Snapshots/Debug`
+- `Assets/_Project/Docs/Snapshots/Archive`
 
 ---
 
-## 9) Snapshot Workflow (MANDATORY for Debug)
+## 6) Source of Truth Rules (Critical)
 
-Kullanıcı Unity bilmiyor; tutorial yerine birlikte proje geliştirerek öğreniyor.
-Bu nedenle “varsayım” yapılmaz; gerektiğinde snapshot alınır.
+### Code
+- **GitHub repo is source of truth for pushed code**
+- Kullanıcı her anlamlı kod değişikliğinden sonra commit + push yapar
+- Asistan mümkün olduğunda `.cs` dosyalarını kullanıcıdan istemez
+- Kod inceleme gerekiyorsa önce GitHub’daki güncel repo kullanılır
 
-Snapshot tool:
-- Script: `Assets/Scripts/Tools/SceneSnapshotExporter.cs`
-- Menü: `Tools/BladeRift/Export FULL Snapshot (Scene+Project+Code)`
-- Çıktı: `Assets/Docs/Snapshots/BladeRift_FULL_<SceneName>_<timestamp>.json`
+### Scene / Runtime / Debug State
+- **FULL snapshot is source of truth for scene/runtime state**
+- Snapshot yalnızca gerektiğinde istenir
+- Snapshot özellikle şu durumlarda gerekir:
+  - scene hierarchy
+  - inspector değerleri
+  - transform / prefab / runtime state
+  - Unity tarafında kod dışı problemler
 
-Kural:
-- Debug anında asistan “FULL snapshot at” der.
-- Kullanıcı json’u sohbet’e yükler.
-- Eğer exporter/.cs dosyası unutulursa kullanıcıdan yeniden istenir.
-
----
-
-## 10) What Is Working (Confirmed)
-
-- `Prototype_CombatCore` sahnesi var.
-- 9:16 oran set.
-- Infinite corridor akıyor ve stabil.
-- Camera FOV/Far ayarıyla pop/jump hissi çözüldü.
-- Ceiling + Fog ile dungeon atmosferi geldi.
-- Torch lighting stabil (4. ışıklar devre dışı).
+### Human-readable State
+- **CHAT_STATE is interpreted project truth**
+- `TODO_TR.md`, `DEBUG_JOURNAL.md`, `GAME_CONCEPT_TR.md`, `GAME_RULES_TR.md`, `ARCHITECTURE_TR.md`, `README.md`
+  gerektiğinde birlikte değerlendirilir
 
 ---
 
-## 11) Known Issues (Open)
+## 7) BladeRift Workflow (Locked)
 
-- Şu an “görsel stabilizasyon” tamamlandı.
-- Açık kritik issue yok.
+Kullanıcı şu cümleyi söylediğinde:
+
+**“hey zibidi, bladerift önbelleğini güncelle”**
+
+şu varsayılır:
+
+1. Son kod GitHub’a pushlandı
+2. Kullanıcı son dump’ı paylaşacaktır
+3. Dump’ın çalışma durumu kullanıcı tarafından belirtilecektir:
+   - working state
+   - debug state
+4. CHAT_STATE ve gerekirse TODO / diğer markdownlar birlikte değerlendirilir
+5. Proje hafızası yeni duruma göre hizalanır
+
+### Default Rule
+- Kod için önce GitHub’a bak
+- Scene/debug için gerekirse snapshot iste
+- Aynı şeyi tekrar tekrar deneme
+- Başarısız debug yollarını `DEBUG_JOURNAL.md` veya state içinde kaydet
 
 ---
 
-## 12) Next Targets (Next Session)
+## 8) ProjectState Tool (Current)
 
-Combat’a giriş:
+Tool location:
+- `Assets/_Project/Scripts/Tools/ProjectState/ProjectStateExporter.cs`
 
-1) SwipeInput (touch + mouse unified) — continuous swipe
-2) Weakpoint overlay UI (placeholder)
-3) CombatDirector (flow: telegraph → window → success/fail)
-4) Enemy placeholder prefab + health/damage
-5) Hit feedback (hit stop / flash) + minimal VFX/SFX
+Menu:
+- `Tools > BladeRift > Project State > Export WORKING Snapshot`
+- `Tools > BladeRift > Project State > Export DEBUG Snapshot`
+- `Tools > BladeRift > Project State > Cleanup Snapshots`
+- `Tools > BladeRift > Project State > Append DEBUG_JOURNAL Entry`
+- `Tools > BladeRift > Project State > Open Docs Folder`
+
+Output paths:
+- `Assets/_Project/Docs/Snapshots/Working`
+- `Assets/_Project/Docs/Snapshots/Debug`
+- `Assets/_Project/Docs/Snapshots/Archive`
+
+State files:
+- `Assets/_Project/Docs/State/CHAT_STATE.md`
+- `Assets/_Project/Docs/State/DEBUG_JOURNAL.md`
 
 ---
 
-## 13) Commit Hygiene Notes
+## 9) Main Pain Points Learned So Far
 
-- Değişikliklerden sonra:
-  - Scene kaydet (Ctrl+S)
-  - FULL snapshot export al (istersen commit öncesi arşiv)
-- Tools klasörü ve exporter scripti projede kalıcı olmalı.
+Projenin en çok vakit kaybettiren tarafları:
+
+1. Kod gerçeği ile Unity scene gerçeğinin farklı olması
+2. Aynı bug için tekrar tekrar kör denemeler yapılması
+3. Yeni sohbette aynı bağlamda olup olmadığımızdan emin olamama
+4. Eski debug denemelerinin yorumlanmış bilgiye dönüşmemesi
+5. Snapshot’ların birikip gürültü oluşturması
+
+Bu yüzden mevcut sistem:
+- GitHub + Snapshot + ChatState + DebugJournal
+dörtlüsü üzerine kurulmuştur.
+
+---
+
+## 10) Documents Reading Priority
+
+Yeni sohbet / context refresh sırasında öncelik sırası:
+
+1. `CHAT_STATE.md`
+2. GitHub’daki latest pushed code
+3. latest FULL snapshot (varsa / gerekirse)
+4. `TODO_TR.md`
+5. `DEBUG_JOURNAL.md`
+
+Tasarım kararı gerekiyorsa:
+6. `GAME_CONCEPT_TR.md`
+7. `GAME_RULES_TR.md`
+8. `ARCHITECTURE_TR.md`
+9. `README.md`
+
+---
+
+## 11) Current Next Step
+
+Şu anda sıradaki ana milestone:
+
+### Swipe → Attack Direction
+Yani:
+- `SwipeInput` verisini
+- `Left / Right / Up / Down`
+yönlerine çevirmek
+
+Planlanan script:
+- `SwipeInterpreter.cs`
+
+Bu script:
+- swipe yönünü hesaplayacak
+- CombatDirector’a yön bilgisi aktaracak
+- ilk gerçek gameplay attack input katmanı olacak
+
+---
+
+## 12) Near-Term Goals
+
+- Swipe direction interpretation
+- CombatDirector ile input bağlantısı
+- Weakpoint placeholder sistemi
+- Enemy placeholder (2D billboard)
+- İlk combat flow prototipi
+
+---
+
+## 13) Long-Term Goals
+
+- güçlü combat hissi
+- stylized dungeon presentation
+- hızlı iteration
+- paylaşılabilir APK
+- debug süresini ciddi biçimde azaltan reusable dev toolset
+
+---
+
+## 14) Notes
+
+- Kullanıcı Unity’yi sıfırdan öğreniyor; her şey adım adım anlatılmalı
+- Tutorial yerine proje geliştirerek öğrenme yaklaşımı kullanılıyor
+- Gereksiz debug döngülerinden kaçınılmalı
+- Varsayım yerine mümkün olduğunca:
+  - GitHub code
+  - latest snapshot
+  - CHAT_STATE
+üçlüsüne dayanılmalı
