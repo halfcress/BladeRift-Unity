@@ -1,4 +1,4 @@
-using System;
+ï»¿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
@@ -243,8 +243,8 @@ $@"
 - Commit message: {(string.IsNullOrEmpty(headCommitMessage) ? "unknown" : headCommitMessage)}
 
 ### Attempts
-- [ ] Denenen þey 1
-- [ ] Denenen þey 2
+- [ ] Denenen sey 1
+- [ ] Denenen sey 2
 
 ### Result
 - [ ] Fail
@@ -252,7 +252,7 @@ $@"
 - [ ] Success
 
 ### Decision
-- [ ] Sonraki adým
+- [ ] Sonraki adim
 ";
 
         File.AppendAllText(DebugJournalPath, entry, Encoding.UTF8);
@@ -260,6 +260,14 @@ $@"
 
         Debug.Log($"DEBUG_JOURNAL entry appended: {DebugJournalPath}");
         EditorUtility.RevealInFinder(DebugJournalPath);
+    }
+
+    [MenuItem("Tools/BladeRift/Project State/Update Snapshot Index")]
+    public static void UpdateSnapshotIndexMenu()
+    {
+        UpdateSnapshotIndex();
+        AssetDatabase.Refresh();
+        Debug.Log("Snapshot index updated.");
     }
 
     [MenuItem("Tools/BladeRift/Project State/Open Docs Folder")]
@@ -295,6 +303,14 @@ $@"
         full.scene.scenePath = scene.path;
 
         var roots = scene.GetRootGameObjects();
+
+        full.meta.rootObjectCount = roots.Length;
+        full.meta.totalGameObjectCount = CountAllSceneObjects(scene);
+
+        full.meta.headCommitShort = SafeGit("rev-parse --short HEAD");
+        full.meta.headCommitFull = SafeGit("rev-parse HEAD");
+        full.meta.headCommitMessage = SafeGit("log -1 --pretty=%s");
+
         foreach (var root in roots)
         {
             full.scene.roots.Add(SerializeGameObjectRecursive(root, root.name));
@@ -316,6 +332,8 @@ $@"
 
         string json = JsonConvert.SerializeObject(full, settings);
         File.WriteAllText(fullPath, json, Encoding.UTF8);
+
+        UpdateSnapshotIndex();
 
         AssetDatabase.Refresh();
         Debug.Log($"{kind} snapshot exported: {fullPath}");
@@ -340,6 +358,7 @@ $@"
         }
 
         EnsureDebugJournalExists();
+        EnsureSnapshotIndexExists();
     }
 
     private static void EnsureDebugJournalExists()
@@ -349,8 +368,8 @@ $@"
             File.WriteAllText(DebugJournalPath,
 @"# DEBUG_JOURNAL
 
-> Bu dosya debug denemelerini, baþarýsýz yollarý ve çýkarýmlarý tutar.
-> Amaç: Ayný þeyi tekrar tekrar denememek.
+> Bu dosya debug denemelerini, basarisiz yollari ve cikarimlari tutar.
+> Amac: Ayni seyi tekrar tekrar denememek.
 
 ", Encoding.UTF8);
         }
@@ -810,7 +829,7 @@ $@"
 ## {DateTime.Now:yyyy-MM-dd HH:mm:ss} - Auto DEBUG Snapshot
 
 ### Problem
-- [Bu snapshot neden alýndý, sonra doldur]
+- [Bu snapshot neden alindi, sonra doldur]
 
 ### Context
 - Snapshot file: {Path.GetFileName(snapshotPath)}
@@ -822,7 +841,7 @@ $@"
 - Latest WORKING snapshot: {(string.IsNullOrEmpty(latestWorking) ? "none" : Path.GetFileName(latestWorking))}
 
 ### Attempts
-- [ ] Denenen þey 1
+- [ ] Denenen sey 1
 
 ### Result
 - [ ] Fail
@@ -830,7 +849,7 @@ $@"
 - [ ] Success
 
 ### Decision
-- [ ] Sonraki adým
+- [ ] Sonraki adim
 ";
 
         File.AppendAllText(DebugJournalPath, entry, Encoding.UTF8);
@@ -843,7 +862,7 @@ $@"
             File.WriteAllText(SnapshotIndexPath,
 @"# SNAPSHOT_INDEX
 
-> Bu dosya mevcut working/debug snapshot dosyalarýnýn hýzlý indeksidir.
+> Bu dosya mevcut working/debug snapshot dosyalarinin hizli indeksidir.
 
 ", Encoding.UTF8);
         }
@@ -856,9 +875,9 @@ $@"
         var sb = new StringBuilder();
         sb.AppendLine("# SNAPSHOT_INDEX");
         sb.AppendLine();
-        sb.AppendLine("> Bu dosya mevcut working/debug snapshot dosyalarýnýn hýzlý indeksidir.");
+        sb.AppendLine("> Bu dosya mevcut working/debug snapshot dosyalarinin hizli indeksidir.");
         sb.AppendLine();
-        sb.AppendLine($"Güncelleme zamaný: {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
+        sb.AppendLine($"Guncelleme zamani: {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
         sb.AppendLine();
 
         WriteSnapshotSection(sb, "Working", WorkingRoot);
