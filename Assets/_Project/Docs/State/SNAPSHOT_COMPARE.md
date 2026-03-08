@@ -1,6 +1,6 @@
 ﻿# SNAPSHOT_COMPARE
 
-Generated: 2026-03-08 21:35:50
+Generated: 2026-03-08 21:52:56
 
 Working Snapshot:
 - BladeRift_WORKING_Prototype_CombatCore_20260308_213229.json
@@ -8,17 +8,41 @@ Working Snapshot:
 Debug Snapshot:
 - BladeRift_DEBUG_Prototype_CombatCore_20260308_213542.json
 
-## Meta Changes
+---
+
+## OBJECTS ADDED
+None.
+
+---
+
+## OBJECTS REMOVED
+None.
+
+---
+
+## OBJECT STATE CHANGES
 No changes.
 
-## Missing / Added Root Objects
+---
+
+## TRANSFORM CHANGES
 No changes.
 
-## Changed Component Fields
-- [Main Camera] Camera.Camera.fieldOfView: 55 -> 60
+---
 
-## Summary
-- Meta differences:            0
-- Root object differences:     0
-- Component/field differences: 1
+## COMPONENT FIELD CHANGES
+Object: Main Camera
+  Component: Camera
+    Camera.fieldOfView
+    55 -> 60
+
+
+---
+
+## SUMMARY
+Objects added:          0
+Objects removed:        0
+Object state changes:   0
+Transform changes:      0
+Component field changes: 1
 

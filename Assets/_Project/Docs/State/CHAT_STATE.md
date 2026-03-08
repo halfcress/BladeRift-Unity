@@ -73,14 +73,14 @@
 - Swipe input
 - CombatDirector
 - Weakpoint system (henüz placeholder aşamasında)
-- Debug snapshot workflow
 - GitHub source-of-truth workflow
+- Snapshot / compare / debug workflow
 
 ### Selected Enemy Direction
 - Düşmanlar gerçek 3D karakter olmak zorunda değil.
 - Seçilen yaklaşım:
   - 3D corridor
-  - 2D sprite/billboard enemy
+  - 2D sprite / billboard enemy
   - yaklaşırken scale büyümesi
   - stylized okunabilir combat
 
@@ -122,7 +122,8 @@ Docs yapısı:
 - **GitHub repo is source of truth for pushed code**
 - Kullanıcı her anlamlı kod değişikliğinden sonra commit + push yapar
 - Asistan mümkün olduğunda `.cs` dosyalarını kullanıcıdan istemez
-- Kod inceleme gerekiyorsa önce GitHub’daki güncel repo kullanılır
+- Kod inceleme gerektiğinde önce GitHub’daki güncel repo kullanılır
+- Kod pushlandıysa ayrıca `.cs` dosyası göndermek normalde gerekmez
 
 ### Scene / Runtime / Debug State
 - **FULL snapshot is source of truth for scene/runtime state**
@@ -164,26 +165,50 @@ Kullanıcı şu cümleyi söylediğinde:
 
 ---
 
-## 8) ProjectState Tool (Current)
+## 8) ProjectState DevTool (Current)
 
-Tool location:
-- `Assets/_Project/Scripts/Tools/ProjectState/ProjectStateExporter.cs`
+Tool folder:
+- `Assets/_Project/Scripts/Tools/ProjectState/`
+
+Main files:
+- `ProjectStateExporter.cs`
+- `ProjectStatePaths.cs`
+- `ProjectStateModels.cs`
+- `ProjectStateGit.cs`
+- `ProjectStateIndex.cs`
+- `ProjectStateJournal.cs`
+- `ProjectStateSerializer.cs`
+- `ProjectStateCompare.cs`
 
 Menu:
 - `Tools > BladeRift > Project State > Export WORKING Snapshot`
 - `Tools > BladeRift > Project State > Export DEBUG Snapshot`
 - `Tools > BladeRift > Project State > Cleanup Snapshots`
 - `Tools > BladeRift > Project State > Append DEBUG_JOURNAL Entry`
+- `Tools > BladeRift > Project State > Update Snapshot Index`
 - `Tools > BladeRift > Project State > Open Docs Folder`
+- `Tools > BladeRift > Project State > Compare Latest Working vs Debug`
 
-Output paths:
+State outputs:
+- `Assets/_Project/Docs/State/CHAT_STATE.md`
+- `Assets/_Project/Docs/State/DEBUG_JOURNAL.md`
+- `Assets/_Project/Docs/State/SNAPSHOT_INDEX.md`
+- `Assets/_Project/Docs/State/SNAPSHOT_COMPARE.md`
+
+Snapshot outputs:
 - `Assets/_Project/Docs/Snapshots/Working`
 - `Assets/_Project/Docs/Snapshots/Debug`
 - `Assets/_Project/Docs/Snapshots/Archive`
 
-State files:
-- `Assets/_Project/Docs/State/CHAT_STATE.md`
-- `Assets/_Project/Docs/State/DEBUG_JOURNAL.md`
+### Current DevTool Capabilities
+- Working snapshot export
+- Debug snapshot export
+- Snapshot archive / cleanup
+- Snapshot index generation
+- Manual debug journal append
+- Snapshot compare report
+- Working vs Debug diff reporting
+- Git metadata capture inside snapshot
 
 ---
 
@@ -198,8 +223,8 @@ Projenin en çok vakit kaybettiren tarafları:
 5. Snapshot’ların birikip gürültü oluşturması
 
 Bu yüzden mevcut sistem:
-- GitHub + Snapshot + ChatState + DebugJournal
-dörtlüsü üzerine kurulmuştur.
+- GitHub + Snapshot + ChatState + DebugJournal + SnapshotCompare
+üzerine kurulmuştur.
 
 ---
 
@@ -212,18 +237,19 @@ Yeni sohbet / context refresh sırasında öncelik sırası:
 3. latest FULL snapshot (varsa / gerekirse)
 4. `TODO_TR.md`
 5. `DEBUG_JOURNAL.md`
+6. `SNAPSHOT_COMPARE.md` (özellikle debug akışında)
 
 Tasarım kararı gerekiyorsa:
-6. `GAME_CONCEPT_TR.md`
-7. `GAME_RULES_TR.md`
-8. `ARCHITECTURE_TR.md`
-9. `README.md`
+7. `GAME_CONCEPT_TR.md`
+8. `GAME_RULES_TR.md`
+9. `ARCHITECTURE_TR.md`
+10. `README.md`
 
 ---
 
 ## 11) Current Next Step
 
-Şu anda sıradaki ana milestone:
+Şu anda sıradaki ana gameplay milestone:
 
 ### Swipe → Attack Direction
 Yani:
@@ -271,3 +297,4 @@ Bu script:
   - latest snapshot
   - CHAT_STATE
 üçlüsüne dayanılmalı
+- Kod pushlandıysa ayrıca `.cs` dosyası istemek default davranış olmamalı

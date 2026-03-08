@@ -31,11 +31,17 @@ Ana amaç:
 - [x] Mouse + touch input okunuyor
 - [x] Debug text ile input değerleri görüntüleniyor
 - [x] CombatDirector temel iskeleti oluşturuldu
-- [x] ProjectStateExporter v2 kuruldu
-- [x] Working / Debug / Archive snapshot ayrımı oluşturuldu
-- [x] DEBUG_JOURNAL sistemi başlatıldı
 - [x] Repo root temiz Unity yapısına getirildi
 - [x] `_Project` merkezli klasör yapısı oluşturuldu
+- [x] ProjectState DevTool v2 tamamlandı
+- [x] Working / Debug snapshot ayrımı tamamlandı
+- [x] Snapshot index sistemi tamamlandı
+- [x] Debug journal sistemi tamamlandı
+- [x] Snapshot archive / cleanup sistemi tamamlandı
+- [x] ProjectState DevTool v3 compare sistemi tamamlandı
+- [x] Readable snapshot diff raporu (v4) tamamlandı
+- [x] Working vs Debug snapshot compare doğrulandı
+- [x] Camera FOV değişimi compare raporunda doğru yakalandı
 
 ---
 
@@ -55,7 +61,7 @@ Ana amaç:
 
 ### Weakpoint Placeholder
 - [ ] Basit weakpoint placeholder sistemi tasarla
-- [ ] Zayıf nokta görseli için placeholder sprite/indicator ekle
+- [ ] Zayıf nokta görseli için placeholder sprite / indicator ekle
 - [ ] Doğru swipe yönü ile weakpoint eşleşme testini yap
 
 ---
@@ -78,17 +84,19 @@ Ana amaç:
 
 ## Tooling / Workflow
 
-### Debug Tool Improvements
-- [ ] Snapshot cleanup davranışını test et
-- [ ] Working / Debug / Archive politikasını finalize et
-- [ ] `DEBUG_JOURNAL.md` kullanım standardını belirle
-- [ ] Git commit hash bilgisini journal entry’ye ekleme opsiyonunu değerlendir
+### DevTool Next Ideas
+- [ ] Auto DEBUG snapshot → auto journal entry bağlantısını aktif et
+- [ ] Snapshot compare summary polish
+- [ ] Compare raporunda `Camera.Camera.fieldOfView` gibi tekrarları temizle
+- [ ] Snapshot compare için daha iyi section counters
+- [ ] Snapshot diff viewer editor window fikrini değerlendir
 - [ ] Oto-MD updater V1 tasarımı yap
 
 ### Docs
 - [ ] `CHAT_STATE.md` düzenli güncelle
 - [ ] `DEBUG_JOURNAL.md` aktif kullan
-- [ ] `README.md` repo root için sadeleştir / güncelle
+- [ ] `SNAPSHOT_COMPARE.md` debug akışında referans kullan
+- [ ] `README.md` repo root için sade tut
 - [ ] Design / Architecture / State ayrımını koru
 
 ---
@@ -109,7 +117,9 @@ Ana amaç:
 
 - Kod tarafında kaynak: **GitHub pushed state**
 - Scene/debug kaynak: **latest snapshot**
+- Snapshot compare artık aktif bir debug aracı
 - Aynı bug için aynı denemeleri tekrar etmemek amacıyla:
   - `DEBUG_JOURNAL.md`
+  - `SNAPSHOT_COMPARE.md`
   - `CHAT_STATE.md`
 düzenli kullanılmalı
