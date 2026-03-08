@@ -23,7 +23,7 @@ public class CorridorLoop : MonoBehaviour
     private void Start()
     {
         if (reference == null && Camera.main != null)
-            reference = Camera.main.transform;
+            reference = Camera.main .transform;
 
         // Baþlangýçta segmentleri gerçek uçlarýna göre arka arkaya diz
         AlignSegmentsByBounds();
