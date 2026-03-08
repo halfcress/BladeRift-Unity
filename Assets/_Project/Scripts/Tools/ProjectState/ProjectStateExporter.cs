@@ -33,6 +33,7 @@ public static class ProjectStateExporter
 
     private static string ChatStatePath => Path.Combine(StateRoot, "CHAT_STATE.md");
     private static string DebugJournalPath => Path.Combine(StateRoot, "DEBUG_JOURNAL.md");
+    private static string SnapshotIndexPath => Path.Combine(StateRoot, "SNAPSHOT_INDEX.md");
 
     // -----------------------------
     // DATA MODELS
@@ -211,6 +212,8 @@ public static class ProjectStateExporter
 
         AssetDatabase.Refresh();
         Debug.Log("Snapshot cleanup completed.");
+
+        UpdateSnapshotIndex();
     }
 
     [MenuItem("Tools/BladeRift/Project State/Append DEBUG_JOURNAL Entry")]
@@ -222,8 +225,11 @@ public static class ProjectStateExporter
         string latestDebug = GetLatestSnapshotFile(DebugRoot);
         string latestWorking = GetLatestSnapshotFile(WorkingRoot);
 
+        string headCommitShort = SafeGit("rev-parse --short HEAD");
+        string headCommitMessage = SafeGit("log -1 --pretty=%s");
+
         string entry =
-$@"
+$@" 
 
 ## {DateTime.Now:yyyy-MM-dd HH:mm:ss} - Debug Session
 
@@ -233,6 +239,8 @@ $@"
 ### Context
 - Latest DEBUG snapshot: {(string.IsNullOrEmpty(latestDebug) ? "none" : Path.GetFileName(latestDebug))}
 - Latest WORKING snapshot: {(string.IsNullOrEmpty(latestWorking) ? "none" : Path.GetFileName(latestWorking))}
+- Latest commit: {(string.IsNullOrEmpty(headCommitShort) ? "unknown" : headCommitShort)}
+- Commit message: {(string.IsNullOrEmpty(headCommitMessage) ? "unknown" : headCommitMessage)}
 
 ### Attempts
 - [ ] Denenen þey 1
