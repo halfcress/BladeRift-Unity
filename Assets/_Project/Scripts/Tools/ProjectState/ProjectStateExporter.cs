@@ -753,5 +753,151 @@ $@"
         }
     }
 
+    private static string SafeGit(string args)
+    {
+        try
+        {
+            string projectRoot = Directory.GetParent(Application.dataPath).FullName;
+            using (var process = new System.Diagnostics.Process())
+            {
+                process.StartInfo.FileName = "git";
+                process.StartInfo.Arguments = args;
+                process.StartInfo.WorkingDirectory = projectRoot;
+                process.StartInfo.CreateNoWindow = true;
+                process.StartInfo.UseShellExecute = false;
+                process.StartInfo.RedirectStandardOutput = true;
+                process.StartInfo.RedirectStandardError = true;
+
+                process.Start();
+                string output = process.StandardOutput.ReadToEnd().Trim();
+                process.StandardError.ReadToEnd();
+                process.WaitForExit();
+
+                return process.ExitCode == 0 ? output : "";
+            }
+        }
+        catch
+        {
+            return "";
+        }
+    }
+
+    private static int CountAllSceneObjects(UnityEngine.SceneManagement.Scene scene)
+    {
+        int count = 0;
+        foreach (var root in scene.GetRootGameObjects())
+            count += CountRecursive(root.transform);
+        return count;
+    }
+
+    private static int CountRecursive(Transform t)
+    {
+        int count = 1;
+        for (int i = 0; i < t.childCount; i++)
+            count += CountRecursive(t.GetChild(i));
+        return count;
+    }
+
+    private static void AppendAutomaticDebugJournalEntry(string snapshotPath, FullSnapshot full)
+    {
+        EnsureDebugJournalExists();
+
+        string latestWorking = GetLatestSnapshotFile(WorkingRoot);
+
+        string entry =
+$@" 
+
+## {DateTime.Now:yyyy-MM-dd HH:mm:ss} - Auto DEBUG Snapshot
+
+### Problem
+- [Bu snapshot neden alýndý, sonra doldur]
+
+### Context
+- Snapshot file: {Path.GetFileName(snapshotPath)}
+- Scene: {full.meta.activeSceneName}
+- Root object count: {full.meta.rootObjectCount}
+- Total object count: {full.meta.totalGameObjectCount}
+- Latest commit: {(string.IsNullOrEmpty(full.meta.headCommitShort) ? "unknown" : full.meta.headCommitShort)}
+- Commit message: {(string.IsNullOrEmpty(full.meta.headCommitMessage) ? "unknown" : full.meta.headCommitMessage)}
+- Latest WORKING snapshot: {(string.IsNullOrEmpty(latestWorking) ? "none" : Path.GetFileName(latestWorking))}
+
+### Attempts
+- [ ] Denenen þey 1
+
+### Result
+- [ ] Fail
+- [ ] Partial
+- [ ] Success
+
+### Decision
+- [ ] Sonraki adým
+";
+
+        File.AppendAllText(DebugJournalPath, entry, Encoding.UTF8);
+    }
+
+    private static void EnsureSnapshotIndexExists()
+    {
+        if (!File.Exists(SnapshotIndexPath))
+        {
+            File.WriteAllText(SnapshotIndexPath,
+@"# SNAPSHOT_INDEX
+
+> Bu dosya mevcut working/debug snapshot dosyalarýnýn hýzlý indeksidir.
+
+", Encoding.UTF8);
+        }
+    }
+
+    private static void UpdateSnapshotIndex()
+    {
+        EnsureFolders();
+
+        var sb = new StringBuilder();
+        sb.AppendLine("# SNAPSHOT_INDEX");
+        sb.AppendLine();
+        sb.AppendLine("> Bu dosya mevcut working/debug snapshot dosyalarýnýn hýzlý indeksidir.");
+        sb.AppendLine();
+        sb.AppendLine($"Güncelleme zamaný: {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
+        sb.AppendLine();
+
+        WriteSnapshotSection(sb, "Working", WorkingRoot);
+        WriteSnapshotSection(sb, "Debug", DebugRoot);
+        WriteSnapshotSection(sb, "Archive/Working", Path.Combine(ArchiveRoot, "Working"));
+        WriteSnapshotSection(sb, "Archive/Debug", Path.Combine(ArchiveRoot, "Debug"));
+
+        File.WriteAllText(SnapshotIndexPath, sb.ToString(), Encoding.UTF8);
+    }
+
+    private static void WriteSnapshotSection(StringBuilder sb, string title, string folder)
+    {
+        sb.AppendLine($"## {title}");
+
+        if (!Directory.Exists(folder))
+        {
+            sb.AppendLine("- none");
+            sb.AppendLine();
+            return;
+        }
+
+        var files = Directory.GetFiles(folder, "*.json", SearchOption.TopDirectoryOnly);
+        if (files.Length == 0)
+        {
+            sb.AppendLine("- none");
+            sb.AppendLine();
+            return;
+        }
+
+        Array.Sort(files, (a, b) => File.GetLastWriteTimeUtc(b).CompareTo(File.GetLastWriteTimeUtc(a)));
+
+        foreach (var file in files)
+        {
+            var fi = new FileInfo(file);
+            sb.AppendLine($"- {fi.Name} | {fi.LastWriteTime:yyyy-MM-dd HH:mm:ss} | {(fi.Length / 1024f):0.0} KB");
+        }
+
+        sb.AppendLine();
+    }
+
 #endif
 }
