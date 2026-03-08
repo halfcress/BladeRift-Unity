@@ -55,6 +55,11 @@ public static class ProjectStateExporter
         public string platform;
         public string activeSceneName;
         public string note;
+        public int rootObjectCount;
+        public int totalGameObjectCount;
+        public string headCommitShort;
+        public string headCommitFull;
+        public string headCommitMessage;
     }
 
     [Serializable]
