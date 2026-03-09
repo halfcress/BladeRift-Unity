@@ -62,6 +62,11 @@ public class WeakpointCombatTest : MonoBehaviour
         }
     }
 
+    private void Update()
+    {
+        ApplyCurrentDirection();  // Her frame yön deðiþikliði yapýlýr
+    }
+
     private WeakpointDirection ConvertSwipeDirection(SwipeDirection swipeDirection)
     {
         switch (swipeDirection)
