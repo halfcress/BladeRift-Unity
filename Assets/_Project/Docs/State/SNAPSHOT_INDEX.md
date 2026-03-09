@@ -2,7 +2,7 @@
 
 > Bu dosya mevcut working/debug snapshot dosyalarinin hizli indeksidir.
 
-Guncelleme zamani: 2026-03-09 16:15:49
+Guncelleme zamani: 2026-03-09 16:26:54
 
 ## Working
 - BladeRift_WORKING_Prototype_CombatCore_20260309_161549.json | 2026-03-09 16:15:49 | 420,7 KB
@@ -13,6 +13,8 @@ Guncelleme zamani: 2026-03-09 16:15:49
 - BladeRift_WORKING_Prototype_CombatCore_20260308_200529.json | 2026-03-08 20:05:29 | 344,0 KB
 
 ## Debug
+- BladeRift_DEBUG_Prototype_CombatCore_20260309_162654.json | 2026-03-09 16:26:54 | 432,8 KB
+- BladeRift_DEBUG_Prototype_CombatCore_20260309_162336.json | 2026-03-09 16:23:36 | 433,4 KB
 - BladeRift_AUTO_Prototype_CombatCore_20260309_161443.json | 2026-03-09 16:14:43 | 420,7 KB
 - BladeRift_AUTO_Prototype_CombatCore_20260309_161434.json | 2026-03-09 16:14:34 | 420,7 KB
 - BladeRift_DEBUG_Prototype_CombatCore_20260309_155721.json | 2026-03-09 15:57:21 | 408,6 KB
