@@ -76,15 +76,51 @@ Ana amaç:
 - [ ] Doğru swipe yönü ile weakpoint eşleşme testini yap
 - [ ] Zig-zag weakpoint pattern’lerini 4 yön sistemiyle dene
 
+### Prototype Layer (Temporary)
+
+Aşağıdaki scriptler yalnızca prototip doğrulaması içindir:
+
+- `WeakpointDirectionView`
+- `WeakpointCombatTest`
+
+Bu katman gerçek combat sistemi değildir.
+
+Amaç:
+
+Swipe yönlerinin  
+weakpoint yönleri ile eşleşmesini hızlı test etmektir.
+
 ---
 
 ## Bir Sonraki Katman
+
+### Weakpoint Overlay System (Next Major Step)
+
+- [ ] `WeakpointOverlayController` oluştur
+- [ ] Weakpoint'leri UI overlay olarak üret
+- [ ] Enemy world position → UI anchor dönüşümü kur
+- [ ] Weakpoint marker sistemini UI tarafına taşı
 
 ### Combat Flow
 - [ ] Telegraph → execution window akışını başlat
 - [ ] Success / fail durumlarını CombatDirector içine oturt
 - [ ] Chain sequence mantığını gerçek combat akışında test et
 - [ ] Combat state geçişlerini netleştir
+
+### Weakpoint Sequence
+
+- [ ] `WeakpointSequence` script oluştur
+- [ ] Telegraph phase başlat
+- [ ] Weakpoint'leri sırayla aktive et
+- [ ] Tick / timing sistemi kur
+- [ ] Execution window aç
+
+### Combat Hit System
+
+- [ ] CombatDirector içinde aktif weakpoint kontrolü
+- [ ] Swipe direction → weakpoint match
+- [ ] Hit / fail karar sistemi
+- [ ] Finger lift = chain reset doğrulaması
 
 ### Feedback
 - [ ] Basit slash feedback ekle
