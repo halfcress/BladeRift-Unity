@@ -10,22 +10,20 @@ public enum SwipeDirection
 }
 
 /// <summary>
-/// Converts raw SwipeInput data into a single committed attack direction
-/// (Left / Right / Up / Down) per press.
+/// Converts raw SwipeInput data into attack directions.
 ///
-/// Why this works with the current SwipeInput:
-/// - SwipeInput currently uses per-frame delta by default.
-/// - This script accumulates those small deltas over the whole press,
-///   so direction commit is stable and readable.
-/// - Finger lift always resets the chain state for this input layer.
+/// Current model:
+/// - Multiple commits are allowed within a single press.
+/// - After each successful commit, the local segment accumulator resets,
+///   so the next chain step starts fresh.
+/// - Finger / mouse lift resets the whole press state.
+/// - Same-direction recommits are blocked to avoid jitter spam
+///   (Right -> Right from tiny wobble, etc.).
 ///
 /// Optional receiver integration:
-/// - If you assign a CombatDirector (or any MonoBehaviour) to combatReceiver,
-///   this script will SendMessage one of these methods when direction commits:
-///     OnSwipeDirection(SwipeDirection dir)
-///     OnSwipeDirectionCommitted(SwipeDirection dir)
-/// - SendMessage is used intentionally so this file compiles even if the
-///   current CombatDirector API is not finalized yet.
+/// - If combatReceiver is assigned, this component sends:
+///   OnSwipeDirection(SwipeDirection dir)
+///   OnSwipeDirectionCommitted(SwipeDirection dir)
 /// </summary>
 public class SwipeInterpreter : MonoBehaviour
 {
@@ -34,13 +32,13 @@ public class SwipeInterpreter : MonoBehaviour
     [SerializeField] private MonoBehaviour combatReceiver;
 
     [Header("Direction Commit Tuning")]
-    [Tooltip("Total accumulated swipe distance required before a direction is committed.")]
+    [Tooltip("Distance required for each chain segment to commit a direction.")]
     [SerializeField] private float commitDistancePx = 70f;
 
     [Tooltip("How much stronger the dominant axis should be. 1.0 = no bias, 1.2 = 20% stronger.")]
     [SerializeField] private float dominantAxisBias = 1.15f;
 
-    [Tooltip("If false, diagonal/ambiguous swipes are ignored until direction becomes clear enough.")]
+    [Tooltip("If false, diagonal / ambiguous swipes are ignored until direction becomes clear enough.")]
     [SerializeField] private bool allowDominantAxisFallback = true;
 
     [Header("Read-only (Debug)")]
@@ -49,11 +47,13 @@ public class SwipeInterpreter : MonoBehaviour
     [SerializeField] private Vector2 accumulatedDeltaPx;
     [SerializeField] private SwipeDirection currentDirection = SwipeDirection.None;
     [SerializeField] private SwipeDirection lastCommittedDirection = SwipeDirection.None;
+    [SerializeField] private int committedCountThisPress;
 
     public bool HasCommittedThisPress => hasCommittedThisPress;
     public Vector2 AccumulatedDeltaPx => accumulatedDeltaPx;
     public SwipeDirection CurrentDirection => currentDirection;
     public SwipeDirection LastCommittedDirection => lastCommittedDirection;
+    public int CommittedCountThisPress => committedCountThisPress;
 
     private void Reset()
     {
@@ -73,34 +73,14 @@ public class SwipeInterpreter : MonoBehaviour
 
         bool isDown = swipe.IsDown;
 
-        // New press started
         if (isDown && !wasDownLastFrame)
-        {
             BeginPress();
-        }
 
-        // While finger/mouse is down, accumulate movement and try to commit once.
         if (isDown)
-        {
-            accumulatedDeltaPx += swipe.DeltaPx;
+            UpdateHeldPress();
 
-            if (!hasCommittedThisPress)
-            {
-                SwipeDirection preview = EvaluateDirection(accumulatedDeltaPx);
-                currentDirection = preview;
-
-                if (preview != SwipeDirection.None && accumulatedDeltaPx.magnitude >= commitDistancePx)
-                {
-                    CommitDirection(preview);
-                }
-            }
-        }
-
-        // Finger lifted -> reset chain/input state for the next press.
         if (!isDown && wasDownLastFrame)
-        {
             EndPress();
-        }
 
         wasDownLastFrame = isDown;
     }
@@ -110,13 +90,37 @@ public class SwipeInterpreter : MonoBehaviour
         hasCommittedThisPress = false;
         accumulatedDeltaPx = Vector2.zero;
         currentDirection = SwipeDirection.None;
+        lastCommittedDirection = SwipeDirection.None;
+        committedCountThisPress = 0;
+    }
+
+    private void UpdateHeldPress()
+    {
+        accumulatedDeltaPx += swipe.DeltaPx;
+
+        SwipeDirection preview = EvaluateDirection(accumulatedDeltaPx);
+        currentDirection = preview;
+
+        if (preview == SwipeDirection.None)
+            return;
+
+        if (accumulatedDeltaPx.magnitude < commitDistancePx)
+            return;
+
+        // Prevent jitter / wobble from spamming the same direction repeatedly.
+        if (preview == lastCommittedDirection)
+            return;
+
+        CommitDirection(preview);
     }
 
     private void EndPress()
     {
-        hasCommittedThisPress = false;
         accumulatedDeltaPx = Vector2.zero;
         currentDirection = SwipeDirection.None;
+        lastCommittedDirection = SwipeDirection.None;
+        hasCommittedThisPress = false;
+        committedCountThisPress = 0;
     }
 
     private void CommitDirection(SwipeDirection direction)
@@ -124,12 +128,16 @@ public class SwipeInterpreter : MonoBehaviour
         hasCommittedThisPress = true;
         currentDirection = direction;
         lastCommittedDirection = direction;
+        committedCountThisPress++;
 
         if (combatReceiver != null)
         {
             combatReceiver.SendMessage("OnSwipeDirection", direction, SendMessageOptions.DontRequireReceiver);
             combatReceiver.SendMessage("OnSwipeDirectionCommitted", direction, SendMessageOptions.DontRequireReceiver);
         }
+
+        // Start a fresh local segment for the next chain direction.
+        accumulatedDeltaPx = Vector2.zero;
     }
 
     private SwipeDirection EvaluateDirection(Vector2 delta)
@@ -152,10 +160,8 @@ public class SwipeInterpreter : MonoBehaviour
         if (!allowDominantAxisFallback)
             return SwipeDirection.None;
 
-        // Fallback for near-diagonal movement: still pick the stronger axis.
-        if (absX >= absY)
-            return delta.x >= 0f ? SwipeDirection.Right : SwipeDirection.Left;
-
-        return delta.y >= 0f ? SwipeDirection.Up : SwipeDirection.Down;
+        return absX >= absY
+            ? (delta.x >= 0f ? SwipeDirection.Right : SwipeDirection.Left)
+            : (delta.y >= 0f ? SwipeDirection.Up : SwipeDirection.Down);
     }
 }
