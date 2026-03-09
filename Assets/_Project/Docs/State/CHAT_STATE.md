@@ -10,6 +10,7 @@
 
 - Project Name: BladeRift
 - Repo: BladeRift-Unity
+- Repo URL: `https://github.com/halfcress/BladeRift-Unity`
 - Unity Version: 6000.3.10f1 LTS
 - Template: Universal 3D (URP)
 - Target Platform: Android (mobile-first)
@@ -28,6 +29,9 @@
 - Düşman yaklaşımı: **2D billboard / sprite enemy**
 - Combat yaklaşımı: **Swipe-driven weakpoint combat**
 - Ana kural: **Finger lift = chain reset**
+- Combat input yönleri: **4 yön (Left / Right / Up / Down)**
+- Çapraz yönler: **şimdilik yok**
+- Chain mantığı: **tek press içinde multi-commit chain var**
 - v0.1 hedefi: **Paylaşılabilir combat prototype / APK**
 
 ---
@@ -45,9 +49,9 @@
 - Koridor akışı ve ışık akışı stabil.
 
 ### Camera
-- FOV yaklaşık 55
-- Far clip düşürülerek pop hissi azaltıldı / çözüldü
-- Aşırı FOV değerlerinden kaçınılacak
+- Kamera değerleri ve gerçek sahne durumu gerektiğinde latest snapshot’tan okunmalı.
+- Kamera/FOV konusunda markdown yerine snapshot gerçeği esas alınmalı.
+- Aşırı FOV değerlerinden kaçınılacak.
 
 ### Input
 - `SwipeInput` sistemi kuruldu.
@@ -57,11 +61,35 @@
   - `DeltaPx`
   - `DeltaNormalized`
 
+### Swipe Interpretation
+- `SwipeInterpreter.cs` oluşturuldu.
+- İlk tek-commit-per-press yaklaşımı denendi.
+- Daha sonra bu yapı **segment-based chain** mantığına revize edildi.
+- Aynı press içinde çoklu yön commit artık çalışıyor.
+- Yönler:
+  - `Left`
+  - `Right`
+  - `Up`
+  - `Down`
+- Şu an diagonal / 8 yön desteği yok.
+- Aynı press içinde zig-zag chain mantığı hedefleniyor.
+- İlk whole-press accumulator bug’ı tespit edildi ve segment-based yaklaşıma geçildi.
+
+### Debug HUD
+- `SwipeDebugHUD.cs` güncellendi.
+- HUD artık yalnızca raw input değil, interpreter verisini de gösterebiliyor.
+- Debug text üzerinde görülen başlıca alanlar:
+  - `CurrentDir`
+  - `LastCommitted`
+  - `AccumPx`
+  - `CommittedThisPress`
+
 ### Combat
-- `CombatDirector` iskeleti oluşturuldu.
-- Combat state mantığı başlatıldı.
-- Finger lift = chain reset kuralı korunuyor.
-- Henüz gerçek combat flow tamamlanmadı.
+- `Assets/_Project/Scripts/Combat/CombatDirector.cs` oluşturuldu.
+- `CombatDirector` component’i `GameRoot` üzerine eklendi.
+- Şu an minimal receiver iskeleti mevcut.
+- Combat flow henüz tam bağlanmadı.
+- Swipe → CombatDirector bağlantısının sahnede gerçek testine bir sonraki adımda devam edilecek.
 
 ---
 
@@ -69,9 +97,11 @@
 
 ### Working Gameplay Stack
 - 3D corridor environment
-- 2D billboard enemy yaklaşımı
-- Swipe input
+- SwipeInput
+- SwipeInterpreter (segment-based chain)
+- SwipeDebugHUD
 - CombatDirector
+- 2D billboard enemy yaklaşımı
 - Weakpoint system (henüz placeholder aşamasında)
 - GitHub source-of-truth workflow
 - Snapshot / compare / debug workflow
@@ -114,30 +144,48 @@ Docs yapısı:
 - `Assets/_Project/Docs/Snapshots/Debug`
 - `Assets/_Project/Docs/Snapshots/Archive`
 
+### Scripts Folder (Verified Standard)
+Mevcut script klasör yapısı latest snapshot’tan doğrulanarak kullanılmalıdır.
+
+- `Assets/_Project/Scripts/Core`
+- `Assets/_Project/Scripts/Input`
+- `Assets/_Project/Scripts/Combat`
+- `Assets/_Project/Scripts/Tools`
+- `Assets/_Project/Scripts/Tools/ProjectState`
+
+### Script Placement Rule (Critical)
+- Yeni scriptler **mevcut klasör mimarisine uygun** eklenmelidir.
+- Klasör yapısı **tahmin edilmez**.
+- Doğru klasör yolu gerektiğinde **latest snapshot’tan doğrulanır**.
+- `Scripts` altına gelişi güzel dosya atılmaz.
+
 ---
 
 ## 6) Source of Truth Rules (Critical)
 
 ### Code
 - **GitHub repo is source of truth for pushed code**
-- Kullanıcı her anlamlı kod değişikliğinden sonra commit + push yapar
-- Asistan mümkün olduğunda `.cs` dosyalarını kullanıcıdan istemez
-- Kod inceleme gerektiğinde önce GitHub’daki güncel repo kullanılır
-- Kod pushlandıysa ayrıca `.cs` dosyası göndermek normalde gerekmez
+- Default repo URL:
+  - `https://github.com/halfcress/BladeRift-Unity`
+- Kullanıcı her anlamlı kod değişikliğinden sonra commit + push yapar.
+- Aynı repo linki yeniden istenmez.
+- Kod inceleme gerektiğinde önce GitHub’daki güncel repo kullanılır.
+- Kod pushlandıysa ayrıca `.cs` dosyası istemek default davranış olmamalı.
 
 ### Scene / Runtime / Debug State
 - **FULL snapshot is source of truth for scene/runtime state**
-- Snapshot yalnızca gerektiğinde istenir
+- Snapshot yalnızca gerektiğinde istenir.
 - Snapshot özellikle şu durumlarda gerekir:
   - scene hierarchy
   - inspector değerleri
   - transform / prefab / runtime state
   - Unity tarafında kod dışı problemler
+- Snapshot ile doğrulanabilecek bilgi kullanıcıya tekrar kontrol ettirilmez.
 
 ### Human-readable State
 - **CHAT_STATE is interpreted project truth**
 - `TODO_TR.md`, `DEBUG_JOURNAL.md`, `GAME_CONCEPT_TR.md`, `GAME_RULES_TR.md`, `ARCHITECTURE_TR.md`, `README.md`
-  gerektiğinde birlikte değerlendirilir
+  gerektiğinde birlikte değerlendirilir.
 
 ---
 
@@ -162,6 +210,15 @@ Kullanıcı şu cümleyi söylediğinde:
 - Scene/debug için gerekirse snapshot iste
 - Aynı şeyi tekrar tekrar deneme
 - Başarısız debug yollarını `DEBUG_JOURNAL.md` veya state içinde kaydet
+
+### No-Assumption Rule
+- Proje durumu kaynaklardan doğrulanabiliyorsa varsayım yapılmaz.
+- Snapshot veya GitHub’dan edinilebilecek bilgi için kullanıcıya “kontrol et” denmez.
+- Önce kaynaklar okunur, sonra yönlendirme yapılır.
+
+### Large Code Delivery Rule
+- 30 satırı geçen kodlar chat içine düz metin olarak yapıştırılmaz.
+- Bu tür kodlar doğrudan `.cs` dosyası olarak verilir.
 
 ---
 
@@ -221,6 +278,8 @@ Projenin en çok vakit kaybettiren tarafları:
 3. Yeni sohbette aynı bağlamda olup olmadığımızdan emin olamama
 4. Eski debug denemelerinin yorumlanmış bilgiye dönüşmemesi
 5. Snapshot’ların birikip gürültü oluşturması
+6. Mevcut klasör yapısını bozan hızlı ama yanlış script yerleşimleri
+7. Kaynaklardan doğrulanabilecek şeylerde gereksiz varsayım yapılması
 
 Bu yüzden mevcut sistem:
 - GitHub + Snapshot + ChatState + DebugJournal + SnapshotCompare
@@ -251,29 +310,25 @@ Tasarım kararı gerekiyorsa:
 
 Şu anda sıradaki ana gameplay milestone:
 
-### Swipe → Attack Direction
+### Swipe Chain → CombatDirector Connection
 Yani:
-- `SwipeInput` verisini
-- `Left / Right / Up / Down`
-yönlerine çevirmek
+- çalışan `SwipeInterpreter` chain çıktısını
+- `CombatDirector` içine gerçek receiver ile bağlamak
+- swipe yönü geldiğinde combat akışını başlatmak
 
-Planlanan script:
-- `SwipeInterpreter.cs`
-
-Bu script:
-- swipe yönünü hesaplayacak
-- CombatDirector’a yön bilgisi aktaracak
-- ilk gerçek gameplay attack input katmanı olacak
+Yakın sonraki hedef:
+- `SwipeInterpreter` → `CombatDirector`
+- ardından weakpoint placeholder katmanı
 
 ---
 
 ## 12) Near-Term Goals
 
-- Swipe direction interpretation
-- CombatDirector ile input bağlantısı
-- Weakpoint placeholder sistemi
-- Enemy placeholder (2D billboard)
-- İlk combat flow prototipi
+- SwipeInterpreter ile CombatDirector bağlantısını gerçek test etmek
+- Swipe direction’i combat event’e dönüştürmek
+- Weakpoint placeholder sistemi kurmak
+- Enemy placeholder (2D billboard) oluşturmak
+- İlk combat flow prototipini ayağa kaldırmak
 
 ---
 
@@ -290,6 +345,7 @@ Bu script:
 ## 14) Notes
 
 - Kullanıcı Unity’yi sıfırdan öğreniyor; her şey adım adım anlatılmalı
+- Tek seferde çok adım verilmemeli
 - Tutorial yerine proje geliştirerek öğrenme yaklaşımı kullanılıyor
 - Gereksiz debug döngülerinden kaçınılmalı
 - Varsayım yerine mümkün olduğunca:
@@ -298,3 +354,4 @@ Bu script:
   - CHAT_STATE
 üçlüsüne dayanılmalı
 - Kod pushlandıysa ayrıca `.cs` dosyası istemek default davranış olmamalı
+- 30+ satırlık kod gerekiyorsa chat’e yapıştırmak yerine dosya verilmelidir

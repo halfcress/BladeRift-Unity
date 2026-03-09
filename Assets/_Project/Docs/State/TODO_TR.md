@@ -30,7 +30,17 @@ Ana amaç:
 - [x] SwipeInput sistemi kuruldu
 - [x] Mouse + touch input okunuyor
 - [x] Debug text ile input değerleri görüntüleniyor
-- [x] CombatDirector temel iskeleti oluşturuldu
+- [x] `SwipeInterpreter.cs` oluşturuldu
+- [x] Swipe yönü `Left / Right / Up / Down` olarak yorumlanıyor
+- [x] İlk single-commit-per-press sürümü test edildi
+- [x] Whole-press accumulator bug’ı tespit edildi
+- [x] `SwipeInterpreter.cs` segment-based chain mantığına revize edildi
+- [x] Aynı press içinde chain commit çalışıyor
+- [x] `SwipeDebugHUD.cs` interpreter bilgilerini gösterecek şekilde güncellendi
+- [x] Debug text üzerinde `CurrentDir / LastCommitted / AccumPx / CommittedThisPress` doğrulandı
+- [x] `Assets/_Project/Scripts/Combat` klasörü oluşturuldu
+- [x] `CombatDirector.cs` oluşturuldu
+- [x] `CombatDirector` GameRoot üzerine eklendi
 - [x] Repo root temiz Unity yapısına getirildi
 - [x] `_Project` merkezli klasör yapısı oluşturuldu
 - [x] ProjectState DevTool v2 tamamlandı
@@ -48,10 +58,11 @@ Ana amaç:
 ## Şu An Yapılacaklar (En Yakın)
 
 ### Input / Combat
-- [ ] `SwipeInterpreter.cs` oluştur
-- [ ] Swipe yönünü `Left / Right / Up / Down` olarak yorumla
-- [ ] Swipe yönünü CombatDirector’a aktar
-- [ ] Debug text’e attack direction yazdır
+- [ ] `SwipeInterpreter` çıkışını `CombatDirector` receiver’a bağla
+- [ ] Swipe direction geldiğinde `CombatDirector` log/receiver testini doğrula
+- [ ] Finger lift = chain reset davranışını yeni chain yapısında test et
+- [ ] Aynı yön spam engelini hissiyat açısından değerlendir
+- [ ] Debug text’e gerekirse combat receiver sonucu da yazdır
 
 ### Combat Placeholder
 - [ ] Basit enemy placeholder oluştur
@@ -63,6 +74,7 @@ Ana amaç:
 - [ ] Basit weakpoint placeholder sistemi tasarla
 - [ ] Zayıf nokta görseli için placeholder sprite / indicator ekle
 - [ ] Doğru swipe yönü ile weakpoint eşleşme testini yap
+- [ ] Zig-zag weakpoint pattern’lerini 4 yön sistemiyle dene
 
 ---
 
@@ -71,7 +83,7 @@ Ana amaç:
 ### Combat Flow
 - [ ] Telegraph → execution window akışını başlat
 - [ ] Success / fail durumlarını CombatDirector içine oturt
-- [ ] Finger lift = chain reset davranışını gerçek akışta test et
+- [ ] Chain sequence mantığını gerçek combat akışında test et
 - [ ] Combat state geçişlerini netleştir
 
 ### Feedback
@@ -98,6 +110,14 @@ Ana amaç:
 - [ ] `SNAPSHOT_COMPARE.md` debug akışında referans kullan
 - [ ] `README.md` repo root için sade tut
 - [ ] Design / Architecture / State ayrımını koru
+- [ ] Klasör yapısı değişirse snapshot bazlı olarak state’e yansıt
+
+### Workflow Rules
+- [ ] Yeni script eklerken mevcut `Assets/_Project/Scripts` klasör mimarisini baz al
+- [ ] Doğru script klasörünü latest snapshot’tan doğrula
+- [ ] Kod için önce GitHub, scene/runtime için önce snapshot kontrol et
+- [ ] Kullanıcıdan, kaynaklardan doğrulanabilecek bilgiyi manuel kontrol etmesini isteme
+- [ ] 30+ satırlık kodları chat’e yapıştırma; `.cs` dosyası olarak ver
 
 ---
 
@@ -110,6 +130,7 @@ Ana amaç:
 - [ ] Audio placeholder
 - [ ] Mobile optimization
 - [ ] APK test build
+- [ ] Diagonal / 8 yön input ihtiyacını ancak 4 yön combat oturduktan sonra yeniden değerlendir
 
 ---
 
@@ -122,4 +143,8 @@ Ana amaç:
   - `DEBUG_JOURNAL.md`
   - `SNAPSHOT_COMPARE.md`
   - `CHAT_STATE.md`
-düzenli kullanılmalı
+  düzenli kullanılmalı
+- Şu an combat input için hedef sistem:
+  - **4 yön**
+  - **press içinde chain**
+  - **finger lift ile reset**
