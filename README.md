@@ -44,7 +44,7 @@ Mobil odaklı, 1. şahıs dungeon koridorunda geçen, **tek input (swipe)** ile 
 
 ---
 
-*Auto-updated: 2026-03-10 00:43:36*
+*Auto-updated: 2026-03-10 01:06:44*
 
 ## Project Status
 
@@ -52,8 +52,8 @@ Mobil odaklı, 1. şahıs dungeon koridorunda geçen, **tek input (swipe)** ile 
 |-------|-------|
 | Scene | `Prototype_CombatCore` |
 | Unity | `6000.3.10f1` |
-| Last Snapshot | `2026-03-10 00:43:36` |
-| Commit | `cd4b4bb` — new combat model v1 (still buggy) |
+| Last Snapshot | `2026-03-10 01:06:43` |
+| Commit | `e97941a` — memory states update |
 | Objects in Scene | 58 |
 
 ## Scripts
@@ -88,21 +88,21 @@ Mobil odaklı, 1. şahıs dungeon koridorunda geçen, **tek input (swipe)** ile 
 
 ## Progress
 
-[███████░░░░░░░░░░░░░] 36% (34/93 tasks done)
+[██████░░░░░░░░░░░░░░] 34% (15/43 tasks done)
 
 **Recently completed:**
-- ✅ Camera FOV değişimi compare raporunda doğru yakalandı
-- ✅ Working vs Debug snapshot compare doğrulandı
-- ✅ Readable snapshot diff raporu (v4) tamamlandı
-- ✅ ProjectState DevTool v3 compare sistemi tamamlandı
-- ✅ Snapshot archive / cleanup sistemi tamamlandı
+- ✅ ProjectState DevTool (snapshot, compare, journal) tamamlandı
+- ✅ SwipeDebugHUD kaldırıldı
+- ✅ ComboText + HitCountText UI eklendi
+- ✅ ComboManager oluşturuldu
+- ✅ Finger lift = reset kaldırıldı (Fruit Ninja modeli)
 
 **Up next:**
-- 🔲 `SwipeInterpreter` çıkışını `CombatDirector` receiver’a bağla
-- 🔲 Swipe direction geldiğinde `CombatDirector` log/receiver testini doğrula
-- 🔲 Finger lift = chain reset davranışını yeni chain yapısında test et
-- 🔲 Aynı yön spam engelini hissiyat açısından değerlendir
-- 🔲 Debug text’e gerekirse combat receiver sonucu da yazdır
+- 🔲 Hit-test çalışıyor mu doğrula — marker üstünden geç, HIT logu + combo artıyor mu?
+- 🔲 ComboText ekranda görünüyor mu? ("HIT!" / "x2 COMBO!")
+- 🔲 Timeout = combo sıfırlıyor mu?
+- 🔲 Parmak kaldırma = combo **bozmuyor** mu?
+- 🔲 `WeakpointCombatTest.cs` kaldır (eski prototip, kullanılmıyor)
 
 ## Milestones
 
