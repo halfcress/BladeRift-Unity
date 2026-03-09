@@ -47,3 +47,91 @@
 
 ### Decision
 - [ ] Sonraki adım
+
+
+## 2026-03-09 21:15:45 - Compile Error Detected
+
+### Problem
+- Unity compile hatasi tespit edildi.
+- Hata detaylari icin Console penceresini kontrol et.
+
+### Context
+- Commit: 7f892e3
+- Commit message: v5
+
+### Attempts
+- [ ] Console hatalarini incele
+- [ ] Ilgili .cs dosyasini duzelt
+
+### Result
+- [ ] Fail
+- [ ] Fixed
+
+### Decision
+- [ ] Sonraki adim
+
+
+## 2026-03-09 21:17:27 - Compile Error Detected
+
+### Problem
+- Unity compile hatasi tespit edildi.
+- Hata detaylari icin Console penceresini kontrol et.
+
+### Context
+- Commit: 7f892e3
+- Commit message: v5
+
+### Attempts
+- [ ] Console hatalarini incele
+- [ ] Ilgili .cs dosyasini duzelt
+
+### Result
+- [ ] Fail
+- [ ] Fixed
+
+### Decision
+- [ ] Sonraki adim
+
+
+## 2026-03-09 22:49:20 - Compile Error Detected
+
+### Problem
+- Unity compile hatasi tespit edildi.
+- Hata detaylari icin Console penceresini kontrol et.
+
+### Context
+- Commit: 7f892e3
+- Commit message: v5
+
+### Attempts
+- [ ] Console hatalarini incele
+- [ ] Ilgili .cs dosyasini duzelt
+
+### Result
+- [ ] Fail
+- [ ] Fixed
+
+### Decision
+- [ ] Sonraki adim
+
+
+## 2026-03-09 22:52:42 - Compile Error Detected
+
+### Problem
+- Unity compile hatasi tespit edildi.
+- Hata detaylari icin Console penceresini kontrol et.
+
+### Context
+- Commit: 7f892e3
+- Commit message: v5
+
+### Attempts
+- [ ] Console hatalarini incele
+- [ ] Ilgili .cs dosyasini duzelt
+
+### Result
+- [ ] Fail
+- [ ] Fixed
+
+### Decision
+- [ ] Sonraki adim

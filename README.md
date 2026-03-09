@@ -44,7 +44,7 @@ Mobil odaklı, 1. şahıs dungeon koridorunda geçen, **tek input (swipe)** ile 
 
 ---
 
-*Auto-updated: 2026-03-09 19:49:31*
+*Auto-updated: 2026-03-10 00:28:02*
 
 ## Project Status
 
@@ -52,9 +52,9 @@ Mobil odaklı, 1. şahıs dungeon koridorunda geçen, **tek input (swipe)** ile 
 |-------|-------|
 | Scene | `Prototype_CombatCore` |
 | Unity | `6000.3.10f1` |
-| Last Snapshot | `2026-03-09 19:49:31` |
-| Commit | `49e98a2` — devtool v5 |
-| Objects in Scene | 53 |
+| Last Snapshot | `2026-03-10 00:28:02` |
+| Commit | `7f892e3` — v5 |
+| Objects in Scene | 58 |
 
 ## Scripts
 
@@ -63,10 +63,15 @@ Mobil odaklı, 1. şahıs dungeon koridorunda geçen, **tek input (swipe)** ile 
 
 **Combat**
 - `CombatDirector.cs`
+- `CombatTriggerTest.cs`
+- `ComboManager.cs`
 - `WeakpointCombatTest.cs`
+- `WeakpointDirection.cs`
+- `WeakpointSequence.cs`
 
 **Core**
 - `CorridorLoop.cs`
+- `GameConfig.cs`
 
 **Input**
 - `SwipeDebugHUD.cs`
@@ -75,10 +80,11 @@ Mobil odaklı, 1. şahıs dungeon koridorunda geçen, **tek input (swipe)** ile 
 
 **Tools**
 - `BillboardFacing.cs`
+- `SpriteAssigner.cs`
 
 **UI**
 - `WeakpointDirectionView.cs`
-- `WeakpointMarkerController.cs`
+- `WeakpointUIBridge.cs`
 
 ## Progress
 

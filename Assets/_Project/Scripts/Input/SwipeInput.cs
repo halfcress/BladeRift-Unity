@@ -21,7 +21,11 @@ public class SwipeInput : MonoBehaviour
     [SerializeField] private Vector2 deltaNormalized;
 
     public bool IsDown => isDown;
+    public Vector2 FingerPosition => currentPos;
+
     public Vector2 DeltaPx => deltaPx;
+    public Vector2 RawDeltaPx { get; private set; }  // Deadzone olmadan, hit-test icin
+
     public Vector2 DeltaNormalized => deltaNormalized;
 
     // Events
@@ -31,31 +35,26 @@ public class SwipeInput : MonoBehaviour
     private int activeFingerId = -1;
     private Vector2 lastPos;
 
-    private void Update()
+private void Update()
     {
-        // Prefer touch on mobile; fallback to mouse on editor/pc
         if (Input.touchCount > 0)
-        {
             HandleTouch();
-        }
         else
-        {
             HandleMouse();
-        }
 
-        // Compute deltas
         if (isDown)
         {
+            Vector2 rawDelta = currentPos - lastPos;
+            RawDeltaPx = rawDelta;  // Deadzone yok
+
             if (useAbsoluteFromStart)
                 deltaPx = currentPos - startPos;
             else
-                deltaPx = currentPos - lastPos;
+                deltaPx = rawDelta;
 
-            // Deadzone
             if (deltaPx.magnitude < deadzonePx)
                 deltaPx = Vector2.zero;
 
-            // Normalize (clamped)
             float mag = Mathf.Min(deltaPx.magnitude, maxDeltaPx);
             deltaNormalized = (mag <= 0.001f) ? Vector2.zero : (deltaPx.normalized * (mag / maxDeltaPx));
         }
@@ -63,6 +62,7 @@ public class SwipeInput : MonoBehaviour
         {
             deltaPx = Vector2.zero;
             deltaNormalized = Vector2.zero;
+            RawDeltaPx = Vector2.zero;
         }
 
         lastPos = currentPos;
