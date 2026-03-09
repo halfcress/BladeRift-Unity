@@ -3,24 +3,53 @@ using UnityEngine;
 
 public class SwipeDebugHUD : MonoBehaviour
 {
+    [Header("References")]
     [SerializeField] private SwipeInput swipe;
+    [SerializeField] private SwipeInterpreter interpreter;
     [SerializeField] private TMP_Text text;
 
     private void Reset()
     {
-        text = GetComponent<TMP_Text>();
+        if (swipe == null)
+            swipe = GetComponent<SwipeInput>();
+
+        if (interpreter == null)
+            interpreter = GetComponent<SwipeInterpreter>();
+    }
+
+    private void Awake()
+    {
+        if (swipe == null)
+            swipe = GetComponent<SwipeInput>();
+
+        if (interpreter == null)
+            interpreter = GetComponent<SwipeInterpreter>();
     }
 
     private void Update()
     {
-        if (swipe == null || text == null) return;
+        if (text == null)
+            return;
 
-        Vector2 d = swipe.DeltaPx;
-        Vector2 n = swipe.DeltaNormalized;
+        string swipePart = "Swipe: missing";
+        if (swipe != null)
+        {
+            swipePart =
+                $"IsDown: {swipe.IsDown}\n" +
+                $"DeltaPx: {swipe.DeltaPx}\n" +
+                $"DeltaNorm: {swipe.DeltaNormalized}";
+        }
 
-        text.text =
-            $"IsDown: {swipe.IsDown}\n" +
-            $"DeltaPx: ({d.x:0.0}, {d.y:0.0})\n" +
-            $"DeltaNorm: ({n.x:0.00}, {n.y:0.00})";
+        string interpreterPart = "Interpreter: missing";
+        if (interpreter != null)
+        {
+            interpreterPart =
+                $"CurrentDir: {interpreter.CurrentDirection}\n" +
+                $"LastCommitted: {interpreter.LastCommittedDirection}\n" +
+                $"AccumPx: {interpreter.AccumulatedDeltaPx}\n" +
+                $"CommittedThisPress: {interpreter.HasCommittedThisPress}";
+        }
+
+        text.text = swipePart + "\n\n" + interpreterPart;
     }
 }
