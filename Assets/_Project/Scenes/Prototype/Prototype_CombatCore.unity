@@ -4110,7 +4110,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WeakpointDirectionView
   markerRect: {fileID: 35808376}
   offsetDistance: 140
-  currentDirection: 4
+  currentDirection: 0
 --- !u!1 &1655308476
 GameObject:
   m_ObjectHideFlags: 0
@@ -4818,6 +4818,7 @@ GameObject:
   - component: {fileID: 1801425164}
   - component: {fileID: 1801425163}
   - component: {fileID: 1801425165}
+  - component: {fileID: 1801425166}
   m_Layer: 0
   m_Name: GameRoot
   m_TagString: Untagged
@@ -4895,6 +4896,21 @@ MonoBehaviour:
   worldTarget: {fileID: 0}
   hideWhenBehindCamera: 1
   screenOffset: {x: 0, y: 0}
+--- !u!114 &1801425166
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1801425160}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3a2ec5bb4552c6c41aec780c503d2bc8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WeakpointCombatTest
+  combatDirector: {fileID: 1801425164}
+  directionView: {fileID: 1566683667}
+  currentTargetDirection: 3
 --- !u!1 &1872220524
 GameObject:
   m_ObjectHideFlags: 0

@@ -10,7 +10,7 @@ using UnityEditor;
 #endif
 
 // -----------------------------
-// SNAPSHOT COMPARE (v4)
+// SNAPSHOT COMPARE (v5 - with code diff)
 // -----------------------------
 
 public static class ProjectStateCompare
@@ -109,10 +109,10 @@ public static class ProjectStateCompare
             else common.Add(key);
 
         // Diff common objects
-        var stateChanges = new List<string>(); // activeSelf / activeInHierarchy
-        var transformChanges = new List<string>(); // localPosition / Rotation / Scale
-        var componentChanges = new List<string>(); // component fields
-        int fieldChangeCount = 0;                  // exact changed-field count for summary
+        var stateChanges = new List<string>();
+        var transformChanges = new List<string>();
+        var componentChanges = new List<string>();
+        int fieldChangeCount = 0;
 
         foreach (var path in common)
         {
@@ -123,6 +123,12 @@ public static class ProjectStateCompare
             CollectTransformChanges(transformChanges, path, w.transform, d.transform);
             fieldChangeCount += CollectComponentChanges(componentChanges, path, w.components, d.components);
         }
+
+        // Code diff
+        var codeAdded = new List<string>();
+        var codeRemoved = new List<string>();
+        var codeModified = new List<(string path, List<string> diff)>();
+        CollectCodeChanges(working.code, debug.code, codeAdded, codeRemoved, codeModified);
 
         // Write report
         var sb = new StringBuilder();
@@ -141,54 +147,253 @@ public static class ProjectStateCompare
 
         WriteSeparator(sb);
         sb.AppendLine("## OBJECTS ADDED");
-        if (added.Count == 0)
-            sb.AppendLine("None.");
-        else
-            foreach (var name in added)
-                sb.AppendLine($"- {name}");
+        if (added.Count == 0) sb.AppendLine("None.");
+        else foreach (var name in added) sb.AppendLine($"- {name}");
 
         WriteSeparator(sb);
         sb.AppendLine("## OBJECTS REMOVED");
-        if (removed.Count == 0)
-            sb.AppendLine("None.");
-        else
-            foreach (var name in removed)
-                sb.AppendLine($"- {name}");
+        if (removed.Count == 0) sb.AppendLine("None.");
+        else foreach (var name in removed) sb.AppendLine($"- {name}");
 
         WriteSeparator(sb);
         sb.AppendLine("## OBJECT STATE CHANGES");
-        if (stateChanges.Count == 0)
-            sb.AppendLine("No changes.");
-        else
-            foreach (var line in stateChanges)
-                sb.AppendLine(line);
+        if (stateChanges.Count == 0) sb.AppendLine("No changes.");
+        else foreach (var line in stateChanges) sb.AppendLine(line);
 
         WriteSeparator(sb);
         sb.AppendLine("## TRANSFORM CHANGES");
-        if (transformChanges.Count == 0)
-            sb.AppendLine("No changes.");
-        else
-            foreach (var line in transformChanges)
-                sb.AppendLine(line);
+        if (transformChanges.Count == 0) sb.AppendLine("No changes.");
+        else foreach (var line in transformChanges) sb.AppendLine(line);
 
         WriteSeparator(sb);
         sb.AppendLine("## COMPONENT FIELD CHANGES");
-        if (componentChanges.Count == 0)
-            sb.AppendLine("No changes.");
+        if (componentChanges.Count == 0) sb.AppendLine("No changes.");
+        else foreach (var line in componentChanges) sb.AppendLine(line);
+
+        // CODE CHANGES section
+        WriteSeparator(sb);
+        sb.AppendLine("## CODE CHANGES");
+        sb.AppendLine();
+
+        sb.AppendLine("### Added");
+        if (codeAdded.Count == 0) sb.AppendLine("None.");
+        else foreach (var f in codeAdded) sb.AppendLine($"+ {f}");
+
+        sb.AppendLine();
+        sb.AppendLine("### Removed");
+        if (codeRemoved.Count == 0) sb.AppendLine("None.");
+        else foreach (var f in codeRemoved) sb.AppendLine($"- {f}");
+
+        sb.AppendLine();
+        sb.AppendLine("### Modified");
+        if (codeModified.Count == 0)
+        {
+            sb.AppendLine("None.");
+        }
         else
-            foreach (var line in componentChanges)
-                sb.AppendLine(line);
+        {
+            foreach (var (filePath, diffLines) in codeModified)
+            {
+                sb.AppendLine();
+                sb.AppendLine($"#### {filePath}");
+                sb.AppendLine("```diff");
+                foreach (var line in diffLines)
+                    sb.AppendLine(line);
+                sb.AppendLine("```");
+            }
+        }
 
         WriteSeparator(sb);
         sb.AppendLine("## SUMMARY");
-        sb.AppendLine($"Objects added:          {added.Count}");
-        sb.AppendLine($"Objects removed:        {removed.Count}");
-        sb.AppendLine($"Object state changes:   {CountObjects(stateChanges)}");
-        sb.AppendLine($"Transform changes:      {CountObjects(transformChanges)}");
+        sb.AppendLine($"Objects added:           {added.Count}");
+        sb.AppendLine($"Objects removed:         {removed.Count}");
+        sb.AppendLine($"Object state changes:    {CountObjects(stateChanges)}");
+        sb.AppendLine($"Transform changes:       {CountObjects(transformChanges)}");
         sb.AppendLine($"Component field changes: {fieldChangeCount}");
+        sb.AppendLine($"Code files added:        {codeAdded.Count}");
+        sb.AppendLine($"Code files removed:      {codeRemoved.Count}");
+        sb.AppendLine($"Code files modified:     {codeModified.Count}");
         sb.AppendLine();
 
         return sb.ToString();
+    }
+
+    // -----------------------------
+    // CODE DIFF
+    // -----------------------------
+
+    private static void CollectCodeChanges(
+        CodeSnapshot working,
+        CodeSnapshot debug,
+        List<string> added,
+        List<string> removed,
+        List<(string, List<string>)> modified)
+    {
+        if (working == null || debug == null) return;
+
+        var wFiles = new Dictionary<string, TextFileData>();
+        var dFiles = new Dictionary<string, TextFileData>();
+
+        if (working.csFiles != null)
+            foreach (var f in working.csFiles)
+                if (f?.relativePath != null && !wFiles.ContainsKey(f.relativePath))
+                    wFiles[f.relativePath] = f;
+
+        if (debug.csFiles != null)
+            foreach (var f in debug.csFiles)
+                if (f?.relativePath != null && !dFiles.ContainsKey(f.relativePath))
+                    dFiles[f.relativePath] = f;
+
+        // Added in debug
+        foreach (var path in dFiles.Keys)
+            if (!wFiles.ContainsKey(path))
+                added.Add(path);
+
+        // Removed in debug
+        foreach (var path in wFiles.Keys)
+            if (!dFiles.ContainsKey(path))
+                removed.Add(path);
+
+        // Modified — hash farklýysa satýr diff yap
+        foreach (var path in wFiles.Keys)
+        {
+            if (!dFiles.ContainsKey(path)) continue;
+
+            var wFile = wFiles[path];
+            var dFile = dFiles[path];
+
+            // SHA256 aynýysa deðiþmemiþ
+            if (wFile.sha256 == dFile.sha256) continue;
+
+            var diffLines = BuildLineDiff(wFile.text ?? "", dFile.text ?? "");
+            modified.Add((path, diffLines));
+        }
+    }
+
+    private static List<string> BuildLineDiff(string oldText, string newText)
+    {
+        var oldLines = oldText.Split('\n');
+        var newLines = newText.Split('\n');
+
+        var result = new List<string>();
+
+        // LCS tabanlý basit diff
+        var lcs = ComputeLCS(oldLines, newLines);
+
+        int i = 0, j = 0, k = 0;
+
+        while (i < oldLines.Length || j < newLines.Length)
+        {
+            // LCS'te eþleþen satýrlar varsa ilerle
+            if (k < lcs.Count)
+            {
+                var (li, lj) = lcs[k];
+
+                // i ve li arasýndaki satýrlar silindi
+                while (i < li)
+                {
+                    result.Add($"- {oldLines[i].TrimEnd()}");
+                    i++;
+                }
+
+                // j ve lj arasýndaki satýrlar eklendi
+                while (j < lj)
+                {
+                    result.Add($"+ {newLines[j].TrimEnd()}");
+                    j++;
+                }
+
+                // LCS satýrý — context olarak göster (deðiþmedi)
+                result.Add($"  {oldLines[i].TrimEnd()}");
+                i++; j++; k++;
+            }
+            else
+            {
+                // LCS bitti, kalanlar
+                while (i < oldLines.Length)
+                {
+                    result.Add($"- {oldLines[i].TrimEnd()}");
+                    i++;
+                }
+                while (j < newLines.Length)
+                {
+                    result.Add($"+ {newLines[j].TrimEnd()}");
+                    j++;
+                }
+            }
+        }
+
+        // Sadece deðiþen kýsýmlarý döndür (context satýrlarýný filtrele, gürültüyü azalt)
+        return FilterDiffContext(result, contextLines: 2);
+    }
+
+    // LCS (Longest Common Subsequence) - satýr bazlý
+    private static List<(int, int)> ComputeLCS(string[] a, string[] b)
+    {
+        int m = a.Length, n = b.Length;
+
+        // Büyük dosyalarda performans için max 500 satýrla sýnýrla
+        if (m > 500 || n > 500)
+            return new List<(int, int)>();
+
+        var dp = new int[m + 1, n + 1];
+
+        for (int i = 1; i <= m; i++)
+            for (int j = 1; j <= n; j++)
+                dp[i, j] = a[i - 1].TrimEnd() == b[j - 1].TrimEnd()
+                    ? dp[i - 1, j - 1] + 1
+                    : Math.Max(dp[i - 1, j], dp[i, j - 1]);
+
+        // Backtrack
+        var lcs = new List<(int, int)>();
+        int ii = m, jj = n;
+        while (ii > 0 && jj > 0)
+        {
+            if (a[ii - 1].TrimEnd() == b[jj - 1].TrimEnd())
+            {
+                lcs.Add((ii - 1, jj - 1));
+                ii--; jj--;
+            }
+            else if (dp[ii - 1, jj] > dp[ii, jj - 1])
+                ii--;
+            else
+                jj--;
+        }
+
+        lcs.Reverse();
+        return lcs;
+    }
+
+    // Sadece deðiþiklik olan yerlerin etrafýndaki context satýrlarýný tut
+    private static List<string> FilterDiffContext(List<string> lines, int contextLines)
+    {
+        var changed = new HashSet<int>();
+        for (int i = 0; i < lines.Count; i++)
+            if (lines[i].StartsWith("+") || lines[i].StartsWith("-"))
+                for (int c = Math.Max(0, i - contextLines); c <= Math.Min(lines.Count - 1, i + contextLines); c++)
+                    changed.Add(c);
+
+        var result = new List<string>();
+        bool skipping = false;
+
+        for (int i = 0; i < lines.Count; i++)
+        {
+            if (changed.Contains(i))
+            {
+                if (skipping)
+                {
+                    result.Add("  ...");
+                    skipping = false;
+                }
+                result.Add(lines[i]);
+            }
+            else
+            {
+                skipping = true;
+            }
+        }
+
+        return result;
     }
 
     // -----------------------------
@@ -294,7 +499,6 @@ public static class ProjectStateCompare
         int fieldCount = 0;
         if (wComps == null || dComps == null) return fieldCount;
 
-        // Build type-keyed lookups (first occurrence wins)
         var wMap = new Dictionary<string, ComponentData>();
         var dMap = new Dictionary<string, ComponentData>();
 
@@ -309,7 +513,6 @@ public static class ProjectStateCompare
             var fieldChanges = DiffFields(kvp.Value.fields, dMap[type].fields);
             if (fieldChanges.Count == 0) continue;
 
-            // fieldChanges contains pairs: [fieldName, val->val] so divide by 2
             fieldCount += fieldChanges.Count / 2;
 
             lines.Add($"Object: {path}");
@@ -379,7 +582,6 @@ public static class ProjectStateCompare
         sb.AppendLine();
     }
 
-    // Counts how many "Object: ..." headers are in a section's lines
     private static int CountObjects(List<string> lines)
     {
         int count = 0;
