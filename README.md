@@ -44,7 +44,7 @@ Mobil odaklı, 1. şahıs dungeon koridorunda geçen, **tek input (swipe)** ile 
 
 ---
 
-*Auto-updated: 2026-03-09 16:51:24*
+*Auto-updated: 2026-03-09 19:49:31*
 
 ## Project Status
 
@@ -52,8 +52,8 @@ Mobil odaklı, 1. şahıs dungeon koridorunda geçen, **tek input (swipe)** ile 
 |-------|-------|
 | Scene | `Prototype_CombatCore` |
 | Unity | `6000.3.10f1` |
-| Last Snapshot | `2026-03-09 16:51:23` |
-| Commit | `4b1b352` — Autoreadme func added. |
+| Last Snapshot | `2026-03-09 19:49:31` |
+| Commit | `49e98a2` — devtool v5 |
 | Objects in Scene | 53 |
 
 ## Scripts

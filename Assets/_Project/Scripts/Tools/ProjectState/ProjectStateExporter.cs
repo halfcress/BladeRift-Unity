@@ -115,6 +115,7 @@ public static class ProjectStateExporter
 
         ProjectStateSerializer.FillProjectSnapshot(full.project);
         ProjectStateSerializer.FillCodeSnapshot(full.code);
+        ProjectStateSerializer.FillDocsSnapshot(full.docs);
 
         string targetFolder  = kind == SnapshotKind.Working ? ProjectStatePaths.WorkingRoot : ProjectStatePaths.DebugRoot;
         string safeSceneName = string.IsNullOrWhiteSpace(scene.name) ? "UntitledScene" : scene.name;

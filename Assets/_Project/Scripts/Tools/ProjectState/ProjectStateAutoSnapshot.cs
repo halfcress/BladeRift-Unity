@@ -80,6 +80,7 @@ public static class ProjectStateAutoSnapshot
 
             ProjectStateSerializer.FillProjectSnapshot(full.project);
             ProjectStateSerializer.FillCodeSnapshot(full.code);
+            ProjectStateSerializer.FillDocsSnapshot(full.docs);
 
             string safeSceneName = string.IsNullOrWhiteSpace(scene.name) ? "UntitledScene" : scene.name;
             string fileName      = $"BladeRift_AUTO_{safeSceneName}_{DateTime.Now:yyyyMMdd_HHmmss}.json";
