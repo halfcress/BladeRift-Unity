@@ -10,20 +10,17 @@ public enum SwipeDirection
 }
 
 /// <summary>
-/// Converts raw SwipeInput data into attack directions.
+/// Interprets SwipeInput into cardinal directions and supports multi-commit chains
+/// within a single press.
 ///
-/// Current model:
-/// - Multiple commits are allowed within a single press.
-/// - After each successful commit, the local segment accumulator resets,
-///   so the next chain step starts fresh.
-/// - Finger / mouse lift resets the whole press state.
-/// - Same-direction recommits are blocked to avoid jitter spam
-///   (Right -> Right from tiny wobble, etc.).
+/// Core behavior:
+/// - While the finger/mouse is held, we accumulate a SEGMENT delta.
+/// - When that segment clearly resolves into a direction and passes commitDistancePx,
+///   we commit one chain step.
+/// - After commit, the segment resets so the next turn can be read as a new step.
+/// - Releasing the finger resets the whole chain state for this input layer.
 ///
-/// Optional receiver integration:
-/// - If combatReceiver is assigned, this component sends:
-///   OnSwipeDirection(SwipeDirection dir)
-///   OnSwipeDirectionCommitted(SwipeDirection dir)
+/// This fits zig-zag weakpoint paths better than whole-press accumulation.
 /// </summary>
 public class SwipeInterpreter : MonoBehaviour
 {
@@ -32,14 +29,17 @@ public class SwipeInterpreter : MonoBehaviour
     [SerializeField] private MonoBehaviour combatReceiver;
 
     [Header("Direction Commit Tuning")]
-    [Tooltip("Distance required for each chain segment to commit a direction.")]
+    [Tooltip("Segment distance required before a direction is committed.")]
     [SerializeField] private float commitDistancePx = 70f;
 
     [Tooltip("How much stronger the dominant axis should be. 1.0 = no bias, 1.2 = 20% stronger.")]
     [SerializeField] private float dominantAxisBias = 1.15f;
 
-    [Tooltip("If false, diagonal / ambiguous swipes are ignored until direction becomes clear enough.")]
+    [Tooltip("If false, diagonal/ambiguous swipes are ignored until direction becomes clear enough.")]
     [SerializeField] private bool allowDominantAxisFallback = true;
+
+    [Tooltip("Prevents same-direction spam within the same press. Recommended true for chain combat.")]
+    [SerializeField] private bool blockSameDirectionRepeatInSamePress = true;
 
     [Header("Read-only (Debug)")]
     [SerializeField] private bool wasDownLastFrame;
@@ -88,10 +88,19 @@ public class SwipeInterpreter : MonoBehaviour
     private void BeginPress()
     {
         hasCommittedThisPress = false;
+        committedCountThisPress = 0;
         accumulatedDeltaPx = Vector2.zero;
         currentDirection = SwipeDirection.None;
         lastCommittedDirection = SwipeDirection.None;
+    }
+
+    private void EndPress()
+    {
+        hasCommittedThisPress = false;
         committedCountThisPress = 0;
+        accumulatedDeltaPx = Vector2.zero;
+        currentDirection = SwipeDirection.None;
+        lastCommittedDirection = SwipeDirection.None;
     }
 
     private void UpdateHeldPress()
@@ -107,28 +116,24 @@ public class SwipeInterpreter : MonoBehaviour
         if (accumulatedDeltaPx.magnitude < commitDistancePx)
             return;
 
-        // Prevent jitter / wobble from spamming the same direction repeatedly.
-        if (preview == lastCommittedDirection)
+        if (blockSameDirectionRepeatInSamePress && committedCountThisPress > 0 && preview == lastCommittedDirection)
+        {
+            // Prevent repeated firing from a long drag in the same direction.
+            // Reset the current segment and wait for a meaningful turn.
+            accumulatedDeltaPx = Vector2.zero;
+            currentDirection = SwipeDirection.None;
             return;
+        }
 
         CommitDirection(preview);
-    }
-
-    private void EndPress()
-    {
-        accumulatedDeltaPx = Vector2.zero;
-        currentDirection = SwipeDirection.None;
-        lastCommittedDirection = SwipeDirection.None;
-        hasCommittedThisPress = false;
-        committedCountThisPress = 0;
     }
 
     private void CommitDirection(SwipeDirection direction)
     {
         hasCommittedThisPress = true;
+        committedCountThisPress++;
         currentDirection = direction;
         lastCommittedDirection = direction;
-        committedCountThisPress++;
 
         if (combatReceiver != null)
         {
@@ -136,17 +141,18 @@ public class SwipeInterpreter : MonoBehaviour
             combatReceiver.SendMessage("OnSwipeDirectionCommitted", direction, SendMessageOptions.DontRequireReceiver);
         }
 
-        // Start a fresh local segment for the next chain direction.
+        // Start a fresh segment immediately so the same press can continue chaining.
         accumulatedDeltaPx = Vector2.zero;
+        currentDirection = SwipeDirection.None;
     }
 
     private SwipeDirection EvaluateDirection(Vector2 delta)
     {
-        float absX = Mathf.Abs(delta.x);
-        float absY = Mathf.Abs(delta.y);
-
         if (delta.magnitude < commitDistancePx)
             return SwipeDirection.None;
+
+        float absX = Mathf.Abs(delta.x);
+        float absY = Mathf.Abs(delta.y);
 
         bool xDominant = absX >= absY * dominantAxisBias;
         bool yDominant = absY >= absX * dominantAxisBias;
