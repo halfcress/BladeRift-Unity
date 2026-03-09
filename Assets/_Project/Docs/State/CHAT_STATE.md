@@ -508,22 +508,15 @@ FeedbackController
 
 ## 15) Notes
 
-- Kullanıcı Unity’yi sıfırdan öğreniyor; her şey adım adım anlatılmalı
-- Tek seferde çok adım verilmemeli
-- Tutorial yerine proje geliştirerek öğrenme yaklaşımı kullanılıyor
-- Gereksiz debug döngülerinden kaçınılmalı
-- Varsayım yerine mümkün olduğunca:
-  - GitHub code
-  - latest snapshot
-  - CHAT_STATE
-  - ARCHITECTURE_TR
-  - GAME_RULES_TR
-  - GAME_CONCEPT_TR
-  birlikte kullanılmalı
-- Kod pushlandıysa ayrıca `.cs` dosyası istemek default davranış olmamalı
-- 30+ satırlık kod gerekiyorsa chat’e yapıştırmak yerine dosya verilmelidir
-- Placeholder çözüm ile nihai sistem birbirine karıştırılmamalıdır
-- Scene/component/reference değişikliği varsa:
-  - scene save
-  - `.unity` commit/push
-  unutulmamalıdır
+- Kod tarafında kaynak: **GitHub pushed state**
+- Scene/debug kaynak: **latest snapshot**
+- Snapshot compare artık aktif bir debug aracı
+- Aynı bug için aynı denemeleri tekrar etmemek amacıyla:
+  - `DEBUG_JOURNAL.md`
+  - `SNAPSHOT_COMPARE.md`
+  - `CHAT_STATE.md`
+  düzenli kullanılmalı
+- Şu an combat input için hedef sistem:
+  - **4 yön**
+  - **press içinde chain**
+  - **finger lift ile reset**
