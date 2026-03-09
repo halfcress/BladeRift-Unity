@@ -83,7 +83,6 @@ public static class ProjectStateSceneMetrics
     }
 
 #if UNITY_EDITOR
-    [MenuItem("Tools/BladeRift/Project State/Debug: Print Scene Metrics")]
     public static void PrintMetrics()
     {
         Debug.Log("[SceneMetrics]\n" + BuildSummary());

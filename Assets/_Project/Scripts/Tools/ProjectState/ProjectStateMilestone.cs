@@ -156,7 +156,6 @@ public static class ProjectStateMilestone
     // MENU
     // -----------------------------
 
-    [MenuItem("Tools/BladeRift/Project State/Open Milestone Log")]
     public static void OpenMilestoneLog()
     {
         EnsureMilestoneLogExists();

@@ -9,9 +9,9 @@ using UnityEditor;
 #endif
 
 // -----------------------------
-// README UPDATER (v1)
-// Repo root README.md'yi snapshot verisinden otomatik gunceller
-// Manuel yazilan kisma dokunmaz
+// README UPDATER
+// Snapshot alindiginda otomatik cagirilir
+// Repo root README.md'yi gunceller
 // -----------------------------
 
 public static class ProjectStateReadmeUpdater
@@ -21,15 +21,6 @@ public static class ProjectStateReadmeUpdater
 
 #if UNITY_EDITOR
 
-    [MenuItem("Tools/BladeRift/Project State/Update README")]
-    public static void UpdateReadmeFromMenu()
-    {
-        UpdateReadme(null);
-        AssetDatabase.Refresh();
-        Debug.Log("[ReadmeUpdater] README.md updated.");
-    }
-
-    // Snapshot'tan cagrilabilir
     public static void UpdateReadme(FullSnapshot snapshot)
     {
         string readmePath = GetReadmePath();
@@ -43,7 +34,6 @@ public static class ProjectStateReadmeUpdater
         string final      = manualPart.TrimEnd() + "\n\n" + autoBlock + "\n";
 
         File.WriteAllText(readmePath, final, Encoding.UTF8);
-        Debug.Log($"[ReadmeUpdater] Saved: {readmePath}");
     }
 
     // -----------------------------
@@ -67,8 +57,8 @@ public static class ProjectStateReadmeUpdater
 
         if (snapshot != null)
         {
-            sb.AppendLine($"| Field | Value |");
-            sb.AppendLine($"|-------|-------|");
+            sb.AppendLine("| Field | Value |");
+            sb.AppendLine("|-------|-------|");
             sb.AppendLine($"| Scene | `{snapshot.meta.activeSceneName}` |");
             sb.AppendLine($"| Unity | `{snapshot.meta.unityVersion}` |");
             sb.AppendLine($"| Last Snapshot | `{snapshot.meta.exportedAtLocalTime}` |");
@@ -79,11 +69,9 @@ public static class ProjectStateReadmeUpdater
         {
             string commitShort   = ProjectStateGit.SafeGit("rev-parse --short HEAD");
             string commitMessage = ProjectStateGit.SafeGit("log -1 --pretty=%s");
-            string unityVersion  = Application.unityVersion;
-
-            sb.AppendLine($"| Field | Value |");
-            sb.AppendLine($"|-------|-------|");
-            sb.AppendLine($"| Unity | `{unityVersion}` |");
+            sb.AppendLine("| Field | Value |");
+            sb.AppendLine("|-------|-------|");
+            sb.AppendLine($"| Unity | `{Application.unityVersion}` |");
             sb.AppendLine($"| Commit | `{commitShort}` — {commitMessage} |");
             sb.AppendLine($"| Updated | `{DateTime.Now:yyyy-MM-dd HH:mm:ss}` |");
         }
@@ -95,7 +83,6 @@ public static class ProjectStateReadmeUpdater
 
         if (snapshot?.code?.csFiles != null)
         {
-            // Klasore gore grupla
             var groups = new Dictionary<string, List<string>>();
 
             foreach (var f in snapshot.code.csFiles)
@@ -109,7 +96,6 @@ public static class ProjectStateReadmeUpdater
 
                 if (!groups.ContainsKey(folder))
                     groups[folder] = new List<string>();
-
                 groups[folder].Add(Path.GetFileName(shortPath));
             }
 
@@ -138,11 +124,9 @@ public static class ProjectStateReadmeUpdater
 
             int total   = open + done;
             int percent = total > 0 ? (done * 100 / total) : 0;
-
-            // ASCII progress bar
-            int barLen   = 20;
-            int filled   = (int)(barLen * percent / 100f);
-            string bar   = "[" + new string('█', filled) + new string('░', barLen - filled) + "]";
+            int barLen  = 20;
+            int filled  = (int)(barLen * percent / 100f);
+            string bar  = "[" + new string('█', filled) + new string('░', barLen - filled) + "]";
 
             sb.AppendLine($"{bar} {percent}% ({done}/{total} tasks done)");
             sb.AppendLine();
@@ -210,7 +194,6 @@ public static class ProjectStateReadmeUpdater
 
         sb.AppendLine();
         sb.AppendLine(AutoBlockEnd);
-
         return sb.ToString();
     }
 
@@ -240,8 +223,7 @@ public static class ProjectStateReadmeUpdater
     {
         int idx = path.IndexOf("Scripts/", StringComparison.OrdinalIgnoreCase);
         if (idx < 0) return "Other";
-
-        string after = path.Substring(idx + 8); // "Scripts/" sonrası
+        string after = path.Substring(idx + 8);
         int slash    = after.IndexOf('/');
         return slash >= 0 ? after.Substring(0, slash) : "Root";
     }

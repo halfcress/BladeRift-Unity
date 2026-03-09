@@ -73,3 +73,19 @@ crashlytics-build.properties
 # Temporary auto-generated Android Assets
 /[Aa]ssets/[Ss]treamingAssets/aa.meta
 /[Aa]ssets/[Ss]treamingAssets/aa/*
+
+# -----------------------------------------------
+# BladeRift DevTool — Generated & snapshot files
+# -----------------------------------------------
+
+# Snapshot JSON'lar (buyuk dosyalar, sadece local kullanim)
+Assets/_Project/Docs/Snapshots/
+
+# Otomatik uretilen state dosyalari
+Assets/_Project/Docs/State/SNAPSHOT_TIMELINE.md
+Assets/_Project/Docs/State/SNAPSHOT_INDEX.md
+Assets/_Project/Docs/State/SNAPSHOT_TIMELINE.md.meta
+Assets/_Project/Docs/State/SNAPSHOT_INDEX.md.meta
+
+# README ve CHAT_STATE push'a girsin (bunlar anlamli dokuman)
+# DEBUG_JOURNAL ve MILESTONE_LOG push'a girsin (proje tarihi)

@@ -158,7 +158,6 @@ public static class ProjectStateTodoSync
     }
 
 #if UNITY_EDITOR
-    [MenuItem("Tools/BladeRift/Project State/Debug: Print Todo Summary")]
     public static void PrintTodoSummary()
     {
         string path = FindTodoPath();
