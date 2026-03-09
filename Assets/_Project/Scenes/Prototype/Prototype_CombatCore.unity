@@ -369,7 +369,6 @@ GameObject:
   - component: {fileID: 180713465}
   - component: {fileID: 180713468}
   - component: {fileID: 180713467}
-  - component: {fileID: 180713466}
   m_Layer: 5
   m_Name: DebugSwipeText
   m_TagString: Untagged
@@ -396,20 +395,6 @@ RectTransform:
   m_AnchoredPosition: {x: 20, y: -20}
   m_SizeDelta: {x: 900, y: 320}
   m_Pivot: {x: 0, y: 1}
---- !u!114 &180713466
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 180713464}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 72ef961b9fda5cd48b8f15f7bc7499a2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::SwipeDebugHUD
-  swipe: {fileID: 1903643228}
-  text: {fileID: 180713467}
 --- !u!114 &180713467
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1052,7 +1037,7 @@ Light:
   m_InnerSpotAngle: 21.80208
   m_CookieSize2D: {x: 0.5, y: 0.5}
   m_Shadows:
-    m_Type: 1
+    m_Type: 0
     m_Resolution: -1
     m_CustomResolution: -1
     m_Strength: 0.7
@@ -1179,7 +1164,7 @@ Light:
   m_InnerSpotAngle: 21.80208
   m_CookieSize2D: {x: 0.5, y: 0.5}
   m_Shadows:
-    m_Type: 1
+    m_Type: 0
     m_Resolution: -1
     m_CustomResolution: -1
     m_Strength: 0.7
@@ -1306,7 +1291,7 @@ Light:
   m_InnerSpotAngle: 21.80208
   m_CookieSize2D: {x: 0.5, y: 0.5}
   m_Shadows:
-    m_Type: 1
+    m_Type: 0
     m_Resolution: -1
     m_CustomResolution: -1
     m_Strength: 0.7
@@ -1433,7 +1418,7 @@ Light:
   m_InnerSpotAngle: 21.80208
   m_CookieSize2D: {x: 0.5, y: 0.5}
   m_Shadows:
-    m_Type: 1
+    m_Type: 0
     m_Resolution: -1
     m_CustomResolution: -1
     m_Strength: 0.7
@@ -1603,7 +1588,7 @@ Light:
   m_InnerSpotAngle: 21.80208
   m_CookieSize2D: {x: 0.5, y: 0.5}
   m_Shadows:
-    m_Type: 1
+    m_Type: 0
     m_Resolution: -1
     m_CustomResolution: -1
     m_Strength: 0.7
@@ -2002,7 +1987,7 @@ Light:
   m_InnerSpotAngle: 21.80208
   m_CookieSize2D: {x: 0.5, y: 0.5}
   m_Shadows:
-    m_Type: 1
+    m_Type: 0
     m_Resolution: -1
     m_CustomResolution: -1
     m_Strength: 0.7
@@ -2208,7 +2193,7 @@ Light:
   m_InnerSpotAngle: 21.80208
   m_CookieSize2D: {x: 0.5, y: 0.5}
   m_Shadows:
-    m_Type: 1
+    m_Type: 0
     m_Resolution: -1
     m_CustomResolution: -1
     m_Strength: 0.7
@@ -2335,7 +2320,7 @@ Light:
   m_InnerSpotAngle: 21.80208
   m_CookieSize2D: {x: 0.5, y: 0.5}
   m_Shadows:
-    m_Type: 1
+    m_Type: 0
     m_Resolution: -1
     m_CustomResolution: -1
     m_Strength: 0.7
@@ -2589,7 +2574,7 @@ Light:
   m_InnerSpotAngle: 21.80208
   m_CookieSize2D: {x: 0.5, y: 0.5}
   m_Shadows:
-    m_Type: 1
+    m_Type: 0
     m_Resolution: -1
     m_CustomResolution: -1
     m_Strength: 0.7
@@ -2716,7 +2701,7 @@ Light:
   m_InnerSpotAngle: 21.80208
   m_CookieSize2D: {x: 0.5, y: 0.5}
   m_Shadows:
-    m_Type: 1
+    m_Type: 0
     m_Resolution: -1
     m_CustomResolution: -1
     m_Strength: 0.7
@@ -2843,7 +2828,7 @@ Light:
   m_InnerSpotAngle: 21.80208
   m_CookieSize2D: {x: 0.5, y: 0.5}
   m_Shadows:
-    m_Type: 1
+    m_Type: 0
     m_Resolution: -1
     m_CustomResolution: -1
     m_Strength: 0.7
@@ -2970,7 +2955,7 @@ Light:
   m_InnerSpotAngle: 21.80208
   m_CookieSize2D: {x: 0.5, y: 0.5}
   m_Shadows:
-    m_Type: 1
+    m_Type: 0
     m_Resolution: -1
     m_CustomResolution: -1
     m_Strength: 0.7
@@ -3321,7 +3306,7 @@ Light:
   m_InnerSpotAngle: 21.80208
   m_CookieSize2D: {x: 0.5, y: 0.5}
   m_Shadows:
-    m_Type: 1
+    m_Type: 0
     m_Resolution: -1
     m_CustomResolution: -1
     m_Strength: 0.7
@@ -3721,7 +3706,7 @@ Light:
   m_InnerSpotAngle: 21.80208
   m_CookieSize2D: {x: 0.5, y: 0.5}
   m_Shadows:
-    m_Type: 1
+    m_Type: 0
     m_Resolution: -1
     m_CustomResolution: -1
     m_Strength: 0.7
@@ -4018,7 +4003,7 @@ Light:
   m_InnerSpotAngle: 21.80208
   m_CookieSize2D: {x: 0.5, y: 0.5}
   m_Shadows:
-    m_Type: 1
+    m_Type: 0
     m_Resolution: -1
     m_CustomResolution: -1
     m_Strength: 0.7
@@ -4145,7 +4130,7 @@ Light:
   m_InnerSpotAngle: 21.80208
   m_CookieSize2D: {x: 0.5, y: 0.5}
   m_Shadows:
-    m_Type: 1
+    m_Type: 0
     m_Resolution: -1
     m_CustomResolution: -1
     m_Strength: 0.7
@@ -4272,7 +4257,7 @@ Light:
   m_InnerSpotAngle: 21.80208
   m_CookieSize2D: {x: 0.5, y: 0.5}
   m_Shadows:
-    m_Type: 1
+    m_Type: 0
     m_Resolution: -1
     m_CustomResolution: -1
     m_Strength: 0.7
@@ -4441,6 +4426,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1801425162}
+  - component: {fileID: 1801425164}
   - component: {fileID: 1801425163}
   m_Layer: 0
   m_Name: GameRoot
@@ -4487,6 +4473,19 @@ MonoBehaviour:
   - {fileID: 601507496}
   speed: 6
   recycleBehind: 20
+--- !u!114 &1801425164
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1801425160}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 20d561aeddfab9b40ae852e5d74d730b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CombatDirector
+  lastReceivedDirection: 0
 --- !u!1 &1872220524
 GameObject:
   m_ObjectHideFlags: 0
@@ -4693,7 +4692,7 @@ Light:
   m_InnerSpotAngle: 21.80208
   m_CookieSize2D: {x: 0.5, y: 0.5}
   m_Shadows:
-    m_Type: 1
+    m_Type: 0
     m_Resolution: -1
     m_CustomResolution: -1
     m_Strength: 0.7
@@ -4751,6 +4750,8 @@ GameObject:
   m_Component:
   - component: {fileID: 1903643229}
   - component: {fileID: 1903643228}
+  - component: {fileID: 1903643231}
+  - component: {fileID: 1903643230}
   m_Layer: 0
   m_Name: InputRoot
   m_TagString: Untagged
@@ -4793,6 +4794,45 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1801425162}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1903643230
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1903643227}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 72ef961b9fda5cd48b8f15f7bc7499a2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SwipeDebugHUD
+  swipe: {fileID: 1903643228}
+  interpreter: {fileID: 1903643231}
+  text: {fileID: 180713467}
+--- !u!114 &1903643231
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1903643227}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5371ce5a166b3fc4bbfa460ff88eb469, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SwipeInterpreter
+  swipe: {fileID: 1903643228}
+  combatReceiver: {fileID: 1801425164}
+  commitDistancePx: 70
+  dominantAxisBias: 1.15
+  allowDominantAxisFallback: 1
+  blockSameDirectionRepeatInSamePress: 1
+  wasDownLastFrame: 0
+  hasCommittedThisPress: 0
+  accumulatedDeltaPx: {x: 0, y: 0}
+  currentDirection: 0
+  lastCommittedDirection: 0
+  committedCountThisPress: 0
 --- !u!1 &1947315977
 GameObject:
   m_ObjectHideFlags: 0
