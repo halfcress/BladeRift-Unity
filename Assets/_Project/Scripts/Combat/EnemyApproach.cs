@@ -129,6 +129,13 @@ public class EnemyApproach : MonoBehaviour
         StartCoroutine(RespawnAfterDelay());
     }
 
+    public void SetRageVisual(bool rageActive)
+    {
+        Transform outline = transform.Find("OutlineQuad");
+        if (outline != null)
+            outline.gameObject.SetActive(rageActive);
+    }
+
     private void HandleCombatFail(string reason)
     {
         Debug.Log($"[EnemyApproach] Fail ({reason}), düşman bekliyor.");

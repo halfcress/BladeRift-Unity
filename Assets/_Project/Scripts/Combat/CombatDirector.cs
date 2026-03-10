@@ -4,17 +4,6 @@ using UnityEngine;
 
 /// <summary>
 /// Combat akisinin tek kapisi.
-///
-/// Hit kurali: yön önemli degil.
-/// Parmak aktif weakpoint marker'inin içinden geçerse HIT sayilir.
-///
-/// Finger-lift fail:
-/// - Execution açilmadan parmak kalkmasi: sorun yok
-/// - Execution açildiktan sonra ilk temas yapilmissa ve parmak kalkarsa: FAIL
-///
-/// Fail sonrasi retry:
-/// - Telegraph tekrar oynatilmaz
-/// - Ayni dusmanin zinciri 1. weakpoint'ten yeniden baslar
 /// </summary>
 public class CombatDirector : MonoBehaviour
 {
@@ -24,6 +13,8 @@ public class CombatDirector : MonoBehaviour
     [SerializeField] private SwipeInput swipeInput;
     [SerializeField] private WeakpointDirectionView directionView;
     [SerializeField] private ComboManager comboManager;
+    [SerializeField] private RageManager rageManager;
+    [SerializeField] private EnemyApproach enemyApproach;
 
     [Header("Hit Test")]
     [SerializeField] private float hitRadiusPx = 80f;
@@ -45,9 +36,7 @@ public class CombatDirector : MonoBehaviour
     public bool IsCombatActive => combatActive;
     public bool IsWaitingForRetry => waitingForRetry;
 
-    // Retry icin aktif zinciri hatirla
     private List<WeakpointDirection> activeChain = new List<WeakpointDirection>();
-
     private bool hitRegisteredThisTarget = false;
     private bool waitingForRetry = false;
 
@@ -61,7 +50,10 @@ public class CombatDirector : MonoBehaviour
             directionView = FindFirstObjectByType<WeakpointDirectionView>();
         if (comboManager == null)
             comboManager = FindFirstObjectByType<ComboManager>();
-
+        if (rageManager == null)
+            rageManager = FindFirstObjectByType<RageManager>();
+        if (enemyApproach == null)
+            enemyApproach = FindFirstObjectByType<EnemyApproach>();
         Debug.Log("[CombatDirector] Awake OK.");
     }
 
@@ -92,23 +84,32 @@ public class CombatDirector : MonoBehaviour
         if (weakpointSequence.CurrentPhase != WeakpointSequence.Phase.ExecutionWindow) return;
 
         // --- Finger-lift fail ---
-        // Ilk temas yapildiysa ve parmak kalktiysa: FAIL
         if (firstTouchMade && !swipeInput.IsDown && weakpointSequence.CurrentPhase == WeakpointSequence.Phase.ExecutionWindow)
         {
             weakpointSequence.ForceFailExternal("FingerLift");
             return;
         }
 
-        // Parmak basili degil: hit test yapma ama fail da uretme
         if (!swipeInput.IsDown) return;
 
-      
-
         // --- Hit testi ---
-        // Kural: yön önemli degil, sadece parmak aktif marker'in içinden geçmeli
         Vector2 delta = swipeInput.RawDeltaPx;
         if (delta.magnitude < minDeltaPx) return;
 
+        // RAGE HIT
+        if (rageManager != null && rageManager.IsRageActive)
+        {
+            if (hitRegisteredThisTarget) return;
+            hitRegisteredThisTarget = true;
+            firstTouchMade = true;
+            comboManager?.RegisterHit();
+            FeedbackManager.Instance?.PlayRageHitFeedback();
+            Debug.Log("[CombatDirector] RAGE HIT!");
+            weakpointSequence.SubmitHit();
+            return;
+        }
+
+        // NORMAL HIT
         Vector2 markerScreenPos;
         if (!directionView.TryGetActiveMarkerScreenPos(out markerScreenPos)) return;
 
@@ -116,12 +117,13 @@ public class CombatDirector : MonoBehaviour
         float dist = Vector2.Distance(fingerPos, markerScreenPos);
         if (dist > hitRadiusPx) return;
 
-        // Ayni hedefe birden fazla hit kaydetme
         if (hitRegisteredThisTarget) return;
         hitRegisteredThisTarget = true;
 
         firstTouchMade = true;
         comboManager?.RegisterHit();
+        rageManager?.RegisterHit();
+        FeedbackManager.Instance?.PlayHitFeedback();
         Debug.Log($"[CombatDirector] HIT! dist={dist:F0}px");
         weakpointSequence.SubmitHit();
     }
@@ -133,7 +135,10 @@ public class CombatDirector : MonoBehaviour
         executionOpen = true;
         firstTouchMade = false;
         hitRegisteredThisTarget = false;
-        Debug.Log("[CombatDirector] Execution açildi.");
+        Debug.Log("[CombatDirector] Execution acildi.");
+
+        if (rageManager != null && rageManager.IsRageActive)
+            directionView.HideAll();
     }
 
     private void HandleChainAdvance(int newIndex)
@@ -150,6 +155,8 @@ public class CombatDirector : MonoBehaviour
         firstTouchMade = false;
         hitRegisteredThisTarget = false;
         comboManager?.RegisterChainSuccess();
+        enemyApproach?.SetRageVisual(false);
+        FeedbackManager.Instance?.PlayChainSuccessFeedback();
         OnCombatSuccess?.Invoke();
         Debug.Log($"[CombatDirector] BASARI! Toplam={successCount}");
     }
@@ -161,12 +168,13 @@ public class CombatDirector : MonoBehaviour
         firstTouchMade = false;
         hitRegisteredThisTarget = false;
 
-        // Combo ve rage sifirla
-        comboManager?.RegisterTimeout(); // hem timeout hem finger-lift icin combo reset
+        comboManager?.RegisterTimeout();
+        rageManager?.ResetRage();
+        enemyApproach?.SetRageVisual(false);
+        FeedbackManager.Instance?.PlayFailFeedback();
         OnCombatFail?.Invoke(reason);
         Debug.Log($"[CombatDirector] FAIL. Sebep={reason} Toplam={failCount}");
 
-        // Retry: telegraph tekrar oynatilmadan 1. weakpoint'ten basla
         if (combatActive && activeChain != null && activeChain.Count > 0)
             StartCoroutine(RetryAfterDelay());
         else
@@ -182,15 +190,11 @@ public class CombatDirector : MonoBehaviour
         if (!combatActive) yield break;
 
         Debug.Log("[CombatDirector] Retry: ayni dusmanin zinciri yeniden basliyor.");
-        // Telegraph tekrar oynatilmaz: dogrudan execution'a gec
         weakpointSequence.StartExecutionDirectly(activeChain);
     }
 
     // --- Public API ---
 
-    /// <summary>
-    /// Yeni bir dusmanin zincirini baslatir. Telegraph dahil tam akis.
-    /// </summary>
     public void StartCombatSequence(List<WeakpointDirection> chain)
     {
         if (weakpointSequence == null)
@@ -206,7 +210,13 @@ public class CombatDirector : MonoBehaviour
         hitRegisteredThisTarget = false;
         waitingForRetry = false;
 
-        weakpointSequence.StartSequence(chain);
+        if (rageManager != null && rageManager.IsRageActive)
+        {
+            enemyApproach?.SetRageVisual(true);
+            weakpointSequence.StartExecutionDirectly(chain);
+        }
+        else
+            weakpointSequence.StartSequence(chain);
     }
 
     public WeakpointSequence GetSequence() => weakpointSequence;
