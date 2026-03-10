@@ -1,100 +1,190 @@
-# TODO_TR
+# TODO_TR (Revised)
 
-> Aktif iş listesi. Odak güncel ve sıradaki işlerde olmalıdır.
+> Aktif iş listesi.
+> Bu dosya yalnızca yapılacak işleri ve öncelik sırasını tutar.
+> Gameplay kuralları için `GAME_RULES_TR.md`
+> Teknik sınırlar için `ARCHITECTURE_TR.md`
+> Güncel durum özeti için `CHAT_STATE.md` referans alınır.
 
 ---
 
-## Aktif Faz
+## 1) Aktif Faz
 
-**Faz:** Combat Prototype Foundation — Hit-Test Doğrulama
+**Faz:** Locked Combat Refactor + Enemy Approach Loop
 
 Ana amaç:
-- Marker üstünden geçmek = HIT çalışıyor mu doğrulamak
-- Combo sisteminin görsel olarak çalıştığını görmek
-- İlk gerçek combat loop'u ayağa kaldırmak
+- Combat sistemini yeni locked rules ile birebir hizalamak
+- Eski yön bazlı kalıntıları temizlemek
+- Düşman yaklaşma -> telegraph -> execution -> punish / death loop'unu kurmak
+- Feedback ve rage temelini oturtmak
 
 ---
 
-## Tamamlananlar
+## 2) Birinci Öncelik — Combat Refactor
 
-- [x] Prototype_CombatCore sahnesi oluşturuldu
-- [x] First-person karar kilitlendi
-- [x] Infinite corridor sistemi kuruldu ve stabilize edildi
-- [x] Ceiling, fog, torch lights eklendi
-- [x] SwipeInput sistemi kuruldu (mouse + touch)
-- [x] SwipeInterpreter segment-based chain mantığı
-- [x] CombatDirector oluşturuldu
-- [x] WeakpointSequence telegraph → execution akışı
-- [x] WeakpointDirectionView marker sistemi
-- [x] World-space WeakPoint takibinden sabit ekran pozisyonlarına geçildi
-- [x] Finger lift = reset kaldırıldı (Fruit Ninja modeli)
-- [x] ComboManager oluşturuldu
-- [x] ComboText + HitCountText UI eklendi
-- [x] SwipeDebugHUD kaldırıldı
-- [x] ProjectState DevTool (snapshot, compare, journal) tamamlandı
+### 2.1 Eski Yön Bazlı Kalıntıları Temizle
+- [ ] Direction / dot threshold mantığını kaldır
+- [ ] Yön bazlı hit kabulünü kaldır
+- [ ] Combat validation'ı sadece **aktif weakpoint içinden geçme** kuralına çevir
+- [ ] `Right / Up / Left` gibi yön odaklı test mantıklarını temizle
+- [ ] Artık gereksiz olan 8 yön / diagonal düşüncesini tamamen bırak
 
----
+### 2.2 Telegraph Akışını Yeni Tasarıma Çevir
+- [ ] Telegraph fazını `1 -> 1+2 -> 1+2+3` şeklinde çalıştır
+- [ ] Full pattern hold süresini ayarla
+- [ ] Telegraph sırasında her yeni weakpoint görünümüne ses / feedback hook'u ekle
+- [ ] Telegraph bitince execution'a geçişi temiz hale getir
 
-## Şu An Yapılacaklar
+### 2.3 Execution Akışını Yeni Tasarıma Çevir
+- [ ] Execution başında sadece `1` aktif weakpoint görünür kalsın
+- [ ] `1` tamamlanınca `2` açılsın
+- [ ] `2` tamamlanınca `3` açılsın
+- [ ] Aynı anda yalnızca tek aktif weakpoint görünsün
+- [ ] Yanlış / aktif olmayan weakpoint teması **ignore** olsun
+- [ ] Boş alanda gezinme **ignore** olsun
+- [ ] Sadece süre ve aktif hedef ilerlemesi önemli olsun
 
-### Doğrulama (Öncelik 1)
-- [ ] Hit-test çalışıyor mu doğrula — marker üstünden geç, HIT logu + combo artıyor mu?
-- [ ] ComboText ekranda görünüyor mu? ("HIT!" / "x2 COMBO!")
-- [ ] Timeout = combo sıfırlıyor mu?
-- [ ] Parmak kaldırma = combo **bozmuyor** mu?
-
-### Temizlik
-- [ ] `WeakpointCombatTest.cs` kaldır (eski prototip, kullanılmıyor)
-- [ ] `WeakPoint_1/2/3` world objelerini sahneye kaldır (artık kullanılmıyor)
-
----
-
-## Bir Sonraki Katman
-
-### EnemyController (Sonraki Major Step)
-- [ ] `EnemyController.cs` oluştur
-- [ ] Düşman koridorun sonundan yaklaşır (scale büyür)
-- [ ] Belirli mesafeye gelince telegraph başlar
-- [ ] Execute = interrupt (düşman saldırısı kesilir)
-- [ ] Düşman hasar alır, stagger olur
-
-### Combat Flow Polish
-- [ ] CombatTriggerTest'i EnemyController'a bağla (otomatik trigger kalkacak)
-- [ ] Telegraph süresi + hold süresi GameConfig'ten okunuyor mu doğrula
-- [ ] Execution window timeScale etkisini test et
-
-### Feedback
-- [ ] Basit slash trail effect
-- [ ] Hit VFX (basit flash)
-- [ ] Combo sayacına pulse animasyon
+### 2.4 Finger / Fail Kuralını Kilitlenen Tasarıma Uygula
+- [ ] Execution sayaçları oyuncu dokunmadan da aksın
+- [ ] Oyuncu execution içinde istediği an ilk teması yapabilsin
+- [ ] İlk temastan sonra **first-touch lock** başlasın
+- [ ] Execution tamamlanmadan finger lift olursa fail üret
+- [ ] Timeout fail çalışsın
+- [ ] Fail reason sistemini netleştir: `Timeout` / `FingerLift`
 
 ---
 
-## İleri Düzey / Sonraya Bırakılanlar
+## 3) İkinci Öncelik — Punish / Retry Loop
 
-- [ ] ScriptableObject tabanlı enemy data config
-- [ ] Wave / spawn pacing sistemi
-- [ ] Rage sistemi implementasyonu
-- [ ] UI polish
-- [ ] Audio placeholder
-- [ ] Mobile optimization
+### 3.1 Fail Sonrası Akış
+- [ ] Fail olduğunda kısa punish feedback oynat
+- [ ] Combo reset uygula
+- [ ] Rage reset uygula
+- [ ] İleride HP cezası bağlanabilecek alan bırak
+- [ ] Kısa bekleme sonrası aynı düşmana yeniden dön
+
+### 3.2 Retry Kuralı
+- [ ] Fail sonrası pattern öğretme fazını tekrar oynatma
+- [ ] Aynı düşman için doğrudan `1. weakpoint`ten yeniden başlat
+- [ ] Retry loop'un temiz ve tutarlı çalıştığını test et
+
+---
+
+## 4) Üçüncü Öncelik — Enemy Approach Loop
+
+### 4.1 Yaklaşma
+- [ ] Düşman koridorun sonundan gelsin
+- [ ] Yaklaştıkça perspektif olarak büyüsün
+- [ ] Koridor hareketi ile görsel olarak uyumlu yaklaşma hissi ver
+
+### 4.2 Telegraph Trigger
+- [ ] Düşman belirli threshold noktasına gelince telegraph başlasın
+- [ ] Telegraph tetikleme anı ile approach akışı uyumlu olsun
+
+### 4.3 Success Sonrası
+- [ ] Son weakpoint kesildiğinde kısa death feedback / animasyon oynat
+- [ ] Mini bekleme ver
+- [ ] Sonraki düşmanı başlat
+
+### 4.4 Prototype Scope Kuralı
+- [ ] Aynı anda yalnızca tek aktif düşman kuralını koru
+- [ ] Bir düşman çözülmeden yenisi başlamasın
+
+---
+
+## 5) Dördüncü Öncelik — Rage Sistemi
+
+### 5.1 Rage Dolumu
+- [ ] Her doğru weakpoint hitinde rage ver
+- [ ] Rage'i combodan bağımsız sayaç olarak işlet
+
+### 5.2 Rage Active Davranışı
+- [ ] Rage aktifken weakpoint zorunluluğunu kaldır
+- [ ] Rage aktifken düşman silüetine slash yeterli olsun
+- [ ] Rage aktifken tek slash execution davranışını test et
+
+### 5.3 Rage Fail Davranışı
+- [ ] Fail olduğunda rage'i sıfırla
+- [ ] Rage reset feedback'ini gerekiyorsa bağla
+
+---
+
+## 6) Beşinci Öncelik — Feedback Katmanı
+
+### 6.1 Hit Feedback
+- [ ] Ufak ekran titremesi
+- [ ] Hit stop
+- [ ] Tatmin edici slash / hit sesleri
+- [ ] Doğru hitte anlık görsel tepki
+
+### 6.2 Combo / UI Feedback
+- [ ] Combo popup / pulse
+- [ ] Debug amaçlı combo ve rage takibini görünür tut
+- [ ] Mekanik oturana kadar debug HUD yaklaşımını pratik tut
+
+### 6.3 Fail / Death Feedback
+- [ ] Fail anında kısa ve net punish feedback
+- [ ] Success anında kısa death feedback
+- [ ] İki durumun hissi birbirinden ayrışsın
+
+---
+
+## 7) Altıncı Öncelik — Temizlik
+
+### 7.1 Kod Temizliği
+- [ ] Eski prototip / test kalıntılarını ayıkla
+- [ ] Artık kullanılmayan yön bazlı kodları temizle
+- [ ] Geçici logic ile kalıcı logic'i ayır
+
+### 7.2 Sahne Temizliği
+- [ ] Kullanılmayan world-space weakpoint objelerini kaldır veya devre dışı bırak
+- [ ] Sahnede artık owner'ı olmayan referansları temizle
+
+### 7.3 Test Temizliği
+- [ ] Geçici test tetikleyicilerini yeni akışa göre güncelle
+- [ ] Eski chain test mantığını yeni target-sequence mantığına çevir
+
+---
+
+## 8) Sonraki Katmanlar (Bu Fazdan Sonra)
+
+### 8.1 Enemy Data
+- [ ] Düşman tipine göre weakpoint sayısı / davranışı veri tarafına taşı
+- [ ] `Common / Elite / Boss` farklarını data-driven hale getir
+
+### 8.2 Wave / Flow
+- [ ] Basit düşman akış yöneticisi
+- [ ] Sonra wave / chapter pacing temeli
+
+### 8.3 Mobile / Build
+- [ ] Mobile test hazırlığı
 - [ ] APK test build
-- [ ] Diagonal / 8 yön input (4 yön oturduktan sonra değerlendir)
+- [ ] Performans / input doğrulaması
 
 ---
 
-## Tooling / Workflow
+## 9) Bilerek Ertelenenler
 
-- [ ] Auto DEBUG snapshot → auto journal entry bağlantısı
-- [ ] CHAT_STATE düzenli güncelle (her milestone sonrası)
-- [ ] DEBUG_JOURNAL aktif kullan
+Şimdilik odak dışı:
+- [ ] Çoklu aktif düşman
+- [ ] Gelişmiş boss fazları
+- [ ] Ağır VFX polish
+- [ ] Hikâye / narrative
+- [ ] Multiplayer
+- [ ] Çok geniş progression sistemi
 
 ---
 
-## Notlar
+## 10) Kısa Çalışma Notu
 
-- Kod kaynağı: **GitHub pushed state**
-- Scene/debug kaynağı: **Snapshot (sadece gerektiğinde)**
-- MCP: Sadece kod yazma + sahne kaydetme
-- Sahne değişiklikleri: Kullanıcı elle yapar
-- 30+ satır kod: `.cs` dosyası olarak verilir
+Bu dosyanın ana mesajı şu:
+
+**Eski yön bazlı combat mantığını bırak, locked target-sequence combat tasarımını ayağa kaldır.**
+
+Başarı ölçütü:
+- Düşman yaklaşır
+- Pattern bir kez öğretilir
+- Execution doğru akar
+- Finger lift ve timeout fail çalışır
+- Punish / retry loop temizdir
+- Rage ve feedback temel haliyle hissedilir

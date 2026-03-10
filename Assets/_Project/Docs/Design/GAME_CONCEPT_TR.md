@@ -1,221 +1,196 @@
 # BladeRift – GAME CONCEPT (TR)
 
----
-
-# 1. Elevator Pitch
-
-BladeRift, mobil odaklı, 1. şahıs perspektifli, tek input (continuous swipe) ile oynanan
-yüksek tempolu bir dungeon combat oyunudur.
-
-Oyuncu sabittir. Dünya ve düşmanlar üzerine akıyormuş gibi ilerler.
-Amaç; zayıf noktaları doğru sırayla ve tek akıcı hamlede keserek düşmanları
-en verimli şekilde yok etmek, rage moduna girerek tempo yakalamak
-ve chapter sonunda loot kazanarak karakterini kalıcı olarak güçlendirmektir.
-
-Oyun iki temel eksen üzerine kuruludur:
-
-1) Anlık tatmin (combat hissi)
-2) Uzun vadeli bağımlılık (meta upgrade sistemi)
+> Bu dosya BladeRift'in ürün vizyonunu anlatır.
+> Detaylı gameplay kuralları burada tekrar edilmez.
+> Combat'ın kesin davranışı için `GAME_RULES_TR.md` okunur.
 
 ---
 
-# 2. Oyun Kimliği ve Tasarım Felsefesi
+## 1) Elevator Pitch
 
-## 2.1 Platform & Perspektif
+BladeRift, mobil odaklı, 1. şahıs perspektifli, yüksek tempolu bir dungeon combat oyunudur.
+
+Oyuncu sabittir.
+Dünya ve düşmanlar oyuncunun üstüne akıyormuş gibi ilerler.
+Oyunun hedefi; düşman pattern'lerini okuyup doğru anda execute ederek yüksek tatminli bir combat hissi yakalamak, rage ile tempoyu yükseltmek ve uzun vadede karakterini güçlendirmektir.
+
+BladeRift iki ana eksen üzerinde durur:
+1. anlık tatmin
+2. uzun vadeli ilerleme arzusu
+
+---
+
+## 2) Oyun Kimliği
 
 - Platform: Mobil (Android öncelikli)
-- Tür: Action / Reflex / Memory-based Combat
-- Perspektif: 1. Şahıs
-- Kontrol: Tek input (Swipe)
-
-## 2.2 Tasarım Sütunları (Core Pillars)
-
-1. Tek Input Derinliği  
-   Tüm combat sistemi yalnızca swipe ile çalışır. Öğrenmesi basit, ustalaşması zordur.
-
-2. Weakpoint Chain Mekaniği  
-   Düşman üzerinde sırayla yanan zayıf noktalar bulunur.  
-   Oyuncu continuous şekilde doğru sırayı takip ederek execution yapar.
-
-3. Interrupt Önceliği  
-   Doğru execution düşmanın saldırısını iptal eder.  
-   Oyuncu “haksız” hasar yemez.
-
-4. Rage Momentum Sistemi  
-   Başarılı zincirler rage doldurur.  
-   Rage modunda weakpoint şartı kalkar.
-
-5. Yüksek Tatminli Feedback  
-   - Mini slow motion  
-   - 0.2 sn hit stop  
-   - Beyaz ekran flash  
-   - Zincir tamamlanınca güçlü görsel geri bildirim
-
-6. Uzun Vadeli Meta  
-   Upgrade sistemi derin olmalı. Oyuncu hem skill hem build ile ilerlemeli.
+- Tür: Action / Reflex / Pattern-based Combat
+- Perspektif: 1. şahıs
+- Ana kontrol: Tek input / swipe
+- Görsel yaklaşım: Stylized dungeon corridor
+- Combat hissi: hızlı, keskin, tatminli, akıcı
 
 ---
 
-# 3. Core Gameplay (Moment-to-Moment)
+## 3) Tasarım Sütunları
 
-## 3.1 Combat Akışı
+### 3.1 Tek Input Derinliği
+Oyunun temel kontrol yapısı tek input üzerinden akar.
+Öğrenmesi kolay, ustalaşması zaman isteyen bir combat hissi hedeflenir.
 
-1. Düşman yaklaşır.
-2. Weakpoint zinciri sırayla yanar (Telegraph Phase).
-3. Execution window açılır (2 saniye).
-4. Mini slow motion başlar.
-5. Oyuncu:
-   - Parmağını kaldırmadan
-   - Sıradaki weakpoint’e dokunarak zinciri ilerletir.
+### 3.2 Pattern Okuma + Execution
+Oyuncu önce düşmanın pattern'ini okur, sonra bu pattern'i zaman baskısı altında uygular.
+Bu yapı oyuna hem refleks hem kısa süreli hafıza baskısı ekler.
 
-### Başarı Durumu
+### 3.3 Interrupt Önceliği
+Başarılı execution düşmanın saldırı akışını bozar.
+Oyuncu doğru oynadığında haksız hasar yememelidir.
 
-- Zincir tamamlanır.
-- Basic düşman genelde ölür.
-- Elite/Boss:
-  - Büyük hasar alır
-  - Interrupt olur
-  - Stagger olur
+### 3.4 Rage Momentum
+Doğru hit'ler ve başarılı tempo oyuna hız katar.
+Rage aktif olduğunda combat daha saldırgan, daha hızlı ve daha güç hissi veren bir yapıya dönüşür.
 
-### Hata Durumu
+### 3.5 Yüksek Tatminli Feedback
+BladeRift'in başarısı yalnızca kurala değil, hisse de bağlıdır.
+Oyuncu gerçekten bir şeyi kestiğini hissetmelidir.
 
-- Yanlış hedefe dokunma
-- Parmağı kaldırma
-- Sürenin bitmesi
-
-Sonuç:
-- Düşman saldırır
-- Oyuncu hasar alır
-- Düşman az hasar görür (chip damage)
-
-Önemli tasarım ilkesi:
-Oyuncu mükemmel execution yaptıysa saldırı yememeli.
+### 3.6 Uzun Vadeli Meta
+Combat anlık zevki taşırken, meta sistem oyuncuyu geri getiren uzun vadeli bağımlılığı üretir.
 
 ---
 
-# 4. Düşman Türleri
+## 4) Combat Fantasy
 
-## 4.1 Basic Enemy
+BladeRift'in combat fantezisi şudur:
 
-- 1-3 weakpoint
-- Tek execution ile genelde ölür
-- Basit saldırı paterni
+- düşman yaklaşır
+- oyuncu tehdidi okur
+- kısa bir zihinsel hazırlık yaşar
+- doğru anda zinciri uygular
+- vuruşlar tatminli şekilde akar
+- başarı tempo ve güç hissi üretir
 
-## 4.2 Elite Enemy
-
-- 3-5 weakpoint
-- Execution:
-  - Büyük hasar
-  - Interrupt
-  - Stagger
-- Birden fazla execution gerekebilir
-
-## 4.3 Boss (v0.1)
-
-- Tek tip saldırı
-- Interrupt edilebilir
-- İleride:
-  - Guard fazı
-  - Multi-chain pattern
-  - Sahne mekaniği
+Detaylı combat kuralı burada tutulmaz.
+Tam rule set için `GAME_RULES_TR.md` referans alınır.
 
 ---
 
-# 5. Rage Sistemi
+## 5) Düşman Vizyonu
 
-Rage dolumu:
-- Başarılı zincir
-- Perfect streak
+### 5.1 Common
+- daha kısa pattern
+- daha okunabilir tehdit
+- temel tempo taşıyıcısı
 
-Rage aktifken:
-- Weakpoint zorunluluğu kalkar
-- Tek swipe = execution
-- Tempo artar
+### 5.2 Elite
+- daha zor pattern
+- daha sert punish riski
+- daha yüksek execution baskısı
 
-Rage:
-- Süre bazlıdır
-- Upgrade ile geliştirilebilir
+### 5.3 Boss
+- en kompleks tehdit
+- daha ağır combat kimliği
+- gelecekte çok fazlı ve daha özel davranışlar
 
----
-
-# 6. Chapter Yapısı
-
-- Oyun chapter bazlı ilerler.
-- Wave sistemi vardır.
-- Aynı anda 2-3 düşman kombinasyonu olabilir.
-- 5 bölümde 1 boss olabilir (esnek).
-
-Chapter sonunda:
-- Loot ekranı
-- 3 seçenek
-- 1 free reroll
-- Loot x2 (reklam opsiyonu)
-
-Oyuncu eski chapterlara dönebilir (farm).
+Tam weakpoint sayıları ve gameplay kuralları concept seviyesinde değil, rules/data seviyesinde tutulur.
 
 ---
 
-# 7. Meta Progression
+## 6) v0.1 / Current Product Direction
 
-## 7.1 Upgrade Alanları
+v0.1 için hedef:
+- çalışan ve paylaşılabilir combat prototype
+- yaklaşan düşman hissi
+- pattern öğretme
+- execution
+- combo
+- rage
+- temel punish ve feedback
+- mobil düşünülerek kurulmuş ama PC'de hızlı test edilebilir yapı
 
-- Execution Damage %
-- Instant Kill Chance %
-- Execution Window +
-- Weakpoint Hit Radius +
-- Rage Gain +
-- Rage Duration +
-- Multiplier Cap +
-- Multiplier Decay Slow
+Prototype kapsamı:
+- aynı anda tek aktif düşman
+- tek koridor hissi
+- combat çekirdeğini doğrulamaya odaklı akış
+
+---
+
+## 7) Long-Term Vision
+
+Uzun vadede BladeRift şu alanlara genişleyebilir:
+- wave tabanlı chapter yapısı
+- farklı düşman kombinasyonları
+- aynı anda birden fazla tehdit
+- daha kompleks elite / boss pattern'leri
+- daha güçlü rage varyasyonları
+- meta build çeşitliliği
+- loot ve progression derinliği
+- daha güçlü ses / VFX / polish katmanı
+
+Bu maddeler vizyonu anlatır; prototype scope'unu zorunlu kılmaz.
+
+---
+
+## 8) Rage Vizyonu
+
+Rage, BladeRift'in tempo kırıcı değil tempo yükseltici mekanizmasıdır.
 
 Amaç:
-Başta hızlı tatmin → Orta oyunda optimizasyon → Geç oyunda hızlandırma isteği.
+- oyuncuya zincir doğruluğunun ödülünü vermek
+- combat'ı kısa süreliğine daha saldırgan hale getirmek
+- ritmi yükseltmek
+- "ben şu an güçlendim" hissi yaratmak
 
-## 7.2 Uzun Vadeli Hedef
-
-Upgrade sistemi 1 yıllık içerik derinliği taşımalı.  
-Oyuncu kolay kolay bırakmamalı.
-
----
-
-# 8. Monetizasyon Felsefesi
-
-- Kozmetik satış
-- Loot x2 (reklam)
-- Ekstra reroll
-- Upgrade hızlandırma
-- Pay-to-skip var, pay-to-win yok
-
-Skill her zaman önemli kalmalı.
+Kesin rage kuralı için `GAME_RULES_TR.md` referans alınır.
 
 ---
 
-# 9. Ürün Öncelikleri
+## 9) Meta Progression Vizyonu
 
-Combat hissi: ULTRA+  
-Görsel kalite: HIGH  
-Ses & polish: Daha sonra
+Uzun vadeli progression alanları:
+- execution rahatlığı
+- tempo artırıcı yükseltmeler
+- rage süresi / rage verimliliği
+- hasar çeşitleri
+- chain verimliliği
+- chapter farming motivasyonu
 
-İlk hedef:
-Çalışan, paylaşılan APK v0.1
-
----
-
-# 10. Bilerek Ertelenenler
-
-- Kompleks boss pattern
-- Çoklu guard zincirleri
-- Gelişmiş VFX
-- Multiplayer
-- Hikaye
-
-Önce combat çekirdeği kusursuz olacak.
+Amaç:
+Başta tatmin, orta oyunda optimizasyon, ileri oyunda ustalık hissi.
 
 ---
 
-# 11. Bu Dokümanın Amacı
+## 10) Monetizasyon Felsefesi
 
-- Yeni bir ekip üyesi oyunu 10 dakikada anlayabilmeli.
-- 3 ay sonra geri dönüldüğünde yön kaybolmamalı.
-- Kod kararları vizyona göre alınmalı.
-- Scope creep kontrol edilmeli.
+BladeRift'in monetizasyonu skill hissini öldürmemelidir.
+
+Hedef yaklaşım:
+- kozmetik satışlar
+- loot / progression hızlandırıcı yardımcılar
+- opsiyonel reklam temelli ödüller
+
+Ana ilke:
+**pay-to-skip olabilir, pay-to-win olmamalıdır.**
+
+---
+
+## 11) Bilerek Ertelenenler
+
+Şimdilik ana odak dışında kalanlar:
+- gelişmiş hikâye
+- karmaşık boss fazları
+- ağır VFX production
+- multiplayer
+- aşırı sistem genişliği
+
+Önce combat çekirdeği kusursuz oturmalıdır.
+
+---
+
+## 12) Bu Dokümanın Rolü
+
+Bu dosya şu sorunun cevabıdır:
+
+**"BladeRift nasıl bir oyun olmak istiyor?"**
+
+Bu dosya rulebook değildir.
+Bu dosya product vision kaynağıdır.

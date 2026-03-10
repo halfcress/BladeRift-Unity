@@ -1,8 +1,9 @@
-﻿# CHAT_STATE (Single Source of Truth)
+# CHAT_STATE (Current Progress Truth)
 
-> Bu dosya: "Bugün en son nerede kaldık?" sorusunun tek cevabıdır.
-> Yeni sohbete başlarken ilk referans bu dosyadır.
-> Varsayım yapılmaz.
+> Bu dosya yalnızca güncel çalışma durumunu tutar.
+> Oyun kuralları için `GAME_RULES_TR.md`
+> Teknik yapı için `ARCHITECTURE_TR.md`
+> Ürün vizyonu için `GAME_CONCEPT_TR.md` okunur.
 
 ---
 
@@ -17,365 +18,140 @@
 - Current Main Test Platform: PC
 - Current Scene: `Prototype_CombatCore`
 - Current Scene Path: `Assets/_Project/Scenes/Prototype/Prototype_CombatCore.unity`
-- Screen Target: 9:16 (1080x1920)
+- Screen Target: `9:16 (1080x1920)`
 
 ---
 
-## 2) Core Direction (Locked)
+## 2) Doküman Hiyerarşisi
+
+Çelişki halinde öncelik sırası:
+
+1. `GAME_RULES_TR.md`
+2. `ARCHITECTURE_TR.md`
+3. `GAME_CONCEPT_TR.md`
+4. `CHAT_STATE.md`
+
+Rol dağılımı:
+- **Gameplay truth** → `GAME_RULES_TR.md`
+- **Technical truth** → `ARCHITECTURE_TR.md`
+- **Product vision truth** → `GAME_CONCEPT_TR.md`
+- **Current progress truth** → `CHAT_STATE.md`
+
+---
+
+## 3) Core Direction (Locked)
 
 - Perspektif: **First-person**
 - Hareket hissi: **Oyuncu sabit, dünya üstüne akar**
 - Ana tema: **Stylized dungeon combat**
 - Ortam: **3D corridor**
 - Düşman yaklaşımı: **2D billboard / sprite enemy**
-- Combat yaklaşımı: **Swipe ile marker'ın üstünden geç → execution**
-- Fail koşulu: **Sadece Timeout = chain reset + combo sıfır**
-- Finger lift: **Combo bozmaz (Fruit Ninja modeli)**
 - v0.1 hedefi: **Paylaşılabilir combat prototype / APK**
 
----
-
-## 3) Mandatory Design / Architecture Context (Critical)
-
-Yeni sohbet açıldığında mutlaka birlikte okunmalı:
-
-- `ARCHITECTURE_TR.md` — sistem mimarisinin ana doğruluk kaynağı
-- `GAME_CONCEPT_TR.md` — oyun mekaniği ve hedef vizyon
-- `GAME_RULES_TR.md` — kurallar ve config parametreleri
-
-### Conflict Priority Order
-1. `ARCHITECTURE_TR.md`
-2. `GAME_RULES_TR.md`
-3. `GAME_CONCEPT_TR.md`
-4. `CHAT_STATE.md`
+Combat kural detayları bu dosyada tekrar edilmez.
+Tam combat kuralı için `GAME_RULES_TR.md` esas alınır.
 
 ---
 
-## 4) Current Working State
+## 4) Şu An Doğrulanan Çalışan Kısımlar
 
 ### Environment
-- Infinite corridor sistemi çalışıyor, stabil.
-- Ceiling, fog, torch lights aktif.
+- Infinite corridor sistemi çalışıyor ve stabil görünüyor
+- Ceiling, fog ve torch light yapısı sahnede mevcut
 
-### Input
-- `SwipeInput` — mouse + touch, `IsDown`, `DeltaPx`, `FingerPosition`
-- `SwipeInterpreter` — segment-based, projede duruyor ama combat için kullanılmıyor
-- `SwipeDebugHUD` — **kaldırıldı**
+### Core Combat Loop (Kısmi doğrulandı)
+Console çıktısına göre aşağıdakiler çalışıyor:
+- combat test tetikleyicisi zinciri başlatıyor
+- telegraph fazı açılıyor
+- execution window açılıyor
+- ilk hit kayıt oluyor
+- ikinci hit kayıt oluyor
+- combo artışı log'a düşüyor
+- timeout sonucu fail akışı çalışıyor
 
-### Combat System (Aktif)
-
-| Script | Konum | Görev |
-|---|---|---|
-| `CombatDirector` | Scripts/Combat | Hit-test yöneticisi, combat akışının kapısı |
-| `WeakpointSequence` | Scripts/Combat | Telegraph → ExecutionWindow → Done akışı |
-| `WeakpointDirectionView` | Scripts/UI | Sabit ekran marker yönetimi |
-| `ComboManager` | Scripts/Combat | Fruit Ninja combo sistemi |
-| `CombatTriggerTest` | Scripts/Combat | Test döngüsü (geçici) |
-| `GameConfig` | Scripts/Core | ScriptableObject, tüm parametreler |
-
-### Hit-Test Sistemi (Kritik — Tasarım Kararı)
-
-**Marker'ın üstünden geçmek = HIT.**
-
-- Her frame: `SwipeInput.FingerPosition` + `DeltaPx` kontrol edilir
-- Parmak marker'a `hitRadiusPx` içindeyse VE doğru yönde gidiyorsa → HIT
-- `hitRadiusPx = 80`, `minDeltaPx = 8`, `directionDotThreshold = 0.3`
-- Marker pozisyonu: `RectTransform.position` (güvenilir, world-space takip YOK)
-- Finger lift = combo bozmaz, sadece timeout = fail
-
-> NOT: Eski "4 yön swipe commit" sistemi (SwipeInterpreter) devre dışı.
-> Yön bilgisi hâlâ kullanılıyor ama ikincil — asıl tetikleyici marker üstünden geçmek.
-
-### Weakpoint Marker Sistemi
-
-- Marker'lar **sabit ekran pozisyonlarında** (world-space WeakPoint takibi kaldırıldı)
-- 3 marker varsayılan pozisyon: sol-alt `(-150, -100)`, orta-üst `(0, 80)`, sağ-alt `(150, -100)`
-- Telegraph: marker'lar sırayla belirir (kırmızı)
-- Execution: sıradaki marker parlak kırmızı, diğerleri soluk
-- `WeakPoint_1/2/3` world objeleri sahneye var ama artık kullanılmıyor (temizlenebilir)
-
-### UI
-
-- `ComboText` — ekran ortası üstü, sarı, `"HIT!" / "x2 COMBO!"`
-- `HitCountText` — sol üst köşe, `"Hits: 0"`
-- `DebugSwipeText` — **kaldırıldı**
-
-### Enemy
-
-- `EnemyPlaceHolder` — 2D billboard quad, kameraya dönük
-- `WeakPoint_1/2/3` — EnemyPlaceHolder altında, artık kullanılmıyor
-
-### GameConfig Asset
-
-- Path: `Assets/_Project/ScriptableObjects/GameConfig.asset`
-- `executionWindowSeconds = 2.0`
-- `timeScaleDuringExecution = 0.8`
+### UI / Marker Temeli
+- marker gösterimi mevcut
+- combo / hit sayaçlarının debug amaçlı kullanımı sahnede mantıklı
 
 ---
 
-## 5) Scene Hierarchy (Özet)
+## 5) Mevcut Kod ile Yeni Tasarım Arasındaki Farklar
 
-```
-GameRoot [CombatDirector, WeakpointSequence, ComboManager, CorridorLoop, CombatTriggerTest]
-  - Corridor_01 / 02 / 03
-  - InputRoot [SwipeInput, SwipeInterpreter]
-  - EnemyRoot
-    - EnemyPlaceHolder [BillboardFacing]
-      - WeakPoint_1/2/3 (kullanılmıyor)
-UIRoot [Canvas]
-  - WeakpointMarkerRoot [WeakpointDirectionView]
-    - WeakpointMarker_1/2/3 [Image, CanvasGroup]
-  - ComboText [TextMeshProUGUI]
-  - HitCountText [TextMeshProUGUI]
-EventSystem
-Main Camera
-Directional Light
-Global Volume
-```
+Şu anki implementasyon ile kilitlenen yeni tasarım arasında açık farklar var:
+
+- mevcut kodda yön filtresi kalıntıları bulunuyor
+- execution fail mantığı yeni kuralla tamamen hizalı değil
+- finger lift kuralı yeni tasarıma göre yeniden uygulanmalı
+- active weakpoint progression yeni kurala göre sadeleştirilmeli
+- punish sonrası pattern öğretme tekrar etmeyecek şekilde akış kurulmalı
+- rage davranışı yeni kurala göre ayrıştırılmalı
+
+Kısacası:
+**mevcut sahne tamamen bozuk değil, ancak yeni locked combat tasarımıyla tam hizalı değil.**
 
 ---
 
-## 6) Script Files (Current)
+## 6) Current Prototype Scope
 
-```
-Assets/_Project/Scripts/Combat/
-  CombatDirector.cs
-  WeakpointSequence.cs
-  ComboManager.cs
-  CombatTriggerTest.cs
-  WeakpointCombatTest.cs   ← eski prototip, temizlenebilir
+Prototype için aktif scope:
+- tek aktif düşman
+- yaklaşan düşman hissi
+- pattern öğretme
+- execution
+- combo
+- rage
+- punish akışı
+- feedback temeli
 
-Assets/_Project/Scripts/Input/
-  SwipeInput.cs
-  SwipeInterpreter.cs      ← devre dışı, projede duruyor
-
-Assets/_Project/Scripts/UI/
-  WeakpointDirectionView.cs
-
-Assets/_Project/Scripts/Core/
-  CorridorLoop.cs
-  GameConfig.cs
-
-Assets/_Project/Scripts/Tools/
-  BillboardFacing.cs
-  ProjectState/ (DevTool)
-
-Assets/_Project/Core/
-  WorldScroller.cs
-```
+Scope dışında / ileri faz:
+- çoklu aktif düşman
+- full spawn director
+- chapter pacing sistemi
+- tam elite/boss davranış seti
+- gelişmiş VFX / polish
+- final mobile optimization
 
 ---
 
-## 7) Çalışma Modu (Token Optimizasyonu — Aktif Kural)
+## 7) Sıradaki İşler
 
-- **MCP:** Sadece kod yazma + sahne kaydetme. Başka hiçbir şey için kullanılmaz.
-- **Sahne değişiklikleri:** AI adım adım söyler, kullanıcı elle yapar.
-- **Konsol:** Kullanıcı kopyalayıp yapıştırır.
-- **Snapshot:** Sadece kullanıcı inisiyatifiyle, gerçekten gerektiğinde.
-- **Kod:** `.cs` dosyası olarak verilir, kullanıcı kopyalar.
-- **Yeni sohbet açılışı:** "hey zibidi, bladerift önbelleğini güncelle" + kısa durum özeti yeterli.
+En yakın işler:
 
----
-
-## 8) Source of Truth Rules
-
-- **Kod:** GitHub pushed state
-- **Scene/runtime:** Snapshot (sadece gerektiğinde)
-- **Bağlam:** CHAT_STATE + Architecture/Design docs birlikte okunur
+1. Combat sistemini yeni locked rules'a hizalamak
+2. Yön bazlı kalıntıları temizlemek
+3. First-touch lock + finger lift fail mantığını uygulamak
+4. Telegraph -> execution -> punish -> retry akışını yeni kurala göre düzeltmek
+5. Enemy yaklaşma + death / punish / restart loop'unu oturtmak
+6. Feedback katmanını ayrı ve net kurmak
+7. Rage davranışını yeni kurala göre uygulamak
 
 ---
 
-## 9) Folder Structure
+## 8) Ana Aktif Riskler
 
-```
-Assets/_Project/
-  Art/
-  Audio/
-  Docs/
-    Architecture/
-    Design/
-    State/
-    Snapshots/Working|Debug|Archive
-  Prefabs/
-  Scenes/Prototype/
-  ScriptableObjects/
-  Scripts/
-    Combat/
-    Core/
-    Input/
-    Tools/ProjectState/
-    UI/
-  Settings/
-  UI/
-  VFX/
-```
+- Eski combat mantığının kodda kalıntı bırakması
+- Yeni kuralların birden fazla dosyada tekrar yazılıp tekrar çelişki üretmesi
+- AI ile yeni kod yazılırken architecture dışına taşılması
+- Debug için eklenen geçici logic'in kalıcı hale gelmesi
 
 ---
 
-## 10) Current Next Step
+## 9) Workflow Rules
 
-### Sıradaki Milestone: Hit-Test Doğrulama + İlk Gerçek Combat Loop
-
-1. **Hit-test doğrulaması** — marker üstünden geç → HIT + combo artıyor mu?
-2. **Combo görseli** — "x2 COMBO!" ekranda görünüyor mu?
-3. **EnemyController** — koridorun sonundan yaklaşan düşman
-4. **Execute = Interrupt** — düşman saldırısı kesilmeli
-
----
-
-## 11) Main Pain Points (Öğrenilenler)
-
-1. World-space WeakPoint → screen projeksiyon güvensiz → sabit UI pozisyona geçildi
-2. Inspector'daki SerializeField değeri kodun default'unu override eder
-3. Finger lift = reset tasarımı execution flow'u bozuyordu → Fruit Ninja modeline geçildi
-4. SwipeInput.DeltaPx per-frame delta, deadzone var — çok yavaş swipe'ta 0 döner
-5. hitRadiusPx Inspector'dan 200 set edilmişti, kod 60f yazıyordu ama Inspector kazandı
-6. Snapshot token yediği için sadece gerçekten gerektiğinde istenmeli
-7. MCP sahne manipülasyonu çağrıları pahalı — kullanıcı elle yapmalı
+- Kod yazarken önce `GAME_RULES_TR.md` ve `ARCHITECTURE_TR.md` kontrol edilir
+- `CHAT_STATE.md` tasarım kuralı üretmez; yalnızca mevcut ilerlemeyi özetler
+- Snapshot / console / sahne durumu gerektiğinde doğrulama kaynağı olarak kullanılır
+- Uzun vadeli tasarım kararları `GAME_RULES` veya `GAME_CONCEPT` içine işlenir
+- Teknik rol/sınır değişiklikleri `ARCHITECTURE` içinde tutulur
 
 ---
 
-## 12) ProjectState DevTool
+## 10) Kısa Durum Özeti
 
-Menu: `Tools > BladeRift > Project State > ...`
+Şu an proje:
+- sahne ve görsel prototip olarak ayakta
+- combat temel akışı kısmen çalışır halde
+- ama yeni locked combat tasarımına göre refactor / hizalama gerektiriyor
 
-Outputs:
-- `Assets/_Project/Docs/State/CHAT_STATE.md`
-- `Assets/_Project/Docs/State/DEBUG_JOURNAL.md`
-- `Assets/_Project/Docs/State/SNAPSHOT_INDEX.md`
-- `Assets/_Project/Docs/State/SNAPSHOT_COMPARE.md`
-
-<!-- AUTOGENERATED - DO NOT EDIT BELOW THIS LINE -->
-
-*Son guncelleme: 2026-03-10 01:06:44*
-
-## AUTO: Last Snapshot
-- Kind: DEBUG
-- Date: 2026-03-10 01:06:43
-- Scene: Prototype_CombatCore
-- Commit: e97941a — "memory states update"
-- Root objects: 7
-- Total objects: 58
-
-## AUTO: Script Files
-- Assets\_Project\Core\WorldScroller.cs
-- Assets\_Project\Scripts\Combat\CombatDirector.cs
-- Assets\_Project\Scripts\Combat\CombatTriggerTest.cs
-- Assets\_Project\Scripts\Combat\ComboManager.cs
-- Assets\_Project\Scripts\Combat\WeakpointCombatTest.cs
-- Assets\_Project\Scripts\Combat\WeakpointDirection.cs
-- Assets\_Project\Scripts\Combat\WeakpointSequence.cs
-- Assets\_Project\Scripts\Core\CorridorLoop.cs
-- Assets\_Project\Scripts\Core\GameConfig.cs
-- Assets\_Project\Scripts\Input\SwipeDebugHUD.cs
-- Assets\_Project\Scripts\Input\SwipeInput.cs
-- Assets\_Project\Scripts\Input\SwipeInterpreter.cs
-- Assets\_Project\Scripts\Tools\BillboardFacing.cs
-- Assets\_Project\Scripts\UI\WeakpointDirectionView.cs
-- Assets\_Project\Scripts\UI\WeakpointUIBridge.cs
-- Assets\_Project\Scripts\Tools\Editor\SpriteAssigner.cs
-
-## AUTO: Scene Hierarchy (Summary)
-- GameRoot [CombatDirector, CorridorLoop, CombatTriggerTest, WeakpointSequence, ComboManager]
-  - Corridor_01
-    - Wall_Left [MeshFilter, MeshRenderer, BoxCollider]
-    - Wall_Right [MeshFilter, MeshRenderer, BoxCollider]
-    - Floor [MeshFilter, MeshRenderer, BoxCollider]
-    - Ceiling [MeshFilter, MeshRenderer, BoxCollider]
-    - TorchLight_Left01 [Light, UniversalAdditionalLightData]
-    - TorchLight_Left02 [Light, UniversalAdditionalLightData]
-    - TorchLight_Left03 [Light, UniversalAdditionalLightData]
-    - TorchLight_Left04 [inactive] [Light, UniversalAdditionalLightData]
-    - TorchLight_Right01 [Light, UniversalAdditionalLightData]
-    - TorchLight_Right02 [Light, UniversalAdditionalLightData]
-    - TorchLight_Right03 [Light, UniversalAdditionalLightData]
-    - TorchLight_Right04 [inactive] [Light, UniversalAdditionalLightData]
-  - Corridor_02
-    - Wall_Left [MeshFilter, MeshRenderer, BoxCollider]
-    - Wall_Right [MeshFilter, MeshRenderer, BoxCollider]
-    - Floor [MeshFilter, MeshRenderer, BoxCollider]
-    - Ceiling [MeshFilter, MeshRenderer, BoxCollider]
-    - TorchLight_Left01 [Light, UniversalAdditionalLightData]
-    - TorchLight_Left02 [Light, UniversalAdditionalLightData]
-    - TorchLight_Left03 [Light, UniversalAdditionalLightData]
-    - TorchLight_Left04 [inactive] [Light, UniversalAdditionalLightData]
-    - TorchLight_Right01 [Light, UniversalAdditionalLightData]
-    - TorchLight_Right02 [Light, UniversalAdditionalLightData]
-    - TorchLight_Right03 [Light, UniversalAdditionalLightData]
-    - TorchLight_Right04 [inactive] [Light, UniversalAdditionalLightData]
-  - Corridor_03
-    - Wall_Left [MeshFilter, MeshRenderer, BoxCollider]
-    - Wall_Right [MeshFilter, MeshRenderer, BoxCollider]
-    - Floor [MeshFilter, MeshRenderer, BoxCollider]
-    - Ceiling [MeshFilter, MeshRenderer, BoxCollider]
-    - TorchLight_Left01 [Light, UniversalAdditionalLightData]
-    - TorchLight_Left02 [Light, UniversalAdditionalLightData]
-    - TorchLight_Left03 [Light, UniversalAdditionalLightData]
-    - TorchLight_Left04 [inactive] [Light, UniversalAdditionalLightData]
-    - TorchLight_Right01 [Light, UniversalAdditionalLightData]
-    - TorchLight_Right02 [Light, UniversalAdditionalLightData]
-    - TorchLight_Right03 [Light, UniversalAdditionalLightData]
-    - TorchLight_Right04 [inactive] [Light, UniversalAdditionalLightData]
-  - InputRoot [SwipeInput, SwipeInterpreter]
-  - EnemyRoot
-    - EnemyPlaceHolder [MeshFilter, MeshRenderer, BillboardFacing]
-- EventSystem [EventSystem, InputSystemUIInputModule]
-- Main Camera [Camera, AudioListener, UniversalAdditionalCameraData]
-- Directional Light [Light, UniversalAdditionalLightData]
-- Player_Reference [inactive] [MeshFilter, MeshRenderer, BoxCollider]
-- Global Volume [Volume]
-- UIRoot [Canvas, CanvasScaler, GraphicRaycaster]
-  - WeakpointMarkerRoot [WeakpointDirectionView]
-    - WeakpointMarker_1 [CanvasRenderer, Image, CanvasGroup]
-    - WeakpointMarker_2 [CanvasRenderer, Image, CanvasGroup]
-    - WeakpointMarker_3 [CanvasRenderer, Image, CanvasGroup]
-  - ComboText [CanvasRenderer, TextMeshProUGUI]
-  - HitCountText [CanvasRenderer, TextMeshProUGUI]
-
-## AUTO: Scene Metrics
-- Renderers: 16
-- Lights: 19
-- Triangles: 2.450
-- Vertices: 1.837
-- MeshFilters: 16
-- ParticleSystems: 0
-- Animators: 0
-- Canvases: 1
-
-## AUTO: Todo
-Open: 28 | Done: 15
-
-  **Doğrulama (Öncelik 1)**
-  - [ ] Hit-test çalışıyor mu doğrula — marker üstünden geç, HIT logu + combo artıyor mu?
-  - [ ] ComboText ekranda görünüyor mu? ("HIT!" / "x2 COMBO!")
-  - [ ] Timeout = combo sıfırlıyor mu?
-  - [ ] Parmak kaldırma = combo **bozmuyor** mu?
-  **Temizlik**
-  - [ ] `WeakpointCombatTest.cs` kaldır (eski prototip, kullanılmıyor)
-  - [ ] `WeakPoint_1/2/3` world objelerini sahneye kaldır (artık kullanılmıyor)
-  **EnemyController (Sonraki Major Step)**
-  - [ ] `EnemyController.cs` oluştur
-  - [ ] Düşman koridorun sonundan yaklaşır (scale büyür)
-  - [ ] Belirli mesafeye gelince telegraph başlar
-  - [ ] Execute = interrupt (düşman saldırısı kesilir)
-  - [ ] Düşman hasar alır, stagger olur
-  **Combat Flow Polish**
-  - [ ] CombatTriggerTest'i EnemyController'a bağla (otomatik trigger kalkacak)
-  - [ ] Telegraph süresi + hold süresi GameConfig'ten okunuyor mu doğrula
-  - [ ] Execution window timeScale etkisini test et
-  **Feedback**
-  - [ ] Basit slash trail effect
-  ... (daha fazlasi var)
-
-  Son tamamlananlar:
-  - [x] ProjectState DevTool (snapshot, compare, journal) tamamlandı
-  - [x] SwipeDebugHUD kaldırıldı
-  - [x] ComboText + HitCountText UI eklendi
-  - [x] ComboManager oluşturuldu
-  - [x] Finger lift = reset kaldırıldı (Fruit Ninja modeli)
-
-## AUTO: Milestones
-- (Henuz milestone yok)
-
-<!-- END AUTOGENERATED -->
-
+Bu dosyanın amacı:
+**"Bugün fiilen nerede kaldık?"** sorusuna kısa ve net cevap vermektir.
