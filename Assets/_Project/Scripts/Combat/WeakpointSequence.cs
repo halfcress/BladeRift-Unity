@@ -115,7 +115,7 @@ public class WeakpointSequence : MonoBehaviour
 
     /// <summary>
     /// CombatDirector'dan dogrudan hit bildirimi.
-    /// Yon kontrolu CombatDirector tarafinda yapiliyor.
+    /// Normal execution icin: tek weakpoint ilerletir.
     /// </summary>
     public void SubmitHit()
     {
@@ -129,6 +129,19 @@ public class WeakpointSequence : MonoBehaviour
             CompleteChain();
         else
             ShowExecutionTarget();
+    }
+
+    /// <summary>
+    /// Rage hit icin: tum chain'i atlayip direkt success uretir.
+    /// Tek slash ile aninda execution tamamlanir.
+    /// </summary>
+    public void ForceCompleteChain()
+    {
+        if (currentPhase != Phase.ExecutionWindow) return;
+
+        currentIndex = chain.Count;
+        Debug.Log("WeakpointSequence: RAGE — ForceCompleteChain!");
+        CompleteChain();
     }
 
     /// <summary>

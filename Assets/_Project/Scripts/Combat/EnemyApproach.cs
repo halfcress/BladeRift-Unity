@@ -23,6 +23,10 @@ public class EnemyApproach : MonoBehaviour
         WeakpointDirection.Left
     };
 
+    [Header("Rage Hit")]
+    [Tooltip("Silüet hit alanını genişletme çarpanı. 1.0 = tam bounds, 1.3 = %30 padding")]
+    [SerializeField] private float rageHitPadding = 1.3f;
+
     [Header("Timing")]
     [SerializeField] private float deathPauseSeconds = 1.5f;
     [SerializeField] private float respawnDelaySeconds = 1.0f;
@@ -79,43 +83,60 @@ public class EnemyApproach : MonoBehaviour
     // --- Public: Rage hit testi için ekran sınırları ---
 
     /// <summary>
-    /// Düşmanın Renderer bounds'unun ekran Rect'ini döndürür.
+    /// Düşmanın Renderer bounds'unun 8 köşesini ekrana projekte ederek
+    /// gerçek ekran Rect'ini döndürür.
     /// Rage hit testi için CombatDirector tarafından kullanılır.
     /// </summary>
     public bool TryGetScreenRect(Camera cam, out Rect screenRect)
     {
         screenRect = Rect.zero;
-        if (cam == null) return false;
+        if (cam == null || cachedRenderer == null) return false;
 
-        // Transform pozisyonunu ekrana çevir
-        // Bounds/rotation karmaşasını önlemek için direkt transform kullan
-        Vector3 worldPos = transform.position;
-        Vector3 screenPos = cam.WorldToScreenPoint(worldPos);
+        Bounds bounds = cachedRenderer.bounds;
 
-        // Kameranın önünde mi?
-        // Z negatifse arkada - fliple
-        if (screenPos.z < 0)
+        // Bounds'un 8 köşesini hesapla
+        Vector3 center = bounds.center;
+        Vector3 extents = bounds.extents;
+
+        Vector3[] corners = new Vector3[8];
+        corners[0] = center + new Vector3(-extents.x, -extents.y, -extents.z);
+        corners[1] = center + new Vector3(-extents.x, -extents.y, extents.z);
+        corners[2] = center + new Vector3(-extents.x, extents.y, -extents.z);
+        corners[3] = center + new Vector3(-extents.x, extents.y, extents.z);
+        corners[4] = center + new Vector3(extents.x, -extents.y, -extents.z);
+        corners[5] = center + new Vector3(extents.x, -extents.y, extents.z);
+        corners[6] = center + new Vector3(extents.x, extents.y, -extents.z);
+        corners[7] = center + new Vector3(extents.x, extents.y, extents.z);
+
+        // Her köşeyi ekran koordinatına çevir
+        float minX = float.MaxValue;
+        float maxX = float.MinValue;
+        float minY = float.MaxValue;
+        float maxY = float.MinValue;
+
+        for (int i = 0; i < 8; i++)
         {
-            screenPos.x = Screen.width - screenPos.x;
-            screenPos.y = Screen.height - screenPos.y;
+            Vector3 sp = cam.WorldToScreenPoint(corners[i]);
+
+            // Kameranın arkasındaysa geçersiz
+            if (sp.z < 0f) return false;
+
+            if (sp.x < minX) minX = sp.x;
+            if (sp.x > maxX) maxX = sp.x;
+            if (sp.y < minY) minY = sp.y;
+            if (sp.y > maxY) maxY = sp.y;
         }
 
-        // Düşmanın ekrandaki boyutunu scale'den tahmin et
-        // EnemyPlaceHolder scale X=1.3, Y=1.8 - ekrana yansıyan boyutu mesafeye göre değişir
-        float distToCamera = Mathf.Abs(worldPos.z - cam.transform.position.z);
-        float screenHeightPx = Screen.height;
-        float camFovRad = cam.fieldOfView * Mathf.Deg2Rad;
-        float worldHeightVisible = 2f * distToCamera * Mathf.Tan(camFovRad * 0.5f);
-        float scaleY = transform.lossyScale.y;
-        float scaleX = transform.lossyScale.x;
-        float halfH = (scaleY / worldHeightVisible) * screenHeightPx * 0.5f;
-        float halfW = halfH * (scaleX / scaleY);
+        // Padding uygula — hit alanını biraz genişlet
+        float w = maxX - minX;
+        float h = maxY - minY;
+        float padW = w * (rageHitPadding - 1f) * 0.5f;
+        float padH = h * (rageHitPadding - 1f) * 0.5f;
 
-        // Biraz padding ekle - hit alanı görsel boyuttan biraz büyük olsun
-        halfH *= 1.2f;
-        halfW *= 1.2f;
+        screenRect = new Rect(minX - padW, minY - padH, w + padW * 2f, h + padH * 2f);
 
-        screenRect = new Rect(screenPos.x - halfW, screenPos.y - halfH, halfW * 2f, halfH * 2f);
+        Debug.Log($"[RageHitTest] bounds.center={center} bounds.size={bounds.size} screenRect={screenRect} screen={Screen.width}x{Screen.height}");
+
         return true;
     }
 

@@ -19,10 +19,6 @@ public class GameConfig : ScriptableObject
     [Tooltip("Her weakpoint adımının kaç saniyede yanacağı.")]
     public float telegraphStepSeconds = 0.4f;
 
-    [Header("Hit Detection")]
-    [Tooltip("Swipe direction ile weakpoint yönü eşleşirse HIT sayılır. Şu an exact match.")]
-    public bool requireExactDirectionMatch = true;
-
     [Header("Damage")]
     [Tooltip("Basic düşmana execution başına verilen hasar.")]
     public float basicExecutionDamage = 100f;
