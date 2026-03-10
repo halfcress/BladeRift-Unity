@@ -44,7 +44,7 @@ Mobil odaklı, 1. şahıs dungeon koridorunda geçen, **tek input (swipe)** ile 
 
 ---
 
-*Auto-updated: 2026-03-10 14:18:16*
+*Auto-updated: 2026-03-10 14:58:52*
 
 ## Project Status
 
@@ -52,8 +52,8 @@ Mobil odaklı, 1. şahıs dungeon koridorunda geçen, **tek input (swipe)** ile 
 |-------|-------|
 | Scene | `Prototype_CombatCore` |
 | Unity | `6000.3.10f1` |
-| Last Snapshot | `2026-03-10 14:18:16` |
-| Commit | `bf03028` — docs revised. |
+| Last Snapshot | `2026-03-10 14:58:52` |
+| Commit | `39f54ae` — Mini dev tool included |
 | Objects in Scene | 58 |
 
 ## Scripts

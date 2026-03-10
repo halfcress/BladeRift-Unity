@@ -50,6 +50,7 @@ Güncel ilerleme durumu için `CHAT_STATE.md` esas alınır.
 - Feedback
 - Enemy
 - Spawn / Flow (ileriki faz)
+- Tooling / Snapshot
 
 ### 3.2 Ana İlke
 - **Input** parmak verisini sağlar
@@ -58,6 +59,7 @@ Güncel ilerleme durumu için `CHAT_STATE.md` esas alınır.
 - **Presentation** sadece gösterir
 - **Feedback** hissi üretir
 - **Enemy** düşmanın yaşam döngüsünü yönetir
+- **Tooling** debug ve snapshot üretir
 
 ---
 
@@ -128,7 +130,7 @@ Swipe yönü önemli değildir.
 - weakpoint marker'ları göstermek
 - aktif marker'ı görünür kılmak
 - combo, rage, debug ve HUD bilgisini göstermek
-- fail/success ile ilgili gerekli görsel yazıları göstermek gerekiyorsa göstermek
+- gerekli görsel yazıları göstermek
 
 **Yapmaz:**
 - gameplay kuralı vermez
@@ -200,6 +202,26 @@ Bu modül henüz tam kapsamda aktif olmak zorunda değildir.
 v0.1 için tek aktif düşman akışı yeterlidir.
 
 **Uygulayan modül notu:** _İleri faz._
+
+---
+
+## 4.8 Tooling / Snapshot Modülü
+**Sorumluluk:**
+- FULL / MINI snapshot üretmek
+- compare akışlarını desteklemek
+- compile error ve console log yakalamak
+- debug gürültüsünü azaltmak
+- DevTool çıktılarının analiz için kullanılmasını sağlamak
+
+**Yapmaz:**
+- gameplay kuralı üretmez
+- design truth belirlemez
+
+**Not:**
+MINI snapshot debug için varsayılan başlangıç kaynağıdır.
+FULL snapshot daha geniş bağlam gerektiğinde kullanılır.
+
+**Uygulayan modül notu:** _ProjectState tooling buraya bağlanır._
 
 ---
 
@@ -345,9 +367,9 @@ AI veya insan tarafından yeni kod yazılırken:
 
 Her yeni teknik eklemede mümkünse şu format kullanılır:
 
-`Uygulayan modül:`  
-`Bu maddeyi sahiplenen katman:`  
-`Bağlı olduğu veri:`  
+`Uygulayan modül:`
+`Bu maddeyi sahiplenen katman:`
+`Bağlı olduğu veri:`
 
 ---
 

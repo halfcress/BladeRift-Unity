@@ -1,4 +1,4 @@
-﻿# CHAT_STATE (Current Progress Truth)
+# CHAT_STATE (Current Progress Truth)
 
 > Bu dosya yalnızca güncel çalışma durumunu tutar.
 > Oyun kuralları için `GAME_RULES_TR.md`
@@ -12,7 +12,7 @@
 - Project Name: BladeRift
 - Repo: BladeRift-Unity
 - Repo URL: `https://github.com/halfcress/BladeRift-Unity`
-- Unity Version: 6000.3.10f1 LTS
+- Unity Version: `6000.3.10f1 LTS`
 - Template: Universal 3D (URP)
 - Target Platform: Android (mobile-first)
 - Current Main Test Platform: PC
@@ -53,41 +53,42 @@ Tam combat kuralı için `GAME_RULES_TR.md` esas alınır.
 
 ---
 
-## 4) Şu An Doğrulanan Çalışan Kısımlar
+## 4) Şu An Doğrulanan / Bilinen Durum
 
-### Environment
-- Infinite corridor sistemi çalışıyor ve stabil görünüyor
-- Ceiling, fog ve torch light yapısı sahnede mevcut
+### Dokümanlar
+- Canonical doküman yapısı temizlendi
+- `START_HERE`, `GAME_RULES`, `ARCHITECTURE`, `CHAT_STATE`, `TODO` rolleri ayrıştırıldı
+- Yeni chat akışı için navigator mantığı kuruldu
 
-### Core Combat Loop (Kısmi doğrulandı)
-Console çıktısına göre aşağıdakiler çalışıyor:
-- combat test tetikleyicisi zinciri başlatıyor
-- telegraph fazı açılıyor
-- execution window açılıyor
-- ilk hit kayıt oluyor
-- ikinci hit kayıt oluyor
-- combo artışı log'a düşüyor
-- timeout sonucu fail akışı çalışıyor
+### Combat Implementasyonu
+- Mevcut sahne tamamen bozuk değil
+- Eski combat akışının bazı parçaları çalışıyor
+- Ama implementasyon hâlâ tam olarak yeni locked target-sequence tasarımına hizalanmış değil
 
-### UI / Marker Temeli
-- marker gösterimi mevcut
-- combo / hit sayaçlarının debug amaçlı kullanımı sahnede mantıklı
+### Scene / Prototype
+- Infinite corridor temeli mevcut
+- Enemy placeholder yaklaşımı mevcut
+- Marker / combo / hit sayaçları debug açısından kullanılabilir durumda
+
+### DevTool / Snapshot
+- Snapshot workflow aktif kullanılıyor
+- MINI / FULL snapshot yaklaşımı devtool tarafında geliştiriliyor
+- Ama tooling tarafı ayrı iş kalemi olarak takip edilmeli
 
 ---
 
-## 5) Mevcut Kod ile Yeni Tasarım Arasındaki Farklar
+## 5) Mevcut Açık Farklar
 
-Şu anki implementasyon ile kilitlenen yeni tasarım arasında açık farklar var:
+Mevcut implementasyon ile locked design arasında açık farklar var:
 
-- mevcut kodda yön filtresi kalıntıları bulunuyor
-- execution fail mantığı yeni kuralla tamamen hizalı değil
-- finger lift kuralı yeni tasarıma göre yeniden uygulanmalı
-- active weakpoint progression yeni kurala göre sadeleştirilmeli
-- punish sonrası pattern öğretme tekrar etmeyecek şekilde akış kurulmalı
-- rage davranışı yeni kurala göre ayrıştırılmalı
+- direction tabanlı kalıntılar tamamen temizlenmemiş olabilir
+- execution akışı eski mantık parçaları taşıyor olabilir
+- first-touch lock + finger lift fail tam hizalı olmayabilir
+- punish sonrası retry loop yeni kurala göre yeniden kurulmalı
+- rage davranışı yeni kuralla birebir kontrol edilmeli
 
 Kısacası:
-**mevcut sahne tamamen bozuk değil, ancak yeni locked combat tasarımıyla tam hizalı değil.**
+**design locked, implementation hâlâ hizalanıyor.**
 
 ---
 
@@ -102,37 +103,40 @@ Prototype için aktif scope:
 - rage
 - punish akışı
 - feedback temeli
+- snapshot / debug tooling desteği
 
 Scope dışında / ileri faz:
 - çoklu aktif düşman
 - full spawn director
 - chapter pacing sistemi
-- tam elite/boss davranış seti
+- tam elite / boss davranış seti
 - gelişmiş VFX / polish
 - final mobile optimization
 
 ---
 
-## 7) Sıradaki İşler
+## 7) Şu Anki Aktif İşler
 
-En yakın işler:
-
+Ana aktif işler:
 1. Combat sistemini yeni locked rules'a hizalamak
-2. Yön bazlı kalıntıları temizlemek
-3. First-touch lock + finger lift fail mantığını uygulamak
+2. Eski yön bazlı kalıntıları temizlemek
+3. First-touch lock + finger lift fail mantığını gerçek koda geçirmek
 4. Telegraph -> execution -> punish -> retry akışını yeni kurala göre düzeltmek
-5. Enemy yaklaşma + death / punish / restart loop'unu oturtmak
+5. Enemy approach / death / retry loop'u oturtmak
 6. Feedback katmanını ayrı ve net kurmak
 7. Rage davranışını yeni kurala göre uygulamak
+8. DevTool snapshot akışını MINI / FULL yaklaşımıyla sadeleştirmek
 
 ---
 
-## 8) Ana Aktif Riskler
+## 8) Aktif Riskler
 
 - Eski combat mantığının kodda kalıntı bırakması
-- Yeni kuralların birden fazla dosyada tekrar yazılıp tekrar çelişki üretmesi
+- Yeni kuralların tekrar dağınık hale gelmesi
 - AI ile yeni kod yazılırken architecture dışına taşılması
 - Debug için eklenen geçici logic'in kalıcı hale gelmesi
+- Dokümanların güncellenmeden unutulması
+- Tooling değişikliklerinin TODO / CHAT_STATE'e işlenmemesi
 
 ---
 
@@ -140,9 +144,10 @@ En yakın işler:
 
 - Kod yazarken önce `GAME_RULES_TR.md` ve `ARCHITECTURE_TR.md` kontrol edilir
 - `CHAT_STATE.md` tasarım kuralı üretmez; yalnızca mevcut ilerlemeyi özetler
-- Snapshot / console / sahne durumu gerektiğinde doğrulama kaynağı olarak kullanılır
+- Snapshot, console ve sahne durumu gerektiğinde doğrulama kaynağı olarak kullanılır
 - Uzun vadeli tasarım kararları `GAME_RULES` veya `GAME_CONCEPT` içine işlenir
 - Teknik rol/sınır değişiklikleri `ARCHITECTURE` içinde tutulur
+- Doküman güncellemesi gerekiyorsa sessizce geçilmez, kullanıcıya söylenir
 
 ---
 
@@ -152,131 +157,7 @@ En yakın işler:
 - sahne ve görsel prototip olarak ayakta
 - combat temel akışı kısmen çalışır halde
 - ama yeni locked combat tasarımına göre refactor / hizalama gerektiriyor
+- snapshot / devtool tarafı da aktif geliştiriliyor
 
 Bu dosyanın amacı:
 **"Bugün fiilen nerede kaldık?"** sorusuna kısa ve net cevap vermektir.
-
-<!-- AUTOGENERATED - DO NOT EDIT BELOW THIS LINE -->
-
-*Son guncelleme: 2026-03-10 14:18:16*
-
-## AUTO: Last Snapshot
-- Kind: DEBUG
-- Date: 2026-03-10 14:18:16
-- Scene: Prototype_CombatCore
-- Commit: bf03028 — "docs revised."
-- Root objects: 7
-- Total objects: 58
-
-## AUTO: Script Files
-- Assets\_Project\Core\WorldScroller.cs
-- Assets\_Project\Scripts\Combat\CombatDirector.cs
-- Assets\_Project\Scripts\Combat\CombatTriggerTest.cs
-- Assets\_Project\Scripts\Combat\ComboManager.cs
-- Assets\_Project\Scripts\Combat\WeakpointCombatTest.cs
-- Assets\_Project\Scripts\Combat\WeakpointDirection.cs
-- Assets\_Project\Scripts\Combat\WeakpointSequence.cs
-- Assets\_Project\Scripts\Core\CorridorLoop.cs
-- Assets\_Project\Scripts\Core\GameConfig.cs
-- Assets\_Project\Scripts\Input\SwipeDebugHUD.cs
-- Assets\_Project\Scripts\Input\SwipeInput.cs
-- Assets\_Project\Scripts\Input\SwipeInterpreter.cs
-- Assets\_Project\Scripts\Tools\BillboardFacing.cs
-- Assets\_Project\Scripts\UI\WeakpointDirectionView.cs
-- Assets\_Project\Scripts\UI\WeakpointUIBridge.cs
-
-## AUTO: Scene Hierarchy (Summary)
-- GameRoot [CombatDirector, CorridorLoop, CombatTriggerTest, WeakpointSequence, ComboManager]
-  - Corridor_01
-    - Wall_Left [MeshFilter, MeshRenderer, BoxCollider]
-    - Wall_Right [MeshFilter, MeshRenderer, BoxCollider]
-    - Floor [MeshFilter, MeshRenderer, BoxCollider]
-    - Ceiling [MeshFilter, MeshRenderer, BoxCollider]
-    - TorchLight_Left01 [Light, UniversalAdditionalLightData]
-    - TorchLight_Left02 [Light, UniversalAdditionalLightData]
-    - TorchLight_Left03 [Light, UniversalAdditionalLightData]
-    - TorchLight_Left04 [inactive] [Light, UniversalAdditionalLightData]
-    - TorchLight_Right01 [Light, UniversalAdditionalLightData]
-    - TorchLight_Right02 [Light, UniversalAdditionalLightData]
-    - TorchLight_Right03 [Light, UniversalAdditionalLightData]
-    - TorchLight_Right04 [inactive] [Light, UniversalAdditionalLightData]
-  - Corridor_02
-    - Wall_Left [MeshFilter, MeshRenderer, BoxCollider]
-    - Wall_Right [MeshFilter, MeshRenderer, BoxCollider]
-    - Floor [MeshFilter, MeshRenderer, BoxCollider]
-    - Ceiling [MeshFilter, MeshRenderer, BoxCollider]
-    - TorchLight_Left01 [Light, UniversalAdditionalLightData]
-    - TorchLight_Left02 [Light, UniversalAdditionalLightData]
-    - TorchLight_Left03 [Light, UniversalAdditionalLightData]
-    - TorchLight_Left04 [inactive] [Light, UniversalAdditionalLightData]
-    - TorchLight_Right01 [Light, UniversalAdditionalLightData]
-    - TorchLight_Right02 [Light, UniversalAdditionalLightData]
-    - TorchLight_Right03 [Light, UniversalAdditionalLightData]
-    - TorchLight_Right04 [inactive] [Light, UniversalAdditionalLightData]
-  - Corridor_03
-    - Wall_Left [MeshFilter, MeshRenderer, BoxCollider]
-    - Wall_Right [MeshFilter, MeshRenderer, BoxCollider]
-    - Floor [MeshFilter, MeshRenderer, BoxCollider]
-    - Ceiling [MeshFilter, MeshRenderer, BoxCollider]
-    - TorchLight_Left01 [Light, UniversalAdditionalLightData]
-    - TorchLight_Left02 [Light, UniversalAdditionalLightData]
-    - TorchLight_Left03 [Light, UniversalAdditionalLightData]
-    - TorchLight_Left04 [inactive] [Light, UniversalAdditionalLightData]
-    - TorchLight_Right01 [Light, UniversalAdditionalLightData]
-    - TorchLight_Right02 [Light, UniversalAdditionalLightData]
-    - TorchLight_Right03 [Light, UniversalAdditionalLightData]
-    - TorchLight_Right04 [inactive] [Light, UniversalAdditionalLightData]
-  - InputRoot [SwipeInput, SwipeInterpreter]
-  - EnemyRoot
-    - EnemyPlaceHolder [MeshFilter, MeshRenderer, BillboardFacing]
-- EventSystem [EventSystem, InputSystemUIInputModule]
-- Main Camera [Camera, AudioListener, UniversalAdditionalCameraData]
-- Directional Light [Light, UniversalAdditionalLightData]
-- Player_Reference [inactive] [MeshFilter, MeshRenderer, BoxCollider]
-- Global Volume [Volume]
-- UIRoot [Canvas, CanvasScaler, GraphicRaycaster]
-  - WeakpointMarkerRoot [WeakpointDirectionView]
-    - WeakpointMarker_1 [CanvasRenderer, Image, CanvasGroup]
-    - WeakpointMarker_2 [CanvasRenderer, Image, CanvasGroup]
-    - WeakpointMarker_3 [CanvasRenderer, Image, CanvasGroup]
-  - ComboText [CanvasRenderer, TextMeshProUGUI]
-  - HitCountText [CanvasRenderer, TextMeshProUGUI]
-
-## AUTO: Scene Metrics
-- Renderers: 16
-- Lights: 19
-- Triangles: 2.450
-- Vertices: 1.837
-- MeshFilters: 16
-- ParticleSystems: 0
-- Animators: 0
-- Canvases: 1
-
-## AUTO: Todo
-Open: 77 | Done: 0
-
-  **2.1 Eski Yön Bazlı Kalıntıları Temizle**
-  - [ ] Direction / dot threshold mantığını kaldır
-  - [ ] Yön bazlı hit kabulünü kaldır
-  - [ ] Combat validation'ı sadece **aktif weakpoint içinden geçme** kuralına çevir
-  - [ ] `Right / Up / Left` gibi yön odaklı test mantıklarını temizle
-  - [ ] Artık gereksiz olan 8 yön / diagonal düşüncesini tamamen bırak
-  **2.2 Telegraph Akışını Yeni Tasarıma Çevir**
-  - [ ] Telegraph fazını `1 -> 1+2 -> 1+2+3` şeklinde çalıştır
-  - [ ] Full pattern hold süresini ayarla
-  - [ ] Telegraph sırasında her yeni weakpoint görünümüne ses / feedback hook'u ekle
-  - [ ] Telegraph bitince execution'a geçişi temiz hale getir
-  **2.3 Execution Akışını Yeni Tasarıma Çevir**
-  - [ ] Execution başında sadece `1` aktif weakpoint görünür kalsın
-  - [ ] `1` tamamlanınca `2` açılsın
-  - [ ] `2` tamamlanınca `3` açılsın
-  - [ ] Aynı anda yalnızca tek aktif weakpoint görünsün
-  - [ ] Yanlış / aktif olmayan weakpoint teması **ignore** olsun
-  - [ ] Boş alanda gezinme **ignore** olsun
-  ... (daha fazlasi var)
-
-## AUTO: Milestones
-- (Henuz milestone yok)
-
-<!-- END AUTOGENERATED -->
-

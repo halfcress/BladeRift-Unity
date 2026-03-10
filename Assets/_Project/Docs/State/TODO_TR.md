@@ -1,4 +1,4 @@
-# TODO_TR (Revised)
+# TODO_TR
 
 > Aktif iş listesi.
 > Bu dosya yalnızca yapılacak işleri ve öncelik sırasını tutar.
@@ -129,43 +129,85 @@ Ana amaç:
 
 ---
 
-## 7) Altıncı Öncelik — Temizlik
+## 7) Altıncı Öncelik — DevTool / Snapshot Tooling
 
-### 7.1 Kod Temizliği
+### 7.1 Mini Snapshot Modeli
+- [ ] `ProjectStateModels.cs` içine `MiniSnapshot` modeli ekle
+- [ ] `MiniSnapshot` alanlarını netleştir: `meta + scene + code + consoleLogs + compileErrors`
+
+### 7.2 Serializer
+- [ ] `ProjectStateSerializer.cs` içine `FillMiniSnapshot()` ekle
+- [ ] Son 50 console log yakalamayı ekle
+- [ ] Log türlerini ayır: `Log / Warning / Error`
+- [ ] Compile error yakalama ekle
+- [ ] `DevTool` ve `TutorialInfo` klasörlerini `.cs` filtre dışında bırak
+
+### 7.3 Exporter
+- [ ] `ProjectStateExporter.cs` içine `Export MINI WORKING` menü item ekle
+- [ ] `ProjectStateExporter.cs` içine `Export MINI DEBUG` menü item ekle
+- [ ] Mevcut FULL export menülerine dokunma
+
+### 7.4 Auto Snapshot
+- [ ] `ProjectStateAutoSnapshot.cs` tarafında auto snapshot -> FULL yerine MINI DEBUG alsın
+
+### 7.5 Compare
+- [ ] `ProjectStateCompare.cs` içine `Compare Mini Debugs` menü item ekle
+- [ ] `Mini Working vs Mini Debug` karşılaştırmasını destekle
+- [ ] Ortak alan karşılaştırması: `meta + scene + oyun kodları`
+- [ ] `DevTool / TutorialInfo` farkları gürültü üretmesin
+
+### 7.6 Menü Hedefi
+- [ ] Menü son halini doğrula:
+
+    Tools > BladeRift > Project State >
+    ├── Snapshots > Export WORKING
+    ├── Snapshots > Export DEBUG
+    ├── Snapshots > Export MINI WORKING
+    ├── Snapshots > Export MINI DEBUG
+    ├── Analysis > Compare Latest Working vs Debug
+    ├── Analysis > Compare Mini Debugs
+    └── ... (geri kalan mevcut menüler)
+
+## 8) Yedinci Öncelik — Temizlik
+
+### 8.1 Kod Temizliği
+
 - [ ] Eski prototip / test kalıntılarını ayıkla
 - [ ] Artık kullanılmayan yön bazlı kodları temizle
 - [ ] Geçici logic ile kalıcı logic'i ayır
 
-### 7.2 Sahne Temizliği
+### 8.2 Sahne Temizliği
+
 - [ ] Kullanılmayan world-space weakpoint objelerini kaldır veya devre dışı bırak
 - [ ] Sahnede artık owner'ı olmayan referansları temizle
 
-### 7.3 Test Temizliği
+### 8.3 Test Temizliği
+
 - [ ] Geçici test tetikleyicilerini yeni akışa göre güncelle
 - [ ] Eski chain test mantığını yeni target-sequence mantığına çevir
 
----
+## 9) Sonraki Katmanlar (Bu Fazdan Sonra)
 
-## 8) Sonraki Katmanlar (Bu Fazdan Sonra)
+### 9.1 Enemy Data
 
-### 8.1 Enemy Data
 - [ ] Düşman tipine göre weakpoint sayısı / davranışı veri tarafına taşı
-- [ ] `Common / Elite / Boss` farklarını data-driven hale getir
+- [ ] Common / Elite / Boss farklarını data-driven hale getir
 
-### 8.2 Wave / Flow
+### 9.2 Wave / Flow
+
 - [ ] Basit düşman akış yöneticisi
 - [ ] Sonra wave / chapter pacing temeli
 
-### 8.3 Mobile / Build
+### 9.3 Mobile / Build
+
 - [ ] Mobile test hazırlığı
 - [ ] APK test build
 - [ ] Performans / input doğrulaması
 
----
-
-## 9) Bilerek Ertelenenler
+## 10) Bilerek Ertelenenler
 
 Şimdilik odak dışı:
+
 - [ ] Çoklu aktif düşman
 - [ ] Gelişmiş boss fazları
 - [ ] Ağır VFX polish
@@ -173,18 +215,18 @@ Ana amaç:
 - [ ] Multiplayer
 - [ ] Çok geniş progression sistemi
 
----
-
-## 10) Kısa Çalışma Notu
+11) Kısa Çalışma Notu
 
 Bu dosyanın ana mesajı şu:
 
-**Eski yön bazlı combat mantığını bırak, locked target-sequence combat tasarımını ayağa kaldır.**
+Eski yön bazlı combat mantığını bırak, locked target-sequence combat tasarımını ayağa kaldır.
 
 Başarı ölçütü:
-- Düşman yaklaşır
-- Pattern bir kez öğretilir
-- Execution doğru akar
-- Finger lift ve timeout fail çalışır
-- Punish / retry loop temizdir
-- Rage ve feedback temel haliyle hissedilir
+
+-Düşman yaklaşır
+-Pattern bir kez öğretilir
+-Execution doğru akar
+-Finger lift ve timeout fail çalışır
+-Punish / retry loop temizdir
+-Rage ve feedback temel haliyle hissedilir
+-Snapshot tooling MINI / FULL mantığıyla temiz çalışır
