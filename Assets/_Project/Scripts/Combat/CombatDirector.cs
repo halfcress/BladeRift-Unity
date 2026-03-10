@@ -15,6 +15,7 @@ public class CombatDirector : MonoBehaviour
     [SerializeField] private ComboManager comboManager;
     [SerializeField] private RageManager rageManager;
     [SerializeField] private EnemyApproach enemyApproach;
+    [SerializeField] private Camera mainCamera;
 
     [Header("Hit Test")]
     [SerializeField] private float hitRadiusPx = 80f;
@@ -54,6 +55,8 @@ public class CombatDirector : MonoBehaviour
             rageManager = FindFirstObjectByType<RageManager>();
         if (enemyApproach == null)
             enemyApproach = FindFirstObjectByType<EnemyApproach>();
+        if (mainCamera == null)
+            mainCamera = Camera.main;
         Debug.Log("[CombatDirector] Awake OK.");
     }
 
@@ -100,10 +103,26 @@ public class CombatDirector : MonoBehaviour
         if (rageManager != null && rageManager.IsRageActive)
         {
             if (hitRegisteredThisTarget) return;
+
+            // Dusman siluetine isabet kontrolu
+            if (enemyApproach != null && mainCamera != null)
+            {
+                Rect enemyRect;
+                bool rectOk = enemyApproach.TryGetScreenRect(mainCamera, out enemyRect);
+
+                Vector2 fingerPos = swipeInput.FingerPosition;
+                bool contains = rectOk && enemyRect.Contains(fingerPos);
+
+                Debug.Log($"[RageHitTest] rectOk={rectOk} fingerPos={fingerPos} enemyRect={enemyRect} contains={contains} screen={Screen.width}x{Screen.height}");
+
+                if (!contains) return;
+            }
+
             hitRegisteredThisTarget = true;
             firstTouchMade = true;
             comboManager?.RegisterHit();
             FeedbackManager.Instance?.PlayRageHitFeedback();
+            AudioManager.Instance?.PlayHitRage();
             Debug.Log("[CombatDirector] RAGE HIT!");
             weakpointSequence.SubmitHit();
             return;
@@ -113,8 +132,8 @@ public class CombatDirector : MonoBehaviour
         Vector2 markerScreenPos;
         if (!directionView.TryGetActiveMarkerScreenPos(out markerScreenPos)) return;
 
-        Vector2 fingerPos = swipeInput.FingerPosition;
-        float dist = Vector2.Distance(fingerPos, markerScreenPos);
+        Vector2 fp = swipeInput.FingerPosition;
+        float dist = Vector2.Distance(fp, markerScreenPos);
         if (dist > hitRadiusPx) return;
 
         if (hitRegisteredThisTarget) return;
@@ -124,6 +143,7 @@ public class CombatDirector : MonoBehaviour
         comboManager?.RegisterHit();
         rageManager?.RegisterHit();
         FeedbackManager.Instance?.PlayHitFeedback();
+        AudioManager.Instance?.PlayHitNormal();
         Debug.Log($"[CombatDirector] HIT! dist={dist:F0}px");
         weakpointSequence.SubmitHit();
     }
@@ -157,6 +177,7 @@ public class CombatDirector : MonoBehaviour
         comboManager?.RegisterChainSuccess();
         enemyApproach?.SetRageVisual(false);
         FeedbackManager.Instance?.PlayChainSuccessFeedback();
+        AudioManager.Instance?.PlayChainSuccess();
         OnCombatSuccess?.Invoke();
         Debug.Log($"[CombatDirector] BASARI! Toplam={successCount}");
     }
@@ -172,6 +193,7 @@ public class CombatDirector : MonoBehaviour
         rageManager?.ResetRage();
         enemyApproach?.SetRageVisual(false);
         FeedbackManager.Instance?.PlayFailFeedback();
+        AudioManager.Instance?.PlayFailPunish();
         OnCombatFail?.Invoke(reason);
         Debug.Log($"[CombatDirector] FAIL. Sebep={reason} Toplam={failCount}");
 

@@ -2,10 +2,6 @@ using UnityEngine;
 
 /// <summary>
 /// Düşmanın koridordan yaklaşmasını yönetir.
-/// Belirli bir mesafeye gelince CombatDirector'a telegraph başlatması için sinyal verir.
-/// 
-/// Akış:
-///   Idle -> Approaching -> TelegraphTriggered -> WaitingForResult -> Dead / Reset
 /// </summary>
 public class EnemyApproach : MonoBehaviour
 {
@@ -13,20 +9,14 @@ public class EnemyApproach : MonoBehaviour
     [SerializeField] private CombatDirector combatDirector;
 
     [Header("Approach Settings")]
-    [Tooltip("Düşmanın başlangıç pozisyonu (kameradan uzak nokta)")]
     [SerializeField] private Vector3 spawnPosition = new Vector3(0f, 0f, 30f);
-
-    [Tooltip("Düşmanın durduğu pozisyon (telegraph tetiklenince durur)")]
     [SerializeField] private Vector3 stopPosition = new Vector3(0f, 0f, 6f);
-
-    [Tooltip("Yaklaşma hızı (birim/saniye)")]
     [SerializeField] private float approachSpeed = 4f;
-
-    [Tooltip("Bu mesafeye gelince telegraph başlar (kameradan Z mesafesi)")]
     [SerializeField] private float telegraphTriggerDistance = 8f;
 
     [Header("Chain Settings")]
-    [SerializeField] private System.Collections.Generic.List<WeakpointDirection> chain = new()
+    [SerializeField]
+    private System.Collections.Generic.List<WeakpointDirection> chain = new()
     {
         WeakpointDirection.Right,
         WeakpointDirection.Up,
@@ -34,13 +24,8 @@ public class EnemyApproach : MonoBehaviour
     };
 
     [Header("Timing")]
-    [Tooltip("Success sonrası bir sonraki düşman başlamadan önce bekleme (saniye)")]
     [SerializeField] private float deathPauseSeconds = 1.5f;
-
-    [Tooltip("Spawn pozisyonuna dönmeden önce bekleme (saniye)")]
     [SerializeField] private float respawnDelaySeconds = 1.0f;
-
-    [Tooltip("Ölüm flash süresi (saniye)")]
     [SerializeField] private float deathFlashDuration = 0.3f;
 
     [Header("State (Read-only)")]
@@ -48,24 +33,27 @@ public class EnemyApproach : MonoBehaviour
 
     public enum State { Idle, Approaching, TelegraphTriggered, WaitingForResult, Dead }
 
+    private Renderer cachedRenderer;
+
     private void Awake()
     {
         if (combatDirector == null)
             combatDirector = FindFirstObjectByType<CombatDirector>();
+        cachedRenderer = GetComponentInChildren<Renderer>();
     }
 
     private void OnEnable()
     {
         if (combatDirector == null) return;
         combatDirector.OnCombatSuccess += HandleCombatSuccess;
-        combatDirector.OnCombatFail    += HandleCombatFail;
+        combatDirector.OnCombatFail += HandleCombatFail;
     }
 
     private void OnDisable()
     {
         if (combatDirector == null) return;
         combatDirector.OnCombatSuccess -= HandleCombatSuccess;
-        combatDirector.OnCombatFail    -= HandleCombatFail;
+        combatDirector.OnCombatFail -= HandleCombatFail;
     }
 
     private void Start()
@@ -77,19 +65,58 @@ public class EnemyApproach : MonoBehaviour
     {
         if (currentState != State.Approaching) return;
 
-        // Kameraya doğru ilerle
         transform.position = Vector3.MoveTowards(
             transform.position,
             stopPosition,
             approachSpeed * Time.deltaTime
         );
 
-        // Telegraph mesafesine geldi mi?
         float distToCamera = transform.position.z;
         if (distToCamera <= telegraphTriggerDistance)
-        {
             TriggerTelegraph();
+    }
+
+    // --- Public: Rage hit testi için ekran sınırları ---
+
+    /// <summary>
+    /// Düşmanın Renderer bounds'unun ekran Rect'ini döndürür.
+    /// Rage hit testi için CombatDirector tarafından kullanılır.
+    /// </summary>
+    public bool TryGetScreenRect(Camera cam, out Rect screenRect)
+    {
+        screenRect = Rect.zero;
+        if (cam == null) return false;
+
+        // Transform pozisyonunu ekrana çevir
+        // Bounds/rotation karmaşasını önlemek için direkt transform kullan
+        Vector3 worldPos = transform.position;
+        Vector3 screenPos = cam.WorldToScreenPoint(worldPos);
+
+        // Kameranın önünde mi?
+        // Z negatifse arkada - fliple
+        if (screenPos.z < 0)
+        {
+            screenPos.x = Screen.width - screenPos.x;
+            screenPos.y = Screen.height - screenPos.y;
         }
+
+        // Düşmanın ekrandaki boyutunu scale'den tahmin et
+        // EnemyPlaceHolder scale X=1.3, Y=1.8 - ekrana yansıyan boyutu mesafeye göre değişir
+        float distToCamera = Mathf.Abs(worldPos.z - cam.transform.position.z);
+        float screenHeightPx = Screen.height;
+        float camFovRad = cam.fieldOfView * Mathf.Deg2Rad;
+        float worldHeightVisible = 2f * distToCamera * Mathf.Tan(camFovRad * 0.5f);
+        float scaleY = transform.lossyScale.y;
+        float scaleX = transform.lossyScale.x;
+        float halfH = (scaleY / worldHeightVisible) * screenHeightPx * 0.5f;
+        float halfW = halfH * (scaleX / scaleY);
+
+        // Biraz padding ekle - hit alanı görsel boyuttan biraz büyük olsun
+        halfH *= 1.2f;
+        halfW *= 1.2f;
+
+        screenRect = new Rect(screenPos.x - halfW, screenPos.y - halfH, halfW * 2f, halfH * 2f);
+        return true;
     }
 
     // --- Internal ---
@@ -118,13 +145,12 @@ public class EnemyApproach : MonoBehaviour
 
     private System.Collections.IEnumerator DeathFlashThenRespawn()
     {
-        Renderer rend = GetComponentInChildren<Renderer>();
-        if (rend != null)
+        if (cachedRenderer != null)
         {
-            Color original = rend.material.color;
-            rend.material.color = Color.red;
+            Color original = cachedRenderer.material.color;
+            cachedRenderer.material.color = Color.red;
             yield return new WaitForSeconds(deathFlashDuration);
-            rend.material.color = original;
+            cachedRenderer.material.color = original;
         }
         StartCoroutine(RespawnAfterDelay());
     }
@@ -144,13 +170,12 @@ public class EnemyApproach : MonoBehaviour
 
     private System.Collections.IEnumerator PunishFlash()
     {
-        Renderer rend = GetComponentInChildren<Renderer>();
-        if (rend != null)
+        if (cachedRenderer != null)
         {
-            Color original = rend.material.color;
-            rend.material.color = Color.white;
+            Color original = cachedRenderer.material.color;
+            cachedRenderer.material.color = Color.white;
             yield return new WaitForSeconds(0.15f);
-            rend.material.color = original;
+            cachedRenderer.material.color = original;
         }
     }
 
@@ -161,18 +186,12 @@ public class EnemyApproach : MonoBehaviour
         StartApproach();
     }
 
-    // --- Editor helper ---
     private void OnDrawGizmosSelected()
     {
-        // Spawn pozisyonu - mavi
         Gizmos.color = Color.blue;
         Gizmos.DrawWireSphere(spawnPosition, 0.3f);
-
-        // Stop pozisyonu - yeşil
         Gizmos.color = Color.green;
         Gizmos.DrawWireSphere(stopPosition, 0.3f);
-
-        // Telegraph mesafesi - sarı
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(new Vector3(stopPosition.x, stopPosition.y, telegraphTriggerDistance), 0.3f);
     }

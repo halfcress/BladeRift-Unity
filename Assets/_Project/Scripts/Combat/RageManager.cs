@@ -28,6 +28,7 @@ public class RageManager : MonoBehaviour
         if (rageHits >= hitsToActivate)
         {
             rageActive = true;
+            AudioManager.Instance?.PlayRageActivate();
             Debug.Log("[Rage] RAGE AKTIF!");
         }
         UpdateUI();

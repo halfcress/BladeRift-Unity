@@ -1,19 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-/// <summary>
-/// Fruit Ninja tarzı slash trail.
-/// TrailRenderer kullanmaz — her frame dinamik mesh üretir.
-///
-/// Kurulum:
-/// 1. Sahneye boş obje ekle → adı "SlashTrail"
-/// 2. Bu script'i ekle
-/// 3. MeshRenderer ve MeshFilter otomatik eklenir
-/// 4. Inspector'da MAT_SlashTrail material'ini ata
-///    (URP/Unlit, Transparent, Surface Type=Transparent)
-/// 5. SwipeInput ve Camera referanslarını bağla
-///    (boş bırakılırsa otomatik bulur)
-/// </summary>
 [RequireComponent(typeof(MeshFilter))]
 [RequireComponent(typeof(MeshRenderer))]
 public class SlashTrail : MonoBehaviour
@@ -24,31 +11,20 @@ public class SlashTrail : MonoBehaviour
     [SerializeField] private Material trailMaterial;
 
     [Header("Trail Ayarları")]
-    [Tooltip("Kameradan Z uzaklığı — kameranın near clip'inden büyük olmalı")]
-    [SerializeField] private float trailDepth = 1.5f;
-
-    [Tooltip("Trail başlangıç kalınlığı (dünya birimi)")]
-    [SerializeField] private float startWidth = 0.15f;
-
-    [Tooltip("Trail bitiş kalınlığı")]
+    [SerializeField] private float trailDepth = 2f;
+    [SerializeField] private float startWidth = 0.18f;
     [SerializeField] private float endWidth = 0.0f;
+    [SerializeField] private float pointLifetime = 0.3f;
+    [SerializeField] private float minPointDistancePx = 6f;
 
-    [Tooltip("Trail ömrü — bu süre sonunda nokta siliner (saniye)")]
-    [SerializeField] private float pointLifetime = 0.2f;
+    [Header("Neon Renk")]
+    [SerializeField] private Color colorStart = new Color(1f, 1f, 1f, 1f);
+    [SerializeField] private Color colorMid = new Color(0.4f, 0.8f, 1f, 0.9f);
+    [SerializeField] private Color colorEnd = new Color(0.1f, 0.5f, 1f, 0f);
 
-    [Tooltip("Yeni nokta eklemek için minimum pixel mesafesi")]
-    [SerializeField] private float minPointDistancePx = 8f;
-
-    [Tooltip("Trail rengi — başlangıç (parlak)")]
-    [SerializeField] private Color colorStart = new Color(1f, 0.95f, 0.8f, 1f);
-
-    [Tooltip("Trail rengi — bitiş (şeffaf)")]
-    [SerializeField] private Color colorEnd = new Color(1f, 0.7f, 0.3f, 0f);
-
-    // Her nokta: dünya pozisyonu + doğum zamanı
     private struct TrailPoint
     {
-        public Vector3 position;
+        public Vector3 localPosition; // kamera local uzayında
         public float birthTime;
     }
 
@@ -56,7 +32,7 @@ public class SlashTrail : MonoBehaviour
     private MeshFilter meshFilter;
     private MeshRenderer meshRenderer;
     private Mesh mesh;
-    private Vector3 lastAddedWorldPos;
+    private Vector2 lastAddedScreenPos;
 
     private void Awake()
     {
@@ -75,10 +51,27 @@ public class SlashTrail : MonoBehaviour
         if (trailMaterial != null)
             meshRenderer.material = trailMaterial;
 
-        // Sorting: UI'ın üstünde görünsün
         meshRenderer.sortingOrder = 10;
+    }
 
-        Debug.Log($"[SlashTrail] Awake. Camera={targetCamera?.name} SwipeInput={swipeInput?.name}");
+    /// Ekran koordinatını kamera local uzayına çevirir
+    private Vector3 ScreenToLocal(Vector2 screenPos)
+    {
+        // Viewport koordinatına çevir (0-1 arası)
+        float vx = screenPos.x / Screen.width;
+        float vy = screenPos.y / Screen.height;
+
+        // Kameranın görüş alanındaki gerçek boyutu hesapla
+        float depth = targetCamera.nearClipPlane + trailDepth;
+        float halfH = Mathf.Tan(targetCamera.fieldOfView * 0.5f * Mathf.Deg2Rad) * depth;
+        float halfW = halfH * targetCamera.aspect;
+
+        // Local uzayda pozisyon (-1..1 aralığını gerçek boyuta çevir)
+        float lx = (vx * 2f - 1f) * halfW;
+        float ly = (vy * 2f - 1f) * halfH;
+        float lz = depth;
+
+        return new Vector3(lx, ly, lz);
     }
 
     private void Update()
@@ -86,42 +79,29 @@ public class SlashTrail : MonoBehaviour
         if (swipeInput == null || targetCamera == null) return;
 
         float now = Time.time;
-
-        // Eski noktaları temizle
         points.RemoveAll(p => now - p.birthTime > pointLifetime);
 
         if (swipeInput.IsDown)
         {
-            // Parmak pozisyonunu dünya uzayına çevir
-            Vector3 screenPos = new Vector3(
-                swipeInput.FingerPosition.x,
-                swipeInput.FingerPosition.y,
-                trailDepth
-            );
-            Vector3 worldPos = targetCamera.ScreenToWorldPoint(screenPos);
+            bool shaking = FeedbackManager.Instance != null && FeedbackManager.Instance.IsShaking;
 
-            // Minimum mesafe kontrolü — çok yakın noktaları atlat
-            bool shouldAdd = points.Count == 0;
-            if (!shouldAdd)
+            if (!shaking)
             {
-                // Dünya mesafesi yerine screen mesafesi kullan — daha tutarlı
-                float screenDist = Vector2.Distance(
-                    swipeInput.FingerPosition,
-                    lastAddedWorldPos == Vector3.zero ? swipeInput.FingerPosition :
-                    (Vector2)targetCamera.WorldToScreenPoint(lastAddedWorldPos)
-                );
-                shouldAdd = screenDist >= minPointDistancePx;
-            }
+                Vector2 fingerPos = swipeInput.FingerPosition;
+                float screenDist = Vector2.Distance(fingerPos, lastAddedScreenPos);
+                bool shouldAdd = points.Count == 0 || screenDist >= minPointDistancePx;
 
-            if (shouldAdd)
-            {
-                points.Add(new TrailPoint { position = worldPos, birthTime = now });
-                lastAddedWorldPos = worldPos;
+                if (shouldAdd)
+                {
+                    Vector3 localPos = ScreenToLocal(fingerPos);
+                    points.Add(new TrailPoint { localPosition = localPos, birthTime = now });
+                    lastAddedScreenPos = fingerPos;
+                }
             }
         }
         else
         {
-            lastAddedWorldPos = Vector3.zero;
+            lastAddedScreenPos = Vector2.zero;
         }
 
         BuildMesh(now);
@@ -132,83 +112,73 @@ public class SlashTrail : MonoBehaviour
         mesh.Clear();
 
         int count = points.Count;
-        if (count < 2)
-            return;
+        if (count < 2) return;
 
-        // Her nokta için 2 vertex (üst + alt) → quad şeridi
         var vertices = new Vector3[count * 2];
         var colors = new Color[count * 2];
         var uvs = new Vector2[count * 2];
         var triangles = new int[(count - 1) * 6];
 
+        // Kamera local uzayında Z eksenine dik normal
+        Vector3[] normals = new Vector3[count];
         for (int i = 0; i < count; i++)
         {
-            TrailPoint p = points[i];
-
-            // t: 0 = en yeni (baş), 1 = en eski (kuyruk)
-            float t = (float)i / (count - 1);
-
-            // Age ratio: ne kadar eskidi
-            float age = (now - p.birthTime) / pointLifetime;
-            float alpha = Mathf.Lerp(1f, 0f, age);
-
-            // Kalınlık: başta kalın, sonda ince
-            float width = Mathf.Lerp(startWidth, endWidth, t) * 0.5f;
-
-            // Hareket yönüne dik vektör (normal)
             Vector3 dir;
             if (i == 0)
-                dir = points[1].position - points[0].position;
+                dir = (points[1].localPosition - points[0].localPosition).normalized;
             else if (i == count - 1)
-                dir = points[count - 1].position - points[count - 2].position;
+                dir = (points[count - 1].localPosition - points[count - 2].localPosition).normalized;
             else
-                dir = points[i + 1].position - points[i - 1].position;
+            {
+                Vector3 d1 = (points[i].localPosition - points[i - 1].localPosition).normalized;
+                Vector3 d2 = (points[i + 1].localPosition - points[i].localPosition).normalized;
+                dir = ((d1 + d2) * 0.5f).normalized;
+            }
+            // Kamera local uzayında Z eksenine dik → X/Y düzleminde normal
+            normals[i] = new Vector3(-dir.y, dir.x, 0f).normalized;
+        }
 
-            // Kameraya bakan düzlemde normal hesapla
-            Vector3 toCamera = targetCamera.transform.position - p.position;
-            Vector3 right = Vector3.Cross(dir.normalized, toCamera.normalized).normalized;
+        for (int i = 0; i < count; i++)
+        {
+            float t = (float)i / (count - 1);
+            float age = (now - points[i].birthTime) / pointLifetime;
+            float alpha = Mathf.Clamp01(1f - age);
+            float headFade = Mathf.Clamp01((float)(count - 1 - i) / Mathf.Max(1, count * 0.15f));
+            alpha *= headFade;
 
-            vertices[i * 2]     = p.position + right * width;
-            vertices[i * 2 + 1] = p.position - right * width;
+            float width = Mathf.Lerp(endWidth, startWidth, 1f - t) * 0.5f;
 
-            // Renk: interpolasyon + alpha
-            Color c = Color.Lerp(colorStart, colorEnd, t);
+            vertices[i * 2] = points[i].localPosition + normals[i] * width;
+            vertices[i * 2 + 1] = points[i].localPosition - normals[i] * width;
+
+            Color c = t < 0.5f
+                ? Color.Lerp(colorStart, colorMid, t * 2f)
+                : Color.Lerp(colorMid, colorEnd, (t - 0.5f) * 2f);
             c.a *= alpha;
-            colors[i * 2]     = c;
-            colors[i * 2 + 1] = c;
 
-            uvs[i * 2]     = new Vector2(t, 0f);
+            colors[i * 2] = c;
+            colors[i * 2 + 1] = c;
+            uvs[i * 2] = new Vector2(t, 0f);
             uvs[i * 2 + 1] = new Vector2(t, 1f);
         }
 
-        // Triangle strip
         int tri = 0;
         for (int i = 0; i < count - 1; i++)
         {
-            int a = i * 2;
-            int b = i * 2 + 1;
-            int c = i * 2 + 2;
-            int d = i * 2 + 3;
-
-            triangles[tri++] = a;
-            triangles[tri++] = c;
-            triangles[tri++] = b;
-
-            triangles[tri++] = b;
-            triangles[tri++] = c;
-            triangles[tri++] = d;
+            int a = i * 2, b = i * 2 + 1, c = i * 2 + 2, d = i * 2 + 3;
+            triangles[tri++] = a; triangles[tri++] = c; triangles[tri++] = b;
+            triangles[tri++] = b; triangles[tri++] = c; triangles[tri++] = d;
         }
 
-        mesh.vertices  = vertices;
-        mesh.colors    = colors;
-        mesh.uv        = uvs;
+        mesh.vertices = vertices;
+        mesh.colors = colors;
+        mesh.uv = uvs;
         mesh.triangles = triangles;
         mesh.RecalculateBounds();
     }
 
     private void OnDestroy()
     {
-        if (mesh != null)
-            Destroy(mesh);
+        if (mesh != null) Destroy(mesh);
     }
 }

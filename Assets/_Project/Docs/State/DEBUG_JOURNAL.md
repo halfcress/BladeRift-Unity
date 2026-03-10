@@ -157,3 +157,47 @@
 
 ### Decision
 - [ ] Sonraki adim
+
+
+## 2026-03-10 19:47:47 - Compile Error Detected
+
+### Problem
+- Unity compile hatasi tespit edildi.
+- Hata detaylari icin Console penceresini kontrol et.
+
+### Context
+- Commit: eb92e94
+- Commit message: Trail update v1
+
+### Attempts
+- [ ] Console hatalarini incele
+- [ ] Ilgili .cs dosyasini duzelt
+
+### Result
+- [ ] Fail
+- [ ] Fixed
+
+### Decision
+- [ ] Sonraki adim
+
+
+## 2026-03-10 19:48:25 - Compile Error Detected
+
+### Problem
+- Unity compile hatasi tespit edildi.
+- Hata detaylari icin Console penceresini kontrol et.
+
+### Context
+- Commit: eb92e94
+- Commit message: Trail update v1
+
+### Attempts
+- [ ] Console hatalarini incele
+- [ ] Ilgili .cs dosyasini duzelt
+
+### Result
+- [ ] Fail
+- [ ] Fixed
+
+### Decision
+- [ ] Sonraki adim

@@ -1,28 +1,12 @@
 using System.Collections;
 using UnityEngine;
 
-/// <summary>
-/// Vuruş hissi için feedback katmanı.
-///
-/// Sorumluluklar:
-/// - Hit stop (kısa time scale düşüşü)
-/// - Screen shake (camera offset)
-///
-/// Bağlantı:
-/// CombatDirector buraya çağrı yapar:
-///   FeedbackManager.Instance.PlayHitFeedback();
-///   FeedbackManager.Instance.PlayRageHitFeedback();
-///   FeedbackManager.Instance.PlayFailFeedback();
-///   FeedbackManager.Instance.PlayChainSuccessFeedback();
-/// </summary>
 public class FeedbackManager : MonoBehaviour
 {
     public static FeedbackManager Instance { get; private set; }
 
     [Header("Hit Stop")]
-    [Tooltip("Normal hit'te time scale bu değere düşer. 0 = tam dur, 1 = normal")]
     [SerializeField] private float hitStopTimeScale = 0.05f;
-    [Tooltip("Hit stop süresi (gerçek saniye, time scale'den etkilenmez)")]
     [SerializeField] private float hitStopDuration = 0.06f;
 
     [Header("Screen Shake — Normal Hit")]
@@ -42,20 +26,18 @@ public class FeedbackManager : MonoBehaviour
     [SerializeField] private float successShakeDuration = 0.12f;
 
     [Header("References")]
-    [Tooltip("Boş bırakılırsa Camera.main kullanılır")]
     [SerializeField] private Camera targetCamera;
 
     private Vector3 cameraOrigin;
     private Coroutine shakeCoroutine;
     private bool isHitStopped = false;
 
+    // SlashTrail bu property'yi okur — shake sırasında trail noktası eklenmez
+    public bool IsShaking { get; private set; }
+
     private void Awake()
     {
-        if (Instance != null && Instance != this)
-        {
-            Destroy(gameObject);
-            return;
-        }
+        if (Instance != null && Instance != this) { Destroy(gameObject); return; }
         Instance = this;
 
         if (targetCamera == null)
@@ -116,6 +98,8 @@ public class FeedbackManager : MonoBehaviour
 
     private IEnumerator ShakeRoutine(float magnitude, float duration)
     {
+        IsShaking = true;  // ← shake başladı, SlashTrail bunu okur
+
         float elapsed = 0f;
         while (elapsed < duration)
         {
@@ -130,13 +114,16 @@ public class FeedbackManager : MonoBehaviour
             elapsed += Time.unscaledDeltaTime;
             yield return null;
         }
+
         targetCamera.transform.localPosition = cameraOrigin;
         shakeCoroutine = null;
+        IsShaking = false;  // ← shake bitti
     }
 
     private void OnDisable()
     {
         Time.timeScale = 1f;
+        IsShaking = false;
         if (targetCamera != null)
             targetCamera.transform.localPosition = cameraOrigin;
     }
