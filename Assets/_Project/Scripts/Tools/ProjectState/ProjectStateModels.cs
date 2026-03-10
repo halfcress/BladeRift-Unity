@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 
 // -----------------------------
-// DATA MODELS — v5
+// DATA MODELS — v6
 // -----------------------------
 
 [Serializable]
 public class FullSnapshot
 {
-    public string[]      readingOrder = new string[]
+    public string[] readingOrder = new string[]
     {
         "docs.chatState",
         "docs.gameConcept",
@@ -23,12 +23,65 @@ public class FullSnapshot
         "code.csFiles"
     };
 
-    public Meta           meta    = new Meta();
-    public DocsSnapshot   docs    = new DocsSnapshot();
-    public SceneSnapshot  scene   = new SceneSnapshot();
+    public Meta            meta    = new Meta();
+    public DocsSnapshot    docs    = new DocsSnapshot();
+    public SceneSnapshot   scene   = new SceneSnapshot();
     public ProjectSnapshot project = new ProjectSnapshot();
-    public CodeSnapshot   code    = new CodeSnapshot();
+    public CodeSnapshot    code    = new CodeSnapshot();
 }
+
+// -----------------------------
+// MINI SNAPSHOT — v6
+// scene + oyun kodu (DevTool/TutorialInfo haric)
+// Debug versiyonu consoleLogs + compileErrors da icerir
+// -----------------------------
+
+[Serializable]
+public class MiniSnapshot
+{
+    public string snapshotType;   // "MINI_WORKING" | "MINI_DEBUG"
+    public MiniMeta      meta          = new MiniMeta();
+    public SceneSnapshot scene         = new SceneSnapshot();
+    public CodeSnapshot  code          = new CodeSnapshot();
+
+    // Sadece MINI_DEBUG'da dolu
+    public List<ConsoleLogEntry>   consoleLogs   = new List<ConsoleLogEntry>();
+    public List<CompileErrorEntry> compileErrors = new List<CompileErrorEntry>();
+}
+
+[Serializable]
+public class MiniMeta
+{
+    public string snapshotType;
+    public string exportedAtLocalTime;
+    public string unityVersion;
+    public string activeSceneName;
+    public string headCommitShort;
+    public string headCommitMessage;
+    public int    rootObjectCount;
+    public int    totalGameObjectCount;
+}
+
+[Serializable]
+public class ConsoleLogEntry
+{
+    public string level;        // "Error" | "Warning" | "Log"
+    public string message;
+    public string stackTrace;
+}
+
+[Serializable]
+public class CompileErrorEntry
+{
+    public string file;
+    public int    line;
+    public string message;
+    public string errorType;    // "Error" | "Warning"
+}
+
+// -----------------------------
+// FULL SNAPSHOT MODELS
+// -----------------------------
 
 [Serializable]
 public class Meta
@@ -46,22 +99,16 @@ public class Meta
     public string headCommitMessage;
 }
 
-// -----------------------------
-// DOCS SNAPSHOT
-// Tum .md dosyalarini JSON'a gomulur
-// AI okuma sirasi readingOrder'da tanimli
-// -----------------------------
-
 [Serializable]
 public class DocsSnapshot
 {
-    public string chatState;     // CHAT_STATE.md
-    public string gameConcept;   // GAME_CONCEPT_TR.md
-    public string architecture;  // ARCHITECTURE_TR.md
-    public string todo;          // TODO_TR.md
-    public string debugJournal;  // DEBUG_JOURNAL.md
-    public string milestoneLog;  // MILESTONE_LOG.md
-    public List<DocFileData> other = new List<DocFileData>(); // Diger .md dosyalari
+    public string chatState;
+    public string gameConcept;
+    public string architecture;
+    public string todo;
+    public string debugJournal;
+    public string milestoneLog;
+    public List<DocFileData> other = new List<DocFileData>();
 }
 
 [Serializable]
@@ -70,10 +117,6 @@ public class DocFileData
     public string relativePath;
     public string text;
 }
-
-// -----------------------------
-// SCENE
-// -----------------------------
 
 [Serializable]
 public class SceneSnapshot
@@ -142,18 +185,14 @@ public class GameObjectData
     public int    layer;
     public string staticFlags;
 
-    public PrefabData     prefab          = new PrefabData();
-    public TransformData  transform       = new TransformData();
-    public BoundsData     rendererBounds  = new BoundsData();
-    public BoundsData     colliderBounds  = new BoundsData();
+    public PrefabData    prefab         = new PrefabData();
+    public TransformData transform      = new TransformData();
+    public BoundsData    rendererBounds = new BoundsData();
+    public BoundsData    colliderBounds = new BoundsData();
 
     public List<ComponentData>  components = new List<ComponentData>();
     public List<GameObjectData> children   = new List<GameObjectData>();
 }
-
-// -----------------------------
-// PREFAB — GUID + path
-// -----------------------------
 
 [Serializable]
 public class PrefabData
@@ -162,7 +201,7 @@ public class PrefabData
     public string assetType;
     public string sourceName;
     public string sourcePath;
-    public string sourceGuid;   // v5: AssetDatabase.AssetPathToGUID ile dolduruluyor
+    public string sourceGuid;
 }
 
 [Serializable]
@@ -189,8 +228,8 @@ public class BoundsData
 [Serializable]
 public class ComponentData
 {
-    public string          type;
-    public List<FieldKV>   fields = new List<FieldKV>();
+    public string        type;
+    public List<FieldKV> fields = new List<FieldKV>();
 }
 
 [Serializable]

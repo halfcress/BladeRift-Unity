@@ -10,7 +10,7 @@ using UnityEditor.SceneManagement;
 #endif
 
 // -----------------------------
-// MAIN ORCHESTRATOR
+// MAIN ORCHESTRATOR — v6
 // -----------------------------
 
 public static class ProjectStateExporter
@@ -29,12 +29,20 @@ public static class ProjectStateExporter
     [MenuItem("Tools/BladeRift/Project State/Snapshots/Export DEBUG Snapshot")]
     public static void ExportDebugSnapshotMenu() => ExportSnapshot(SnapshotKind.Debug);
 
+    [MenuItem("Tools/BladeRift/Project State/Snapshots/Export MINI WORKING Snapshot")]
+    public static void ExportMiniWorkingSnapshotMenu() => ExportMiniSnapshot("MINI_WORKING");
+
+    [MenuItem("Tools/BladeRift/Project State/Snapshots/Export MINI DEBUG Snapshot")]
+    public static void ExportMiniDebugSnapshotMenu() => ExportMiniSnapshot("MINI_DEBUG");
+
     [MenuItem("Tools/BladeRift/Project State/Snapshots/Cleanup Snapshots")]
     public static void CleanupSnapshotsMenu()
     {
         EnsureFolders();
-        CleanupFolderKeepNewest(ProjectStatePaths.WorkingRoot, 3, Path.Combine(ProjectStatePaths.ArchiveRoot, "Working"));
-        CleanupFolderKeepNewest(ProjectStatePaths.DebugRoot,   1, Path.Combine(ProjectStatePaths.ArchiveRoot, "Debug"));
+        CleanupFolderKeepNewest(ProjectStatePaths.WorkingRoot,     3, Path.Combine(ProjectStatePaths.ArchiveRoot, "Working"));
+        CleanupFolderKeepNewest(ProjectStatePaths.DebugRoot,       1, Path.Combine(ProjectStatePaths.ArchiveRoot, "Debug"));
+        CleanupFolderKeepNewest(ProjectStatePaths.MiniWorkingRoot, 3, Path.Combine(ProjectStatePaths.ArchiveRoot, "MiniWorking"));
+        CleanupFolderKeepNewest(ProjectStatePaths.MiniDebugRoot,   3, Path.Combine(ProjectStatePaths.ArchiveRoot, "MiniDebug"));
         ProjectStateIndex.UpdateSnapshotIndex();
         AssetDatabase.Refresh();
         Debug.Log("Snapshot cleanup completed.");
@@ -46,6 +54,9 @@ public static class ProjectStateExporter
 
     [MenuItem("Tools/BladeRift/Project State/Analysis/Compare Latest Working vs Debug")]
     public static void CompareLatestSnapshotsMenu() => ProjectStateCompare.CompareLatestSnapshots();
+
+    [MenuItem("Tools/BladeRift/Project State/Analysis/Compare Mini Debugs")]
+    public static void CompareMiniDebugMenu() => ProjectStateCompare.CompareLatestMiniSnapshots();
 
     [MenuItem("Tools/BladeRift/Project State/Analysis/Generate Snapshot Timeline")]
     public static void GenerateTimelineMenu() => ProjectStateTimeline.GenerateTimeline();
@@ -83,7 +94,7 @@ public static class ProjectStateExporter
     public static void PrintTodoSummaryMenu() => ProjectStateTodoSync.PrintTodoSummary();
 
     // -----------------------------
-    // CORE EXPORT
+    // CORE EXPORT — Full Snapshot
     // -----------------------------
 
     public static void ExportSnapshot(SnapshotKind kind)
@@ -125,11 +136,38 @@ public static class ProjectStateExporter
         var settings = new JsonSerializerSettings { Formatting = Formatting.Indented, ReferenceLoopHandling = ReferenceLoopHandling.Ignore };
         File.WriteAllText(fullPath, JsonConvert.SerializeObject(full, settings), Encoding.UTF8);
 
-        // Otomatik guncellenenler
         ProjectStateIndex.UpdateSnapshotIndex();
         ProjectStateChatStateWriter.UpdateAutoBlock(full);
         ProjectStateReadmeUpdater.UpdateReadme(full);
         ProjectStateTimeline.UpdateTimeline(full);
+
+        AssetDatabase.Refresh();
+        Debug.Log($"{kind} snapshot exported: {fullPath}");
+        EditorUtility.RevealInFinder(fullPath);
+    }
+
+    // -----------------------------
+    // CORE EXPORT — Mini Snapshot
+    // -----------------------------
+
+    public static void ExportMiniSnapshot(string kind)
+    {
+        EnsureFolders();
+
+        var scene = EditorSceneManager.GetActiveScene();
+        if (!scene.IsValid()) { Debug.LogError("Active scene is not valid."); return; }
+
+        MiniSnapshot snap = new MiniSnapshot();
+        ProjectStateSerializer.FillMiniSnapshot(snap, kind);
+
+        string folder        = kind == "MINI_WORKING" ? ProjectStatePaths.MiniWorkingRoot : ProjectStatePaths.MiniDebugRoot;
+        string safeSceneName = string.IsNullOrWhiteSpace(scene.name) ? "UntitledScene" : scene.name;
+        string fileName      = $"BladeRift_{kind}_{safeSceneName}_{DateTime.Now:yyyyMMdd_HHmmss}.json";
+        string fullPath      = Path.Combine(folder, fileName);
+
+        Directory.CreateDirectory(folder);
+        var settings = new JsonSerializerSettings { Formatting = Formatting.Indented, ReferenceLoopHandling = ReferenceLoopHandling.Ignore };
+        File.WriteAllText(fullPath, JsonConvert.SerializeObject(snap, settings), Encoding.UTF8);
 
         AssetDatabase.Refresh();
         Debug.Log($"{kind} snapshot exported: {fullPath}");
@@ -148,6 +186,8 @@ public static class ProjectStateExporter
         Directory.CreateDirectory(ProjectStatePaths.WorkingRoot);
         Directory.CreateDirectory(ProjectStatePaths.DebugRoot);
         Directory.CreateDirectory(ProjectStatePaths.ArchiveRoot);
+        Directory.CreateDirectory(ProjectStatePaths.MiniWorkingRoot);
+        Directory.CreateDirectory(ProjectStatePaths.MiniDebugRoot);
 
         if (!File.Exists(ProjectStatePaths.ChatStatePath))
             File.WriteAllText(ProjectStatePaths.ChatStatePath, "# CHAT_STATE\n", Encoding.UTF8);
@@ -158,6 +198,7 @@ public static class ProjectStateExporter
 
     private static void CleanupFolderKeepNewest(string sourceFolder, int keepCount, string archiveFolder)
     {
+        if (!Directory.Exists(sourceFolder)) return;
         Directory.CreateDirectory(archiveFolder);
 
         var files = Directory.GetFiles(sourceFolder, "*.json", SearchOption.TopDirectoryOnly);

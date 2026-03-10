@@ -44,7 +44,7 @@ Mobil odaklı, 1. şahıs dungeon koridorunda geçen, **tek input (swipe)** ile 
 
 ---
 
-*Auto-updated: 2026-03-10 01:47:16*
+*Auto-updated: 2026-03-10 14:18:16*
 
 ## Project Status
 
@@ -52,8 +52,8 @@ Mobil odaklı, 1. şahıs dungeon koridorunda geçen, **tek input (swipe)** ile 
 |-------|-------|
 | Scene | `Prototype_CombatCore` |
 | Unity | `6000.3.10f1` |
-| Last Snapshot | `2026-03-10 01:47:16` |
-| Commit | `18a05c8` — states 1 a.m. |
+| Last Snapshot | `2026-03-10 14:18:16` |
+| Commit | `bf03028` — docs revised. |
 | Objects in Scene | 58 |
 
 ## Scripts
@@ -80,7 +80,6 @@ Mobil odaklı, 1. şahıs dungeon koridorunda geçen, **tek input (swipe)** ile 
 
 **Tools**
 - `BillboardFacing.cs`
-- `SpriteAssigner.cs`
 
 **UI**
 - `WeakpointDirectionView.cs`
@@ -88,21 +87,14 @@ Mobil odaklı, 1. şahıs dungeon koridorunda geçen, **tek input (swipe)** ile 
 
 ## Progress
 
-[██████░░░░░░░░░░░░░░] 34% (15/43 tasks done)
-
-**Recently completed:**
-- ✅ ProjectState DevTool (snapshot, compare, journal) tamamlandı
-- ✅ SwipeDebugHUD kaldırıldı
-- ✅ ComboText + HitCountText UI eklendi
-- ✅ ComboManager oluşturuldu
-- ✅ Finger lift = reset kaldırıldı (Fruit Ninja modeli)
+[░░░░░░░░░░░░░░░░░░░░] 0% (0/77 tasks done)
 
 **Up next:**
-- 🔲 Hit-test çalışıyor mu doğrula — marker üstünden geç, HIT logu + combo artıyor mu?
-- 🔲 ComboText ekranda görünüyor mu? ("HIT!" / "x2 COMBO!")
-- 🔲 Timeout = combo sıfırlıyor mu?
-- 🔲 Parmak kaldırma = combo **bozmuyor** mu?
-- 🔲 `WeakpointCombatTest.cs` kaldır (eski prototip, kullanılmıyor)
+- 🔲 Direction / dot threshold mantığını kaldır
+- 🔲 Yön bazlı hit kabulünü kaldır
+- 🔲 Combat validation'ı sadece **aktif weakpoint içinden geçme** kuralına çevir
+- 🔲 `Right / Up / Left` gibi yön odaklı test mantıklarını temizle
+- 🔲 Artık gereksiz olan 8 yön / diagonal düşüncesini tamamen bırak
 
 ## Milestones
 

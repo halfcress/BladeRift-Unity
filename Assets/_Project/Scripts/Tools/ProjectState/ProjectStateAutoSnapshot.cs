@@ -9,7 +9,8 @@ using UnityEditor;
 using UnityEditor.SceneManagement;
 
 // -----------------------------
-// AUTO SNAPSHOT ON PLAY
+// AUTO SNAPSHOT ON PLAY — v6
+// Auto snapshot artik MINI_DEBUG aliyor (Full degil)
 // -----------------------------
 
 [InitializeOnLoad]
@@ -58,44 +59,17 @@ public static class ProjectStateAutoSnapshot
             var scene = EditorSceneManager.GetActiveScene();
             if (!scene.IsValid()) { Debug.LogWarning("[AutoSnapshot] Scene not valid."); return; }
 
-            FullSnapshot full = new FullSnapshot();
-            full.meta.snapshotKind        = "AUTO";
-            full.meta.exportedAtLocalTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-            full.meta.unityVersion        = Application.unityVersion;
-            full.meta.platform            = Application.platform.ToString();
-            full.meta.activeSceneName     = scene.name;
-            full.meta.note                = "Auto snapshot taken on Play.";
-            full.scene.sceneName          = scene.name;
-            full.scene.scenePath          = scene.path;
-
-            var roots = scene.GetRootGameObjects();
-            full.meta.rootObjectCount      = roots.Length;
-            full.meta.totalGameObjectCount = ProjectStateSerializer.CountAllSceneObjects(scene);
-            full.meta.headCommitShort      = ProjectStateGit.SafeGit("rev-parse --short HEAD");
-            full.meta.headCommitFull       = ProjectStateGit.SafeGit("rev-parse HEAD");
-            full.meta.headCommitMessage    = ProjectStateGit.SafeGit("log -1 --pretty=%s");
-
-            foreach (var root in roots)
-                full.scene.roots.Add(ProjectStateSerializer.SerializeGameObjectRecursive(root, root.name));
-
-            ProjectStateSerializer.FillProjectSnapshot(full.project);
-            ProjectStateSerializer.FillCodeSnapshot(full.code);
-            ProjectStateSerializer.FillDocsSnapshot(full.docs);
+            MiniSnapshot snap = new MiniSnapshot();
+            ProjectStateSerializer.FillMiniSnapshot(snap, "MINI_DEBUG");
 
             string safeSceneName = string.IsNullOrWhiteSpace(scene.name) ? "UntitledScene" : scene.name;
             string fileName      = $"BladeRift_AUTO_{safeSceneName}_{DateTime.Now:yyyyMMdd_HHmmss}.json";
-            string fullPath      = Path.Combine(ProjectStatePaths.DebugRoot, fileName);
+            string fullPath      = Path.Combine(ProjectStatePaths.MiniDebugRoot, fileName);
 
             var settings = new JsonSerializerSettings { Formatting = Formatting.Indented, ReferenceLoopHandling = ReferenceLoopHandling.Ignore };
-            File.WriteAllText(fullPath, JsonConvert.SerializeObject(full, settings), Encoding.UTF8);
+            File.WriteAllText(fullPath, JsonConvert.SerializeObject(snap, settings), Encoding.UTF8);
 
             CleanupAutoSnapshots(5);
-
-            // Otomatik guncellenenler
-            ProjectStateIndex.UpdateSnapshotIndex();
-            ProjectStateChatStateWriter.UpdateAutoBlock(full);
-            ProjectStateReadmeUpdater.UpdateReadme(full);
-            ProjectStateTimeline.UpdateTimeline(full);
 
             Debug.Log($"[AutoSnapshot] Saved: {fileName}");
         }
@@ -104,11 +78,11 @@ public static class ProjectStateAutoSnapshot
 
     private static void CleanupAutoSnapshots(int maxKeep)
     {
-        string debugRoot   = ProjectStatePaths.DebugRoot;
-        string archiveRoot = Path.Combine(ProjectStatePaths.ArchiveRoot, "Auto");
+        string miniDebugRoot = ProjectStatePaths.MiniDebugRoot;
+        string archiveRoot   = Path.Combine(ProjectStatePaths.ArchiveRoot, "Auto");
         Directory.CreateDirectory(archiveRoot);
 
-        var autoFiles = Directory.GetFiles(debugRoot, "BladeRift_AUTO_*.json", SearchOption.TopDirectoryOnly);
+        var autoFiles = Directory.GetFiles(miniDebugRoot, "BladeRift_AUTO_*.json", SearchOption.TopDirectoryOnly);
         Array.Sort(autoFiles, (a, b) => File.GetLastWriteTimeUtc(b).CompareTo(File.GetLastWriteTimeUtc(a)));
 
         for (int i = maxKeep; i < autoFiles.Length; i++)

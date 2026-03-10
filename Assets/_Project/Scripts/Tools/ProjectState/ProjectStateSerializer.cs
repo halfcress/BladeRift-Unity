@@ -12,11 +12,9 @@ using UnityEngine.Rendering;
 #endif
 
 // -----------------------------
-// SERIALIZER — v5
-// Degisiklikler:
-// 1. FillDocsSnapshot() — .md dosyalarini JSON'a gomer
-// 2. FillPrefabData() — GUID eklendi
-// 3. ValueToString() — UnityEngine.Object referanslari duzgun cozuluyor, <?> kalmiyor
+// SERIALIZER — v6
+// v5: FillDocsSnapshot, FillPrefabData GUID, ResolveUnityObjectReference
+// v6: FillMiniSnapshot, FillMiniCodeSnapshot, FillConsoleLogs, FillCompileErrors
 // -----------------------------
 
 public static class ProjectStateSerializer
@@ -83,7 +81,7 @@ public static class ProjectStateSerializer
     }
 
     // -----------------------------
-    // PREFAB INFO — v5: GUID eklendi
+    // PREFAB INFO
     // -----------------------------
 
 #if UNITY_EDITOR
@@ -194,10 +192,6 @@ public static class ProjectStateSerializer
         });
     }
 
-    // -----------------------------
-    // CAMERA EXTRAS
-    // -----------------------------
-
     private static void CaptureCameraExtrasIfAny(Component component, List<FieldKV> outFields)
     {
         if (component is Camera cam)
@@ -212,11 +206,7 @@ public static class ProjectStateSerializer
     }
 
     // -----------------------------
-    // VALUE TO STRING — v5: <?> kalmiyor
-    // UnityEngine.Object referanslari tam cozuluyor:
-    //   - Asset ise: "name @ assetPath [GUID]"
-    //   - Scene objesi ise: "name (ScenePath/To/Object) [instanceID]"
-    //   - null ise: "null"
+    // VALUE TO STRING
     // -----------------------------
 
     private static string ValueToString(object v, Component context = null)
@@ -236,17 +226,11 @@ public static class ProjectStateSerializer
                 case Vector3 v3: return $"({v3.x:0.#####},{v3.y:0.#####},{v3.z:0.#####})";
                 case Vector4 v4: return $"({v4.x:0.#####},{v4.y:0.#####},{v4.z:0.#####},{v4.w:0.#####})";
                 case Color c: return $"({c.r:0.###},{c.g:0.###},{c.b:0.###},{c.a:0.###})";
-
-                case UnityEngine.Object uo:
-                    return ResolveUnityObjectReference(uo);
-
+                case UnityEngine.Object uo: return ResolveUnityObjectReference(uo);
                 default: return v.ToString();
             }
         }
-        catch
-        {
-            return "<SERIALIZE_ERROR>";
-        }
+        catch { return "<SERIALIZE_ERROR>"; }
     }
 
     private static string ResolveUnityObjectReference(UnityEngine.Object uo)
@@ -256,7 +240,6 @@ public static class ProjectStateSerializer
         try
         {
 #if UNITY_EDITOR
-            // Asset mi? (prefab, material, texture vs.)
             string assetPath = AssetDatabase.GetAssetPath(uo);
             if (!string.IsNullOrEmpty(assetPath))
             {
@@ -264,7 +247,6 @@ public static class ProjectStateSerializer
                 return $"{uo.name} @ {assetPath} [GUID:{guid}]";
             }
 #endif
-            // Scene objesi — GameObject veya Component
             if (uo is Component comp)
             {
                 string goPath = GetGameObjectPath(comp.gameObject);
@@ -277,22 +259,19 @@ public static class ProjectStateSerializer
                 return $"GameObject \"{goPath}\" [id:{uo.GetInstanceID()}]";
             }
 
-            // Fallback — en azindan isim ve instanceID
             return $"{uo.name} [id:{uo.GetInstanceID()}]";
         }
         catch
         {
-            // Hic bir sekilde cozemedik, en azindan isim ver
             try { return $"{uo.name} [unresolved]"; }
             catch { return "<unresolved_ref>"; }
         }
     }
 
-    // Objenin tam hiyerarsi yolunu dondurur: "GameRoot/InputRoot/SwipeInput"
     private static string GetGameObjectPath(GameObject go)
     {
         if (go == null) return "<null>";
-        var parts = new System.Collections.Generic.List<string>();
+        var parts = new List<string>();
         Transform t = go.transform;
         while (t != null)
         {
@@ -305,7 +284,7 @@ public static class ProjectStateSerializer
     private static float[] Vec3(Vector3 v) => new float[] { v.x, v.y, v.z };
 
     // -----------------------------
-    // DOCS SNAPSHOT — v5: .md dosyalarini gomer
+    // DOCS SNAPSHOT
     // -----------------------------
 
 #if UNITY_EDITOR
@@ -318,7 +297,6 @@ public static class ProjectStateSerializer
         docs.debugJournal = ReadMdSafe(ProjectStatePaths.DebugJournalPath);
         docs.milestoneLog = ReadMdSafe(ProjectStatePaths.MilestoneLogPath);
 
-        // Docs altindaki diger .md dosyalari (yukarida tanimlananlar haric)
         var knownPaths = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
             ProjectStatePaths.ChatStatePath,
@@ -335,7 +313,6 @@ public static class ProjectStateSerializer
             var mdFiles = Directory.GetFiles(ProjectStatePaths.DocsRoot, "*.md", SearchOption.AllDirectories);
             foreach (var mdFile in mdFiles)
             {
-                // Snapshot dosyalari ve bilinen dosyalari atla
                 if (mdFile.Contains("Snapshots")) continue;
                 if (mdFile.Contains("SNAPSHOT_")) continue;
                 if (knownPaths.Contains(mdFile)) continue;
@@ -352,13 +329,11 @@ public static class ProjectStateSerializer
 
     private static string ReadMdSafe(string path)
     {
-        if (string.IsNullOrEmpty(path) || !File.Exists(path))
-            return null;
+        if (string.IsNullOrEmpty(path) || !File.Exists(path)) return null;
         try { return File.ReadAllText(path, Encoding.UTF8); }
         catch { return null; }
     }
 
-    // CHAT_STATE icin: autogenerated blogu strip eder, sadece manuel kismi dondurur
     private static string ReadMdManualOnly(string path)
     {
         string content = ReadMdSafe(path);
@@ -411,7 +386,7 @@ public static class ProjectStateSerializer
 #endif
 
     // -----------------------------
-    // CODE SNAPSHOT
+    // CODE SNAPSHOT — full (tum .cs)
     // -----------------------------
 
     public static void FillCodeSnapshot(CodeSnapshot cs)
@@ -423,6 +398,193 @@ public static class ProjectStateSerializer
         foreach (var f in files)
             cs.csFiles.Add(ReadTextFile(f, projectRoot));
     }
+
+    // -----------------------------
+    // MINI CODE SNAPSHOT — v6
+    // DevTool/ ve TutorialInfo/ klasorlerini atlar
+    // -----------------------------
+
+    public static void FillMiniCodeSnapshot(CodeSnapshot cs)
+    {
+        string assetsDir = Application.dataPath;
+        string projectRoot = Directory.GetParent(assetsDir).FullName;
+
+        var files = Directory.GetFiles(assetsDir, "*.cs", SearchOption.AllDirectories);
+        foreach (var f in files)
+        {
+            string normalized = f.Replace('\\', '/');
+            if (normalized.Contains("/Tools/")) continue;
+            if (normalized.Contains("/TutorialInfo/")) continue;
+
+            cs.csFiles.Add(ReadTextFile(f, projectRoot));
+        }
+    }
+
+    // -----------------------------
+    // MINI SNAPSHOT FILL — v6
+    // kind: "MINI_WORKING" | "MINI_DEBUG"
+    // -----------------------------
+
+#if UNITY_EDITOR
+    public static void FillMiniSnapshot(MiniSnapshot snap, string kind)
+    {
+        var scene = UnityEditor.SceneManagement.EditorSceneManager.GetActiveScene();
+
+        snap.snapshotType = kind;
+        snap.meta.snapshotType = kind;
+        snap.meta.exportedAtLocalTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+        snap.meta.unityVersion = Application.unityVersion;
+        snap.meta.activeSceneName = scene.name;
+        snap.meta.headCommitShort = ProjectStateGit.SafeGit("rev-parse --short HEAD");
+        snap.meta.headCommitMessage = ProjectStateGit.SafeGit("log -1 --pretty=%s");
+
+        snap.scene.sceneName = scene.name;
+        snap.scene.scenePath = scene.path;
+
+        var roots = scene.GetRootGameObjects();
+        snap.meta.rootObjectCount = roots.Length;
+        snap.meta.totalGameObjectCount = CountAllSceneObjects(scene);
+
+        foreach (var root in roots)
+            snap.scene.roots.Add(SerializeGameObjectRecursive(root, root.name));
+
+        FillMiniCodeSnapshot(snap.code);
+
+        if (kind == "MINI_DEBUG")
+        {
+            FillConsoleLogs(snap.consoleLogs);
+            FillCompileErrors(snap.compileErrors);
+        }
+    }
+
+    // -----------------------------
+    // CONSOLE LOGS — son 50 girdi
+    // -----------------------------
+
+    private static void FillConsoleLogs(List<ConsoleLogEntry> outList)
+    {
+        try
+        {
+            var logEntriesType = Type.GetType("UnityEditor.LogEntries, UnityEditor");
+            var logEntryType = Type.GetType("UnityEditor.LogEntry, UnityEditor");
+            if (logEntriesType == null || logEntryType == null) return;
+
+            var startGetting = logEntriesType.GetMethod("StartGettingEntries", BindingFlags.Static | BindingFlags.Public);
+            var endGetting = logEntriesType.GetMethod("EndGettingEntries", BindingFlags.Static | BindingFlags.Public);
+            var getEntry = logEntriesType.GetMethod("GetEntryInternal", BindingFlags.Static | BindingFlags.Public);
+            var getCount = logEntriesType.GetMethod("GetCount", BindingFlags.Static | BindingFlags.Public);
+
+            if (startGetting == null || endGetting == null || getEntry == null || getCount == null) return;
+
+            int total = (int)getCount.Invoke(null, null);
+            int start = Math.Max(0, total - 50);
+
+            startGetting.Invoke(null, null);
+            try
+            {
+                var entryObj = Activator.CreateInstance(logEntryType);
+                var msgField = logEntryType.GetField("message", BindingFlags.Public | BindingFlags.Instance);
+                var stackField = logEntryType.GetField("stackTrace", BindingFlags.Public | BindingFlags.Instance);
+                var modeField = logEntryType.GetField("mode", BindingFlags.Public | BindingFlags.Instance);
+
+                for (int i = start; i < total; i++)
+                {
+                    getEntry.Invoke(null, new object[] { i, entryObj });
+
+                    string msg = msgField != null ? (string)msgField.GetValue(entryObj) ?? "" : "";
+                    string stack = stackField != null ? (string)stackField.GetValue(entryObj) ?? "" : "";
+                    int mode = modeField != null ? (int)modeField.GetValue(entryObj) : 0;
+
+                    // mode bits: 1=Error, 4=Assert, 8=Warning, 256=Log
+                    string level = "Log";
+                    if ((mode & 1) != 0 || (mode & 4) != 0) level = "Error";
+                    else if ((mode & 8) != 0) level = "Warning";
+
+                    outList.Add(new ConsoleLogEntry { level = level, message = msg, stackTrace = stack });
+                }
+            }
+            finally { endGetting.Invoke(null, null); }
+        }
+        catch (Exception e)
+        {
+            outList.Add(new ConsoleLogEntry
+            {
+                level = "Error",
+                message = "[DevTool] Console log capture failed: " + e.Message
+            });
+        }
+    }
+
+    // -----------------------------
+    // COMPILE ERRORS
+    // -----------------------------
+
+    private static void FillCompileErrors(List<CompileErrorEntry> outList)
+    {
+        // CompilationPipeline reflection Unity 6'da ambiguous — console loglarindan Error/Warning filtrele
+        try
+        {
+            var logEntriesType = Type.GetType("UnityEditor.LogEntries, UnityEditor");
+            var logEntryType = Type.GetType("UnityEditor.LogEntry, UnityEditor");
+            if (logEntriesType == null || logEntryType == null) return;
+
+            var startGetting = logEntriesType.GetMethod("StartGettingEntries", BindingFlags.Static | BindingFlags.Public);
+            var endGetting = logEntriesType.GetMethod("EndGettingEntries", BindingFlags.Static | BindingFlags.Public);
+            var getEntry = logEntriesType.GetMethod("GetEntryInternal", BindingFlags.Static | BindingFlags.Public);
+            var getCount = logEntriesType.GetMethod("GetCount", BindingFlags.Static | BindingFlags.Public);
+
+            if (startGetting == null || endGetting == null || getEntry == null || getCount == null) return;
+
+            int total = (int)getCount.Invoke(null, null);
+
+            startGetting.Invoke(null, null);
+            try
+            {
+                var entryObj = Activator.CreateInstance(logEntryType);
+                var msgField = logEntryType.GetField("message", BindingFlags.Public | BindingFlags.Instance);
+                var fileField = logEntryType.GetField("file", BindingFlags.Public | BindingFlags.Instance);
+                var lineField = logEntryType.GetField("line", BindingFlags.Public | BindingFlags.Instance);
+                var modeField = logEntryType.GetField("mode", BindingFlags.Public | BindingFlags.Instance);
+
+                for (int i = 0; i < total; i++)
+                {
+                    getEntry.Invoke(null, new object[] { i, entryObj });
+
+                    int mode = modeField != null ? (int)modeField.GetValue(entryObj) : 0;
+
+                    // Sadece Error (bit 1) ve Warning (bit 8) — compile kaynaklı olanlar
+                    bool isError = (mode & 1) != 0 || (mode & 4) != 0;
+                    bool isWarning = (mode & 8) != 0;
+                    if (!isError && !isWarning) continue;
+
+                    string msg = msgField != null ? (string)msgField.GetValue(entryObj) ?? "" : "";
+                    string file = fileField != null ? (string)fileField.GetValue(entryObj) ?? "" : "";
+                    int line = lineField != null ? (int)lineField.GetValue(entryObj) : 0;
+
+                    // Sadece .cs kaynaklı olanları al
+                    if (!string.IsNullOrEmpty(file) && !file.EndsWith(".cs")) continue;
+
+                    outList.Add(new CompileErrorEntry
+                    {
+                        file = file,
+                        line = line,
+                        message = msg,
+                        errorType = isError ? "Error" : "Warning"
+                    });
+                }
+            }
+            finally { endGetting.Invoke(null, null); }
+        }
+        catch (Exception e)
+        {
+            outList.Add(new CompileErrorEntry
+            {
+                message = "[DevTool] Compile error capture failed: " + e.Message,
+                errorType = "Error"
+            });
+        }
+    }
+#endif
 
     // -----------------------------
     // FILE HELPERS
