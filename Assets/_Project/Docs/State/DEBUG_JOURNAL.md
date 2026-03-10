@@ -135,3 +135,25 @@
 
 ### Decision
 - [ ] Sonraki adim
+
+
+## 2026-03-10 16:23:09 - Compile Error Detected
+
+### Problem
+- Unity compile hatasi tespit edildi.
+- Hata detaylari icin Console penceresini kontrol et.
+
+### Context
+- Commit: a351155
+- Commit message: states update.
+
+### Attempts
+- [ ] Console hatalarini incele
+- [ ] Ilgili .cs dosyasini duzelt
+
+### Result
+- [ ] Fail
+- [ ] Fixed
+
+### Decision
+- [ ] Sonraki adim

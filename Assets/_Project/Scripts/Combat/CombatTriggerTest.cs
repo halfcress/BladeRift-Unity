@@ -53,8 +53,7 @@ private IEnumerator TriggerLoop()
                 var seq = combatDirector.GetSequence();
                 if (seq == null) return true;
                 var phase = seq.CurrentPhase;
-                return phase == WeakpointSequence.Phase.Done ||
-                       phase == WeakpointSequence.Phase.Idle;
+                return !combatDirector.IsCombatActive && !combatDirector.IsWaitingForRetry;
             });
 
             if (repeatAfterSeconds <= 0f)

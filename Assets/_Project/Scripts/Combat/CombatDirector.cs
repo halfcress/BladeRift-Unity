@@ -1,8 +1,20 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
 /// Combat akisinin tek kapisi.
-/// Fruit Ninja tarzi: sadece timeout = fail, finger lift combo'yu bozmaz.
+///
+/// Hit kurali: yön önemli degil.
+/// Parmak aktif weakpoint marker'inin içinden geçerse HIT sayilir.
+///
+/// Finger-lift fail:
+/// - Execution açilmadan parmak kalkmasi: sorun yok
+/// - Execution açildiktan sonra ilk temas yapilmissa ve parmak kalkarsa: FAIL
+///
+/// Fail sonrasi retry:
+/// - Telegraph tekrar oynatilmaz
+/// - Ayni dusmanin zinciri 1. weakpoint'ten yeniden baslar
 /// </summary>
 public class CombatDirector : MonoBehaviour
 {
@@ -16,14 +28,28 @@ public class CombatDirector : MonoBehaviour
     [Header("Hit Test")]
     [SerializeField] private float hitRadiusPx = 80f;
     [SerializeField] private float minDeltaPx = 8f;
-    [SerializeField] private float directionDotThreshold = 0.3f;
+
+    [Header("Retry")]
+    [SerializeField] private float retryDelaySeconds = 1.0f;
 
     [Header("State (Read-only)")]
     [SerializeField] private bool combatActive = false;
+    [SerializeField] private bool executionOpen = false;
+    [SerializeField] private bool firstTouchMade = false;
     [SerializeField] private int successCount = 0;
     [SerializeField] private int failCount = 0;
 
+    public event System.Action OnCombatSuccess;
+    public event System.Action<string> OnCombatFail;
+
+    public bool IsCombatActive => combatActive;
+    public bool IsWaitingForRetry => waitingForRetry;
+
+    // Retry icin aktif zinciri hatirla
+    private List<WeakpointDirection> activeChain = new List<WeakpointDirection>();
+
     private bool hitRegisteredThisTarget = false;
+    private bool waitingForRetry = false;
 
     private void Awake()
     {
@@ -36,36 +62,50 @@ public class CombatDirector : MonoBehaviour
         if (comboManager == null)
             comboManager = FindFirstObjectByType<ComboManager>();
 
-        Debug.Log($"[CombatDirector] Awake OK.");
+        Debug.Log("[CombatDirector] Awake OK.");
     }
 
     private void OnEnable()
     {
-        if (weakpointSequence != null)
-        {
-            weakpointSequence.OnChainSuccess += HandleChainSuccess;
-            weakpointSequence.OnChainFail    += HandleChainFail;
-            weakpointSequence.OnChainAdvance += HandleChainAdvance;
-        }
+        if (weakpointSequence == null) return;
+        weakpointSequence.OnExecutionWindowStart += HandleExecutionWindowStart;
+        weakpointSequence.OnChainAdvance += HandleChainAdvance;
+        weakpointSequence.OnChainSuccess += HandleChainSuccess;
+        weakpointSequence.OnChainFail += HandleChainFail;
     }
 
     private void OnDisable()
     {
-        if (weakpointSequence != null)
-        {
-            weakpointSequence.OnChainSuccess -= HandleChainSuccess;
-            weakpointSequence.OnChainFail    -= HandleChainFail;
-            weakpointSequence.OnChainAdvance -= HandleChainAdvance;
-        }
+        if (weakpointSequence == null) return;
+        weakpointSequence.OnExecutionWindowStart -= HandleExecutionWindowStart;
+        weakpointSequence.OnChainAdvance -= HandleChainAdvance;
+        weakpointSequence.OnChainSuccess -= HandleChainSuccess;
+        weakpointSequence.OnChainFail -= HandleChainFail;
     }
 
-private void Update()
+    private void Update()
     {
         if (!combatActive) return;
+        if (waitingForRetry) return;
+        if (!executionOpen) return;
         if (weakpointSequence == null || swipeInput == null || directionView == null) return;
         if (weakpointSequence.CurrentPhase != WeakpointSequence.Phase.ExecutionWindow) return;
 
-        // RawDeltaPx: deadzone yok, kucuk hareketleri de yakalar
+        // --- Finger-lift fail ---
+        // Ilk temas yapildiysa ve parmak kalktiysa: FAIL
+        if (firstTouchMade && !swipeInput.IsDown && weakpointSequence.CurrentPhase == WeakpointSequence.Phase.ExecutionWindow)
+        {
+            weakpointSequence.ForceFailExternal("FingerLift");
+            return;
+        }
+
+        // Parmak basili degil: hit test yapma ama fail da uretme
+        if (!swipeInput.IsDown) return;
+
+      
+
+        // --- Hit testi ---
+        // Kural: yön önemli degil, sadece parmak aktif marker'in içinden geçmeli
         Vector2 delta = swipeInput.RawDeltaPx;
         if (delta.magnitude < minDeltaPx) return;
 
@@ -76,17 +116,24 @@ private void Update()
         float dist = Vector2.Distance(fingerPos, markerScreenPos);
         if (dist > hitRadiusPx) return;
 
-        WeakpointDirection target = weakpointSequence.CurrentTarget;
-        Vector2 expectedDir = GetExpectedVector(target);
-        float dot = Vector2.Dot(delta.normalized, expectedDir);
-        if (dot < directionDotThreshold) return;
-
+        // Ayni hedefe birden fazla hit kaydetme
         if (hitRegisteredThisTarget) return;
         hitRegisteredThisTarget = true;
 
+        firstTouchMade = true;
         comboManager?.RegisterHit();
-        Debug.Log($"[CombatDirector] HIT! target={target} dist={dist:F0}px dot={dot:F2}");
+        Debug.Log($"[CombatDirector] HIT! dist={dist:F0}px");
         weakpointSequence.SubmitHit();
+    }
+
+    // --- Event handlers ---
+
+    private void HandleExecutionWindowStart(float duration)
+    {
+        executionOpen = true;
+        firstTouchMade = false;
+        hitRegisteredThisTarget = false;
+        Debug.Log("[CombatDirector] Execution açildi.");
     }
 
     private void HandleChainAdvance(int newIndex)
@@ -99,40 +146,68 @@ private void Update()
     {
         successCount++;
         combatActive = false;
+        executionOpen = false;
+        firstTouchMade = false;
         hitRegisteredThisTarget = false;
         comboManager?.RegisterChainSuccess();
+        OnCombatSuccess?.Invoke();
         Debug.Log($"[CombatDirector] BASARI! Toplam={successCount}");
     }
 
     private void HandleChainFail(string reason)
     {
         failCount++;
-        combatActive = false;
+        executionOpen = false;
+        firstTouchMade = false;
         hitRegisteredThisTarget = false;
-        if (reason == "Timeout")
-            comboManager?.RegisterTimeout();
-        Debug.Log($"[CombatDirector] BASARISIZ. Sebep={reason}");
+
+        // Combo ve rage sifirla
+        comboManager?.RegisterTimeout(); // hem timeout hem finger-lift icin combo reset
+        OnCombatFail?.Invoke(reason);
+        Debug.Log($"[CombatDirector] FAIL. Sebep={reason} Toplam={failCount}");
+
+        // Retry: telegraph tekrar oynatilmadan 1. weakpoint'ten basla
+        if (combatActive && activeChain != null && activeChain.Count > 0)
+            StartCoroutine(RetryAfterDelay());
+        else
+            combatActive = false;
     }
 
-    public void StartCombatSequence(System.Collections.Generic.List<WeakpointDirection> chain)
+    private IEnumerator RetryAfterDelay()
     {
-        if (weakpointSequence == null) { Debug.LogError("[CombatDirector] WeakpointSequence yok!"); return; }
+        waitingForRetry = true;
+        yield return new WaitForSecondsRealtime(retryDelaySeconds);
+        waitingForRetry = false;
+
+        if (!combatActive) yield break;
+
+        Debug.Log("[CombatDirector] Retry: ayni dusmanin zinciri yeniden basliyor.");
+        // Telegraph tekrar oynatilmaz: dogrudan execution'a gec
+        weakpointSequence.StartExecutionDirectly(activeChain);
+    }
+
+    // --- Public API ---
+
+    /// <summary>
+    /// Yeni bir dusmanin zincirini baslatir. Telegraph dahil tam akis.
+    /// </summary>
+    public void StartCombatSequence(List<WeakpointDirection> chain)
+    {
+        if (weakpointSequence == null)
+        {
+            Debug.LogError("[CombatDirector] WeakpointSequence yok!");
+            return;
+        }
+
+        activeChain = new List<WeakpointDirection>(chain);
         combatActive = true;
+        executionOpen = false;
+        firstTouchMade = false;
         hitRegisteredThisTarget = false;
+        waitingForRetry = false;
+
         weakpointSequence.StartSequence(chain);
     }
 
     public WeakpointSequence GetSequence() => weakpointSequence;
-
-    private Vector2 GetExpectedVector(WeakpointDirection dir)
-    {
-        switch (dir)
-        {
-            case WeakpointDirection.Up:    return Vector2.up;
-            case WeakpointDirection.Down:  return Vector2.down;
-            case WeakpointDirection.Left:  return Vector2.left;
-            case WeakpointDirection.Right: return Vector2.right;
-            default:                       return Vector2.zero;
-        }
-    }
 }

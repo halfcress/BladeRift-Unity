@@ -44,7 +44,7 @@ Mobil odaklı, 1. şahıs dungeon koridorunda geçen, **tek input (swipe)** ile 
 
 ---
 
-*Auto-updated: 2026-03-10 14:58:52*
+*Auto-updated: 2026-03-10 17:18:36*
 
 ## Project Status
 
@@ -52,8 +52,8 @@ Mobil odaklı, 1. şahıs dungeon koridorunda geçen, **tek input (swipe)** ile 
 |-------|-------|
 | Scene | `Prototype_CombatCore` |
 | Unity | `6000.3.10f1` |
-| Last Snapshot | `2026-03-10 14:58:52` |
-| Commit | `39f54ae` — Mini dev tool included |
+| Last Snapshot | `2026-03-10 17:18:36` |
+| Commit | `a351155` — states update. |
 | Objects in Scene | 58 |
 
 ## Scripts
@@ -65,6 +65,7 @@ Mobil odaklı, 1. şahıs dungeon koridorunda geçen, **tek input (swipe)** ile 
 - `CombatDirector.cs`
 - `CombatTriggerTest.cs`
 - `ComboManager.cs`
+- `EnemyApproach.cs`
 - `WeakpointCombatTest.cs`
 - `WeakpointDirection.cs`
 - `WeakpointSequence.cs`
@@ -87,7 +88,7 @@ Mobil odaklı, 1. şahıs dungeon koridorunda geçen, **tek input (swipe)** ile 
 
 ## Progress
 
-[░░░░░░░░░░░░░░░░░░░░] 0% (0/77 tasks done)
+[░░░░░░░░░░░░░░░░░░░░] 0% (0/93 tasks done)
 
 **Up next:**
 - 🔲 Direction / dot threshold mantığını kaldır

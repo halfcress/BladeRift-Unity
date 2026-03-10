@@ -59,7 +59,7 @@ public class ComboManager : MonoBehaviour
         if (comboText != null)
         {
             if (comboCount <= 0)
-                comboText.text = "";
+                comboText.text = "0";
             else if (comboCount == 1)
                 comboText.text = "HIT!";
             else
