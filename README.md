@@ -44,7 +44,7 @@ Mobil odaklı, 1. şahıs dungeon koridorunda geçen, **tek input (swipe)** ile 
 
 ---
 
-*Auto-updated: 2026-03-10 22:59:04*
+*Auto-updated: 2026-03-11 20:50:16*
 
 ## Project Status
 
@@ -52,8 +52,8 @@ Mobil odaklı, 1. şahıs dungeon koridorunda geçen, **tek input (swipe)** ile 
 |-------|-------|
 | Scene | `Prototype_CombatCore` |
 | Unity | `6000.3.10f1` |
-| Last Snapshot | `2026-03-10 22:59:04` |
-| Commit | `2295573` — RageHit Bug Fix (CameraTag Problem) |
+| Last Snapshot | `2026-03-11 20:50:16` |
+| Commit | `5c0f16f` — menu buttons revised, background + uvscroll added |
 | Objects in Scene | 63 |
 
 ## Scripts
@@ -86,6 +86,9 @@ Mobil odaklı, 1. şahıs dungeon koridorunda geçen, **tek input (swipe)** ile 
 - `BillboardFacing.cs`
 
 **UI**
+- `BackgroundScroller.cs`
+- `ButtonLabelPressEffect.cs`
+- `MainMenuManager.cs`
 - `WeakpointDirectionView.cs`
 
 ## Progress

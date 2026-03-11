@@ -868,9 +868,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BackgroundScroller
   rawImage: {fileID: 1040629897}
   audioSource: {fileID: 1757025687}
-  baseSpeed: 0.01
-  boost: 0.08
-  smooth: 5
+  baseSpeed: 0.02
+  boost: 0
+  smooth: 0
 --- !u!1 &1046633006
 GameObject:
   m_ObjectHideFlags: 0
