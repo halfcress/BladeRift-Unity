@@ -10,9 +10,10 @@ public class AudioManager : MonoBehaviour
     [SerializeField] private AudioClip failPunish;
     [SerializeField] private AudioClip rageActivate;
     [SerializeField] private AudioClip chainSuccess;
+    [SerializeField] private AudioClip telegraphStep;
 
     [Header("Volume")]
-    [Range(0f, 1f)] [SerializeField] private float masterVolume = 1f;
+    [Range(0f, 1f)][SerializeField] private float masterVolume = 1f;
 
     private AudioSource audioSource;
 
@@ -31,9 +32,10 @@ public class AudioManager : MonoBehaviour
         audioSource.PlayOneShot(clip, masterVolume * volumeScale);
     }
 
-    public void PlayHitNormal()    => Play(hitNormal);
-    public void PlayHitRage()      => Play(hitRage, 1.2f);
-    public void PlayFailPunish()   => Play(failPunish);
+    public void PlayHitNormal() => Play(hitNormal);
+    public void PlayHitRage() => Play(hitRage, 1.2f);
+    public void PlayFailPunish() => Play(failPunish);
     public void PlayRageActivate() => Play(rageActivate);
     public void PlayChainSuccess() => Play(chainSuccess);
+    public void PlayTelegraphStep() => Play(telegraphStep);
 }

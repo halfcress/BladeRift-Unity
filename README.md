@@ -44,7 +44,7 @@ Mobil odaklı, 1. şahıs dungeon koridorunda geçen, **tek input (swipe)** ile 
 
 ---
 
-*Auto-updated: 2026-03-10 21:27:19*
+*Auto-updated: 2026-03-10 22:59:04*
 
 ## Project Status
 
@@ -52,8 +52,8 @@ Mobil odaklı, 1. şahıs dungeon koridorunda geçen, **tek input (swipe)** ile 
 |-------|-------|
 | Scene | `Prototype_CombatCore` |
 | Unity | `6000.3.10f1` |
-| Last Snapshot | `2026-03-10 21:27:19` |
-| Commit | `44fced9` — ragehit (buggy) |
+| Last Snapshot | `2026-03-10 22:59:04` |
+| Commit | `2295573` — RageHit Bug Fix (CameraTag Problem) |
 | Objects in Scene | 63 |
 
 ## Scripts
@@ -69,7 +69,6 @@ Mobil odaklı, 1. şahıs dungeon koridorunda geçen, **tek input (swipe)** ile 
 - `FeedbackManager.cs`
 - `RageManager.cs`
 - `SlashTrail.cs`
-- `WeakpointCombatTest.cs`
 - `WeakpointDirection.cs`
 - `WeakpointSequence.cs`
 
@@ -88,7 +87,6 @@ Mobil odaklı, 1. şahıs dungeon koridorunda geçen, **tek input (swipe)** ile 
 
 **UI**
 - `WeakpointDirectionView.cs`
-- `WeakpointUIBridge.cs`
 
 ## Progress
 

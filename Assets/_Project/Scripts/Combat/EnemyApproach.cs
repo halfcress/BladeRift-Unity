@@ -135,8 +135,6 @@ public class EnemyApproach : MonoBehaviour
 
         screenRect = new Rect(minX - padW, minY - padH, w + padW * 2f, h + padH * 2f);
 
-        Debug.Log($"[RageHitTest] bounds.center={center} bounds.size={bounds.size} screenRect={screenRect} screen={Screen.width}x{Screen.height}");
-
         return true;
     }
 

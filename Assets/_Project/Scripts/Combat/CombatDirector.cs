@@ -125,8 +125,6 @@ public class CombatDirector : MonoBehaviour
             Vector2 fingerPos = swipeInput.FingerPosition;
             bool contains = cachedRectValid && cachedEnemyRect.Contains(fingerPos);
 
-            Debug.Log($"[RageHitTest] rectOk={cachedRectValid} fp={fingerPos} rect={cachedEnemyRect} contains={contains} delta={delta.magnitude:F1}");
-
             if (!contains) return;
 
             // Silüetten geçti → kesme → hit

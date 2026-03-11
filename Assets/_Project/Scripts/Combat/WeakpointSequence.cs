@@ -211,6 +211,7 @@ public class WeakpointSequence : MonoBehaviour
 
         directionView.ShowTelegraphStep(revealedCount, chain[revealedCount]);
         OnTelegraphStep?.Invoke(revealedCount);
+        AudioManager.Instance?.PlayTelegraphStep();
         Debug.Log($"WeakpointSequence: Telegraph goster index={revealedCount} dir={chain[revealedCount]}");
 
         revealedCount++;
