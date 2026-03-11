@@ -7036,6 +7036,7 @@ MonoBehaviour:
   failPunish: {fileID: 8300000, guid: c32941d6547aeb74eaaf0a450da69e23, type: 3}
   rageActivate: {fileID: 8300000, guid: 1a6ad5cbcbedc864f9770725932a1ab4, type: 3}
   chainSuccess: {fileID: 8300000, guid: ea4111e5a280e1142bc33996a767c0ae, type: 3}
+  telegraphStep: {fileID: 8300000, guid: c1af01ce3d844a14f8a4c3c9bf64a0b7, type: 3}
   masterVolume: 0.806
 --- !u!4 &2145253383
 Transform:

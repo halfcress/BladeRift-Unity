@@ -92,7 +92,7 @@ public class CombatDirector : MonoBehaviour
         if (weakpointSequence.CurrentPhase != WeakpointSequence.Phase.ExecutionWindow) return;
 
         bool isRage = rageManager != null && rageManager.IsRageActive;
-
+        
         // --- Finger-lift fail ---
         if (firstTouchMade && !swipeInput.IsDown)
         {
@@ -205,6 +205,7 @@ public class CombatDirector : MonoBehaviour
 
         comboManager?.RegisterTimeout();
         rageManager?.ResetRage();
+        
         enemyApproach?.SetRageVisual(false);
         FeedbackManager.Instance?.PlayFailFeedback();
         AudioManager.Instance?.PlayFailPunish();
