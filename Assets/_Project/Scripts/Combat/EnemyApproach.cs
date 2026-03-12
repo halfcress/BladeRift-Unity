@@ -8,6 +8,7 @@ public class EnemyApproach : MonoBehaviour
     [Header("References")]
     [SerializeField] private CombatDirector combatDirector;
     [SerializeField] private EnemyArchetypeData archetypeData;
+    private EnemySpawner spawner;
 
     [Header("Approach Settings")]
     [SerializeField] private Vector3 spawnPosition = new Vector3(0f, 0f, 30f);
@@ -21,10 +22,6 @@ public class EnemyApproach : MonoBehaviour
     [Tooltip("Silüet hit alanını genişletme çarpanı. 1.0 = tam bounds, 1.3 = %30 padding")]
     [SerializeField] private float rageHitPadding = 1.3f;
 
-    [Header("Timing")]
-    [SerializeField] private float deathPauseSeconds = 1.5f;
-    [SerializeField] private float respawnDelaySeconds = 1.0f;
-    [SerializeField] private float deathFlashDuration = 0.3f;
 
     [Header("State (Read-only)")]
     [SerializeField] private State currentState = State.Idle;
@@ -37,6 +34,7 @@ public class EnemyApproach : MonoBehaviour
     {
         if (combatDirector == null)
             combatDirector = FindFirstObjectByType<CombatDirector>();
+            spawner = FindFirstObjectByType<EnemySpawner>();
         cachedRenderer = GetComponentInChildren<Renderer>();
     }
 
@@ -61,6 +59,12 @@ public class EnemyApproach : MonoBehaviour
 
     private void Update()
     {
+        if (archetypeData == null)
+        {
+            Debug.LogError("[EnemyApproach] archetypeData yok!");
+            return;
+        }
+
         if (currentState != State.Approaching) return;
 
         transform.position = Vector3.MoveTowards(
@@ -168,22 +172,26 @@ public class EnemyApproach : MonoBehaviour
     private void HandleCombatSuccess()
     {
         currentState = State.Dead;
-        Debug.Log("[EnemyApproach] Düşman öldü. Sonraki başlıyor...");
-        StartCoroutine(DeathFlashThenRespawn());
+        Debug.Log("[EnemyApproach] Düşman öldü. Spawner yeni düşman üretecek...");
+        StartCoroutine(DeathThenDespawn());
     }
 
-    private System.Collections.IEnumerator DeathFlashThenRespawn()
+    private System.Collections.IEnumerator DeathThenDespawn()
     {
         if (cachedRenderer != null)
         {
             Color original = cachedRenderer.material.color;
             cachedRenderer.material.color = Color.red;
-            yield return new WaitForSeconds(deathFlashDuration);
+            yield return new WaitForSeconds(archetypeData.deathFlashDuration);
             cachedRenderer.material.color = original;
         }
-        StartCoroutine(RespawnAfterDelay());
-    }
 
+        yield return new WaitForSecondsRealtime(archetypeData.deathPauseSeconds);
+        yield return new WaitForSecondsRealtime(archetypeData.respawnDelaySeconds);
+
+        spawner?.OnEnemyKilledImmediate();
+        Destroy(gameObject);
+    }
     public void SetRageVisual(bool rageActive)
     {
         Transform outline = transform.Find("OutlineQuad");
@@ -206,13 +214,6 @@ public class EnemyApproach : MonoBehaviour
             yield return new WaitForSeconds(0.15f);
             cachedRenderer.material.color = original;
         }
-    }
-
-    private System.Collections.IEnumerator RespawnAfterDelay()
-    {
-        yield return new WaitForSecondsRealtime(deathPauseSeconds);
-        yield return new WaitForSecondsRealtime(respawnDelaySeconds);
-        StartApproach();
     }
 
     private void OnDrawGizmosSelected()

@@ -1,296 +1,119 @@
 ﻿# CLAUDE EXTRACT
-snapshot: a342690 | 2026-03-12 13:26:12
+snapshot: 623811f | 2026-03-12 15:24:25
 compile: clean
-command: EnemyApproach, CombatTriggerTest --scene --logs
+command: WeakpointDirectionView --scene --logs
 
-## EnemyApproach.cs
-path: Assets\_Project\Scripts\Combat\EnemyApproach.cs
+## WeakpointDirectionView.cs
+path: Assets\_Project\Scripts\UI\WeakpointDirectionView.cs
 ```csharp
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 /// <summary>
-/// Düşmanın koridordan yaklaşmasını yönetir.
+/// Weakpoint marker UI sistemi.
+/// - Marker'lar sabit ekran pozisyonlarinda durur (world-space takip YOK)
+/// - Telegraph: marker'lar sirayla belirir
+/// - Execution: sadece siraradaki marker aktif, diğerleri soluk
+/// - Hit-test: marker'in RectTransform.position'i kullanilir (guvenilir)
 /// </summary>
-public class EnemyApproach : MonoBehaviour
+public class WeakpointDirectionView : MonoBehaviour
 {
-    [Header("References")]
-    [SerializeField] private CombatDirector combatDirector;
+    [Header("Marker Listesi (WeakpointMarker_1/2/3)")]
+    [SerializeField] private List<RectTransform> markerRects = new();
 
-    [Header("Approach Settings")]
-    [SerializeField] private Vector3 spawnPosition = new Vector3(0f, 0f, 30f);
-    [SerializeField] private Vector3 stopPosition = new Vector3(0f, 0f, 6f);
-    [SerializeField] private float approachSpeed = 4f;
-    [SerializeField] private float telegraphTriggerDistance = 8f;
-
-    [Header("Chain Settings")]
-    [SerializeField]
-    private System.Collections.Generic.List<WeakpointDirection> chain = new()
+    [Header("Sabit Ekran Pozisyonlari (Ekran merkezinden offset, px)")]
+    [SerializeField] private List<Vector2> markerPositions = new()
     {
-        WeakpointDirection.Right,
-        WeakpointDirection.Up,
-        WeakpointDirection.Left
+        new Vector2(-150f, -100f),
+        new Vector2(0f,     80f),
+        new Vector2(150f,  -100f),
     };
 
-    [Header("Rage Hit")]
-    [Tooltip("Silüet hit alanını genişletme çarpanı. 1.0 = tam bounds, 1.3 = %30 padding")]
-    [SerializeField] private float rageHitPadding = 1.3f;
+    [Header("Gorunum")]
+    [SerializeField] private Color activeColor = Color.red;
+    [SerializeField] private Color dimColor    = new Color(1f, 0.3f, 0.3f, 0.3f);
 
-    [Header("Timing")]
-    [SerializeField] private float deathPauseSeconds = 1.5f;
-    [SerializeField] private float respawnDelaySeconds = 1.0f;
-    [SerializeField] private float deathFlashDuration = 0.3f;
-
-    [Header("State (Read-only)")]
-    [SerializeField] private State currentState = State.Idle;
-
-    public enum State { Idle, Approaching, TelegraphTriggered, WaitingForResult, Dead }
-
-    private Renderer cachedRenderer;
+    [Header("Debug (read-only)")]
+    [SerializeField] private int currentTargetIndex = 0;
 
     private void Awake()
     {
-        if (combatDirector == null)
-            combatDirector = FindFirstObjectByType<CombatDirector>();
-        cachedRenderer = GetComponentInChildren<Renderer>();
+        if (markerRects.Count == 0) AutoFindMarkers();
+        ApplyPositions();
+        HideAll();
+        Debug.Log($"[WeakpointDirectionView] Awake OK. markers={markerRects.Count}");
     }
 
-    private void OnEnable()
+    private void AutoFindMarkers()
     {
-        if (combatDirector == null) return;
-        combatDirector.OnCombatSuccess += HandleCombatSuccess;
-        combatDirector.OnCombatFail += HandleCombatFail;
-    }
-
-    private void OnDisable()
-    {
-        if (combatDirector == null) return;
-        combatDirector.OnCombatSuccess -= HandleCombatSuccess;
-        combatDirector.OnCombatFail -= HandleCombatFail;
-    }
-
-    private void Start()
-    {
-        StartApproach();
-    }
-
-    private void Update()
-    {
-        if (currentState != State.Approaching) return;
-
-        transform.position = Vector3.MoveTowards(
-            transform.position,
-            stopPosition,
-            approachSpeed * Time.deltaTime
-        );
-
-        float distToCamera = transform.position.z;
-        if (distToCamera <= telegraphTriggerDistance)
-            TriggerTelegraph();
-    }
-
-    // --- Public: Rage hit testi için ekran sınırları ---
-
-    /// <summary>
-    /// Düşmanın Renderer bounds'unun 8 köşesini ekrana projekte ederek
-    /// gerçek ekran Rect'ini döndürür.
-    /// Rage hit testi için CombatDirector tarafından kullanılır.
-    /// </summary>
-    public bool TryGetScreenRect(Camera cam, out Rect screenRect)
-    {
-        screenRect = Rect.zero;
-        if (cam == null || cachedRenderer == null) return false;
-
-        Bounds bounds = cachedRenderer.bounds;
-
-        // Bounds'un 8 köşesini hesapla
-        Vector3 center = bounds.center;
-        Vector3 extents = bounds.extents;
-
-        Vector3[] corners = new Vector3[8];
-        corners[0] = center + new Vector3(-extents.x, -extents.y, -extents.z);
-        corners[1] = center + new Vector3(-extents.x, -extents.y, extents.z);
-        corners[2] = center + new Vector3(-extents.x, extents.y, -extents.z);
-        corners[3] = center + new Vector3(-extents.x, extents.y, extents.z);
-        corners[4] = center + new Vector3(extents.x, -extents.y, -extents.z);
-        corners[5] = center + new Vector3(extents.x, -extents.y, extents.z);
-        corners[6] = center + new Vector3(extents.x, extents.y, -extents.z);
-        corners[7] = center + new Vector3(extents.x, extents.y, extents.z);
-
-        // Her köşeyi ekran koordinatına çevir
-        float minX = float.MaxValue;
-        float maxX = float.MinValue;
-        float minY = float.MaxValue;
-        float maxY = float.MinValue;
-
-        for (int i = 0; i < 8; i++)
+        markerRects.Clear();
+        for (int i = 1; i <= 3; i++)
         {
-            Vector3 sp = cam.WorldToScreenPoint(corners[i]);
-
-            // Kameranın arkasındaysa geçersiz
-            if (sp.z < 0f) return false;
-
-            if (sp.x < minX) minX = sp.x;
-            if (sp.x > maxX) maxX = sp.x;
-            if (sp.y < minY) minY = sp.y;
-            if (sp.y > maxY) maxY = sp.y;
+            var t = transform.Find($"WeakpointMarker_{i}");
+            if (t != null) markerRects.Add(t.GetComponent<RectTransform>());
         }
+    }
 
-        // Padding uygula — hit alanını biraz genişlet
-        float w = maxX - minX;
-        float h = maxY - minY;
-        float padW = w * (rageHitPadding - 1f) * 0.5f;
-        float padH = h * (rageHitPadding - 1f) * 0.5f;
+    private void ApplyPositions()
+    {
+        for (int i = 0; i < markerRects.Count; i++)
+        {
+            if (markerRects[i] == null) continue;
+            markerRects[i].anchorMin        = new Vector2(0.5f, 0.5f);
+            markerRects[i].anchorMax        = new Vector2(0.5f, 0.5f);
+            markerRects[i].pivot            = new Vector2(0.5f, 0.5f);
+            if (i < markerPositions.Count)
+                markerRects[i].anchoredPosition = markerPositions[i];
+        }
+    }
 
-        screenRect = new Rect(minX - padW, minY - padH, w + padW * 2f, h + padH * 2f);
+    // ── Public API ───────────────────────────────────────────────────────
 
+public void ShowTelegraphStep(int index, WeakpointDirection direction)
+    {
+        if (index < 0 || index >= markerRects.Count) return;
+        currentTargetIndex = index;
+        markerRects[index].gameObject.SetActive(true);
+        SetColor(index, activeColor);
+    }
+
+    public void ShowExecutionTarget(int index, WeakpointDirection direction)
+    {
+        currentTargetIndex = index;
+        for (int i = 0; i < markerRects.Count; i++)
+        {
+            if (markerRects[i] == null) continue;
+            markerRects[i].gameObject.SetActive(true);
+            SetColor(i, i == index ? activeColor : dimColor);
+        }
+    }
+
+    public bool TryGetActiveMarkerScreenPos(out Vector2 screenPos)
+    {
+        screenPos = Vector2.zero;
+        if (currentTargetIndex < 0 || currentTargetIndex >= markerRects.Count) return false;
+        var rect = markerRects[currentTargetIndex];
+        if (rect == null || !rect.gameObject.activeInHierarchy) return false;
+        screenPos = rect.position;
         return true;
     }
 
-    // --- Internal ---
-
-    private void StartApproach()
+    public void HideAll()
     {
-        transform.position = spawnPosition;
-        currentState = State.Approaching;
-        Debug.Log("[EnemyApproach] Yaklaşma başladı.");
+        foreach (var m in markerRects)
+            if (m != null) m.gameObject.SetActive(false);
+        currentTargetIndex = 0;
     }
 
-    private void TriggerTelegraph()
+    public void SetDirection(WeakpointDirection direction) => ShowExecutionTarget(0, direction);
+    public void Hide() => HideAll();
+
+    private void SetColor(int index, Color color)
     {
-        currentState = State.TelegraphTriggered;
-        Debug.Log("[EnemyApproach] Telegraph tetiklendi.");
-        combatDirector.StartCombatSequence(chain);
-        currentState = State.WaitingForResult;
-    }
-
-    private void HandleCombatSuccess()
-    {
-        currentState = State.Dead;
-        Debug.Log("[EnemyApproach] Düşman öldü. Sonraki başlıyor...");
-        StartCoroutine(DeathFlashThenRespawn());
-    }
-
-    private System.Collections.IEnumerator DeathFlashThenRespawn()
-    {
-        if (cachedRenderer != null)
-        {
-            Color original = cachedRenderer.material.color;
-            cachedRenderer.material.color = Color.red;
-            yield return new WaitForSeconds(deathFlashDuration);
-            cachedRenderer.material.color = original;
-        }
-        StartCoroutine(RespawnAfterDelay());
-    }
-
-    public void SetRageVisual(bool rageActive)
-    {
-        Transform outline = transform.Find("OutlineQuad");
-        if (outline != null)
-            outline.gameObject.SetActive(rageActive);
-    }
-
-    private void HandleCombatFail(string reason)
-    {
-        Debug.Log($"[EnemyApproach] Fail ({reason}), düşman bekliyor.");
-        StartCoroutine(PunishFlash());
-    }
-
-    private System.Collections.IEnumerator PunishFlash()
-    {
-        if (cachedRenderer != null)
-        {
-            Color original = cachedRenderer.material.color;
-            cachedRenderer.material.color = Color.white;
-            yield return new WaitForSeconds(0.15f);
-            cachedRenderer.material.color = original;
-        }
-    }
-
-    private System.Collections.IEnumerator RespawnAfterDelay()
-    {
-        yield return new WaitForSecondsRealtime(deathPauseSeconds);
-        yield return new WaitForSecondsRealtime(respawnDelaySeconds);
-        StartApproach();
-    }
-
-    private void OnDrawGizmosSelected()
-    {
-        Gizmos.color = Color.blue;
-        Gizmos.DrawWireSphere(spawnPosition, 0.3f);
-        Gizmos.color = Color.green;
-        Gizmos.DrawWireSphere(stopPosition, 0.3f);
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(new Vector3(stopPosition.x, stopPosition.y, telegraphTriggerDistance), 0.3f);
-    }
-}
-```
-
-## CombatTriggerTest.cs
-path: Assets\_Project\Scripts\Combat\CombatTriggerTest.cs
-```csharp
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
-/// <summary>
-/// SADECE TEST AMACLI. Nihai sistem değildir.
-/// Play'e basınca 1 saniye bekler, sonra otomatik bir zincir başlatır.
-/// Konsol loglarını izleyerek hit/miss test edebilirsin.
-/// </summary>
-public class CombatTriggerTest : MonoBehaviour
-{
-    [Header("References")]
-    [SerializeField] private CombatDirector combatDirector;
-
-    [Header("Test Chain")]
-    [SerializeField] private List<WeakpointDirection> testChain = new List<WeakpointDirection>
-    {
-        WeakpointDirection.Right,
-        WeakpointDirection.Up,
-        WeakpointDirection.Left
-    };
-
-    [Header("Settings")]
-    [Tooltip("Play'den kaç saniye sonra zincir baslasin.")]
-    [SerializeField] private float delaySeconds = 1.5f;
-
-    [Tooltip("Zincir bitince kaç saniye sonra yeniden baslasin. 0 = tekrar baslatma.")]
-    [SerializeField] private float repeatAfterSeconds = 3f;
-
-    private void Awake()
-    {
-        if (combatDirector == null)
-            combatDirector = FindFirstObjectByType<CombatDirector>();
-    }
-
-    private void Start()
-    {
-        StartCoroutine(TriggerLoop());
-    }
-
-private IEnumerator TriggerLoop()
-    {
-        while (true)
-        {
-            yield return new WaitForSecondsRealtime(delaySeconds);
-
-            Debug.Log("CombatTriggerTest: Zincir baslatiliyor...");
-            combatDirector.StartCombatSequence(new List<WeakpointDirection>(testChain));
-
-            // Zincir bitene kadar bekle (Done veya Idle olana kadar)
-            yield return new WaitUntil(() =>
-            {
-                var seq = combatDirector.GetSequence();
-                if (seq == null) return true;
-                var phase = seq.CurrentPhase;
-                return !combatDirector.IsCombatActive && !combatDirector.IsWaitingForRetry;
-            });
-
-            if (repeatAfterSeconds <= 0f)
-                yield break;
-
-            yield return new WaitForSecondsRealtime(repeatAfterSeconds);
-        }
+        if (index < 0 || index >= markerRects.Count) return;
+        var img = markerRects[index].GetComponent<Image>();
+        if (img != null) img.color = color;
     }
 }
 
@@ -338,13 +161,8 @@ GameRoot [CombatDirector | CorridorLoop | CombatTriggerTest | WeakpointSequence 
     TorchLight_Right03 [Light | Rendering.Universal.UniversalAdditionalLightData]
     TorchLight_Right04 [Light | Rendering.Universal.UniversalAdditionalLightData]
   InputRoot [SwipeInput]
-  EnemyRoot
+  EnemyRoot [EnemySpawner]
     EnemySpawnPoint
-      EnemyPlaceHolder [MeshFilter | MeshRenderer | BillboardFacing | EnemyApproach]
-        WeakPoint_1 [MeshFilter | MeshRenderer | SphereCollider]
-        WeakPoint_2 [MeshFilter | MeshRenderer | SphereCollider]
-        WeakPoint_3 [MeshFilter | MeshRenderer | SphereCollider]
-        OutlineQuad [MeshFilter | MeshRenderer | MeshCollider]
   FeedbackManager [FeedbackManager]
 EventSystem [EventSystems.EventSystem | InputSystem.UI.InputSystemUIInputModule]
 Main Camera [Camera | AudioListener | Rendering.Universal.UniversalAdditionalCameraData]

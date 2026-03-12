@@ -1,16 +1,18 @@
 ﻿# CLAUDE INDEX
-commit: a342690 | message: states update
-scene: Prototype_CombatCore | roots: 8 | objects: 64
-unity: 6000.3.10f1 | export: 2026-03-12 13:26:12
+commit: 623811f | message: Prefabs
+scene: Prototype_CombatCore | roots: 8 | objects: 59
+unity: 6000.3.10f1 | export: 2026-03-12 15:24:25
 
 compile: clean
 
 ## Files
   WorldScroller (317B) — Assets/_Project/Core/WorldScroller.cs
-  CombatDirector (9K) — Assets/_Project/Scripts/Combat/CombatDirector.cs
+  CombatDirector (8K) — Assets/_Project/Scripts/Combat/CombatDirector.cs
   CombatTriggerTest (1K) — Assets/_Project/Scripts/Combat/CombatTriggerTest.cs
   ComboManager (1K) — Assets/_Project/Scripts/Combat/ComboManager.cs
   EnemyApproach (7K) — Assets/_Project/Scripts/Combat/EnemyApproach.cs
+  EnemyArchetypeData (628B) — Assets/_Project/Scripts/Combat/EnemyArchetypeData.cs
+  EnemySpawner (818B) — Assets/_Project/Scripts/Combat/EnemySpawner.cs
   FeedbackManager (4K) — Assets/_Project/Scripts/Combat/FeedbackManager.cs
   RageManager (1K) — Assets/_Project/Scripts/Combat/RageManager.cs
   SlashTrail (6K) — Assets/_Project/Scripts/Combat/SlashTrail.cs
@@ -35,9 +37,7 @@ GameRoot [CombatDirector | CorridorLoop | CombatTriggerTest | WeakpointSequence 
   Corridor_02
   Corridor_03
   InputRoot [SwipeInput]
-  EnemyRoot
-    EnemySpawnPoint
-      EnemyPlaceHolder [BillboardFacing | EnemyApproach]
+  EnemyRoot [EnemySpawner]
   FeedbackManager [FeedbackManager]
 EventSystem
 Main Camera

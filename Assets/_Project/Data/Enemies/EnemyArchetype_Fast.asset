@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: EnemyArchetype_Fast
   m_EditorClassIdentifier: Assembly-CSharp::EnemyArchetypeData
   archetypeType: 0
-  approachSpeed: 4
-  telegraphTriggerDistance: 8
-  deathPauseSeconds: 1.5
-  respawnDelaySeconds: 1
-  deathFlashDuration: 0.3
-  pattern: 
+  approachSpeed: 6
+  telegraphTriggerDistance: 7
+  deathPauseSeconds: 1.2
+  respawnDelaySeconds: 0.8
+  deathFlashDuration: 0.25
+  pattern: 0400000003000000

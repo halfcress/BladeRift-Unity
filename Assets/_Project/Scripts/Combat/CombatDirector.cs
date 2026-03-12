@@ -42,9 +42,6 @@ public class CombatDirector : MonoBehaviour
     private bool hitRegisteredThisTarget = false;
     private bool waitingForRetry = false;
 
-    // Rage execution icin: silüet rect cache
-    private Rect cachedEnemyRect;
-    private bool cachedRectValid = false;
 
     private void Awake()
     {
@@ -107,36 +104,6 @@ public class CombatDirector : MonoBehaviour
         float requiredDelta = isRage ? rageMinDeltaPx : minDeltaPx;
         if (delta.magnitude < requiredDelta) return;
 
-        // ===== RAGE HIT =====
-        if (isRage)
-        {
-            if (hitRegisteredThisTarget) return;
-
-            // Silüet kontrolü: parmak pozisyonu düşmanın ekran rect'i içinde mi?
-            if (enemyApproach == null || mainCamera == null)
-            {
-                Debug.LogWarning("[CombatDirector] Rage hit: enemyApproach veya mainCamera null!");
-                return;
-            }
-
-            // Her frame rect'i güncelle
-            cachedRectValid = enemyApproach.TryGetScreenRect(mainCamera, out cachedEnemyRect);
-
-            Vector2 fingerPos = swipeInput.FingerPosition;
-            bool contains = cachedRectValid && cachedEnemyRect.Contains(fingerPos);
-
-            if (!contains) return;
-
-            // Silüetten geçti → kesme → hit
-            hitRegisteredThisTarget = true;
-            firstTouchMade = true;
-            comboManager?.RegisterHit();
-            FeedbackManager.Instance?.PlayRageHitFeedback();
-            AudioManager.Instance?.PlayHitRage();
-            Debug.Log("[CombatDirector] RAGE HIT!");
-            weakpointSequence.SubmitHit();
-            return;
-        }
 
         // ===== NORMAL HIT =====
         if (directionView == null) return;
@@ -153,10 +120,23 @@ public class CombatDirector : MonoBehaviour
 
         firstTouchMade = true;
         comboManager?.RegisterHit();
-        rageManager?.RegisterHit();
-        FeedbackManager.Instance?.PlayHitFeedback();
-        AudioManager.Instance?.PlayHitNormal();
-        Debug.Log($"[CombatDirector] HIT! dist={dist:F0}px");
+
+        if (!isRage)
+            rageManager?.RegisterHit();
+
+        if (isRage)
+        {
+            FeedbackManager.Instance?.PlayRageHitFeedback();
+            AudioManager.Instance?.PlayHitRage();
+            Debug.Log($"[CombatDirector] RAGE HIT! dist={dist:F0}px");
+        }
+        else
+        {
+            FeedbackManager.Instance?.PlayHitFeedback();
+            AudioManager.Instance?.PlayHitNormal();
+            Debug.Log($"[CombatDirector] HIT! dist={dist:F0}px");
+        }
+
         weakpointSequence.SubmitHit();
     }
 
@@ -167,12 +147,8 @@ public class CombatDirector : MonoBehaviour
         executionOpen = true;
         firstTouchMade = false;
         hitRegisteredThisTarget = false;
-        cachedRectValid = false;
         Debug.Log("[CombatDirector] Execution acildi.");
 
-        // Rage aktifken marker gosterme — silüet weakpoint
-        if (rageManager != null && rageManager.IsRageActive)
-            directionView?.HideAll();
     }
 
     private void HandleChainAdvance(int newIndex)
@@ -245,8 +221,8 @@ public class CombatDirector : MonoBehaviour
         // Rage aktifken chain'i tek elemanlı yap — silüet = tek weakpoint
         if (isRage)
         {
-            activeChain = new List<WeakpointDirection> { WeakpointDirection.None };
-            Debug.Log("[CombatDirector] RAGE: Chain 1 elemana indirildi (silüet = weakpoint).");
+            activeChain = new List<WeakpointDirection> { WeakpointDirection.Up };
+            Debug.Log("[CombatDirector] RAGE: Tek rage weakpoint kullanılacak.");
         }
         else
         {
@@ -272,4 +248,9 @@ public class CombatDirector : MonoBehaviour
     }
 
     public WeakpointSequence GetSequence() => weakpointSequence;
+
+    public void SetCurrentEnemy(EnemyApproach newEnemyApproach)
+    {
+        enemyApproach = newEnemyApproach;
+    }
 }

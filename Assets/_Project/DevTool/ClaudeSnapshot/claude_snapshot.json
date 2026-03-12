@@ -13,16 +13,16 @@
   ],
   "meta": {
     "snapshotKind": "CLAUDE",
-    "exportedAtLocalTime": "2026-03-12 13:26:12",
+    "exportedAtLocalTime": "2026-03-12 15:24:25",
     "unityVersion": "6000.3.10f1",
     "platform": "WindowsEditor",
     "activeSceneName": "Prototype_CombatCore",
     "note": "Claude AI snapshot.",
     "rootObjectCount": 8,
-    "totalGameObjectCount": 64,
-    "headCommitShort": "a342690",
-    "headCommitFull": "a342690af02db31a292a346a11ff2a4ad120861e",
-    "headCommitMessage": "states update"
+    "totalGameObjectCount": 59,
+    "headCommitShort": "623811f",
+    "headCommitFull": "623811fa1b4356b3ae31a45e4707fe34a6f2ee23",
+    "headCommitMessage": "Prefabs"
   },
   "docs": {
     "chatState": "# CHAT_STATE (Current Progress Truth)\r\n\r\n> Bu dosya yalnızca güncel çalışma durumunu tutar.\r\n> Oyun kuralları için `GAME_RULES_TR.md`\r\n> Teknik yapı için `ARCHITECTURE_TR.md`\r\n> Ürün vizyonu için `GAME_CONCEPT_TR.md` okunur.\r\n\r\n---\r\n\r\n## 1) Project Info\r\n\r\n- Project Name: BladeRift\r\n- Repo: BladeRift-Unity\r\n- Repo URL: `https://github.com/halfcress/BladeRift-Unity`\r\n- Unity Version: `6000.3.10f1 LTS`\r\n- Template: Universal 3D (URP)\r\n- Target Platform: Android (mobile-first)\r\n- Current Main Test Platform: PC\r\n- Current Scene: `Prototype_CombatCore`\r\n- Current Scene Path: `Assets/_Project/Scenes/Prototype/Prototype_CombatCore.unity`\r\n- Screen Target: `9:16 (1080x1920)`\r\n\r\n---\r\n\r\n## 2) Doküman Hiyerarşisi\r\n\r\nÇelişki halinde öncelik sırası:\r\n\r\n1. `GAME_RULES_TR.md`\r\n2. `ARCHITECTURE_TR.md`\r\n3. `GAME_CONCEPT_TR.md`\r\n4. `CHAT_STATE.md`\r\n\r\nRol dağılımı:\r\n- **Gameplay truth** → `GAME_RULES_TR.md`\r\n- **Technical truth** → `ARCHITECTURE_TR.md`\r\n- **Product vision truth** → `GAME_CONCEPT_TR.md`\r\n- **Current progress truth** → `CHAT_STATE.md`\r\n\r\n---\r\n\r\n## 3) Core Direction (Locked)\r\n\r\n- Perspektif: **First-person**\r\n- Hareket hissi: **Oyuncu sabit, dünya üstüne akar**\r\n- Ana tema: **Stylized dungeon combat**\r\n- Ortam: **3D corridor**\r\n- Düşman yaklaşımı: **2D billboard / sprite enemy**\r\n- v0.1 hedefi: **Paylaşılabilir combat prototype / APK**\r\n\r\nCombat kural detayları bu dosyada tekrar edilmez.\r\nTam combat kuralı için `GAME_RULES_TR.md` esas alınır.\r\n\r\n---\r\n\r\n## 4) Şu An Doğrulanan / Bilinen Durum\r\n\r\n### Dokümanlar\r\n- Canonical doküman yapısı temizlendi\r\n- `START_HERE`, `GAME_RULES`, `ARCHITECTURE`, `CHAT_STATE`, `TODO` rolleri ayrıştırıldı\r\n- Yeni chat akışı için navigator mantığı kuruldu\r\n\r\n### Combat Implementasyonu\r\n- Mevcut sahne tamamen bozuk değil\r\n- Eski combat akışının bazı parçaları çalışıyor\r\n- Ama implementasyon hâlâ tam olarak yeni locked target-sequence tasarımına hizalanmış değil\r\n\r\n### Scene / Prototype\r\n- Infinite corridor temeli mevcut\r\n- Enemy placeholder yaklaşımı mevcut\r\n- Marker / combo / hit sayaçları debug açısından kullanılabilir durumda\r\n\r\n### DevTool / Snapshot\r\n- Snapshot workflow aktif kullanılıyor\r\n- MINI / FULL snapshot yaklaşımı devtool tarafında geliştiriliyor\r\n- Ama tooling tarafı ayrı iş kalemi olarak takip edilmeli\r\n\r\n---\r\n\r\n## 5) Mevcut Açık Farklar\r\n\r\nMevcut implementasyon ile locked design arasında açık farklar var:\r\n\r\n- direction tabanlı kalıntılar tamamen temizlenmemiş olabilir\r\n- execution akışı eski mantık parçaları taşıyor olabilir\r\n- first-touch lock + finger lift fail tam hizalı olmayabilir\r\n- punish sonrası retry loop yeni kurala göre yeniden kurulmalı\r\n- rage davranışı yeni kuralla birebir kontrol edilmeli\r\n\r\nKısacası:\r\n**design locked, implementation hâlâ hizalanıyor.**\r\n\r\n---\r\n\r\n## 6) Current Prototype Scope\r\n\r\nPrototype için aktif scope:\r\n- tek aktif düşman\r\n- yaklaşan düşman hissi\r\n- pattern öğretme\r\n- execution\r\n- combo\r\n- rage\r\n- punish akışı\r\n- feedback temeli\r\n- snapshot / debug tooling desteği\r\n\r\nScope dışında / ileri faz:\r\n- çoklu aktif düşman\r\n- full spawn director\r\n- chapter pacing sistemi\r\n- tam elite / boss davranış seti\r\n- gelişmiş VFX / polish\r\n- final mobile optimization\r\n\r\n---\r\n\r\n## 7) Şu Anki Aktif İşler\r\n\r\nAna aktif işler:\r\n1. Combat sistemini yeni locked rules'a hizalamak\r\n2. Eski yön bazlı kalıntıları temizlemek\r\n3. First-touch lock + finger lift fail mantığını gerçek koda geçirmek\r\n4. Telegraph -> execution -> punish -> retry akışını yeni kurala göre düzeltmek\r\n5. Enemy approach / death / retry loop'u oturtmak\r\n6. Feedback katmanını ayrı ve net kurmak\r\n7. Rage davranışını yeni kurala göre uygulamak\r\n8. DevTool snapshot akışını MINI / FULL yaklaşımıyla sadeleştirmek\r\n\r\n---\r\n\r\n## 8) Aktif Riskler\r\n\r\n- Eski combat mantığının kodda kalıntı bırakması\r\n- Yeni kuralların tekrar dağınık hale gelmesi\r\n- AI ile yeni kod yazılırken architecture dışına taşılması\r\n- Debug için eklenen geçici logic'in kalıcı hale gelmesi\r\n- Dokümanların güncellenmeden unutulması\r\n- Tooling değişikliklerinin TODO / CHAT_STATE'e işlenmemesi\r\n\r\n---\r\n\r\n## 9) Workflow Rules\r\n\r\n- Kod yazarken önce `GAME_RULES_TR.md` ve `ARCHITECTURE_TR.md` kontrol edilir\r\n- `CHAT_STATE.md` tasarım kuralı üretmez; yalnızca mevcut ilerlemeyi özetler\r\n- Snapshot, console ve sahne durumu gerektiğinde doğrulama kaynağı olarak kullanılır\r\n- Uzun vadeli tasarım kararları `GAME_RULES` veya `GAME_CONCEPT` içine işlenir\r\n- Teknik rol/sınır değişiklikleri `ARCHITECTURE` içinde tutulur\r\n- Doküman güncellemesi gerekiyorsa sessizce geçilmez, kullanıcıya söylenir\r\n\r\n---\r\n\r\n## 10) Kısa Durum Özeti\r\n\r\nŞu an proje:\r\n- sahne ve görsel prototip olarak ayakta\r\n- combat temel akışı kısmen çalışır halde\r\n- ama yeni locked combat tasarımına göre refactor / hizalama gerektiriyor\r\n- snapshot / devtool tarafı da aktif geliştiriliyor\r\n\r\nBu dosyanın amacı:\r\n**\"Bugün fiilen nerede kaldık?\"** sorusuna kısa ve net cevap vermektir.",
@@ -5276,55 +5276,40 @@
               ]
             },
             "rendererBounds": {
-              "hasBounds": true,
-              "center": [
-                0.0,
-                1.2,
-                6.51
-              ],
-              "size": [
-                1.404,
-                1.94399977,
-                0.119998932
-              ],
-              "min": [
-                -0.702,
-                0.228000164,
-                6.450001
-              ],
-              "max": [
-                0.702,
-                2.172,
-                6.56999969
-              ]
+              "hasBounds": false,
+              "center": null,
+              "size": null,
+              "min": null,
+              "max": null
             },
             "colliderBounds": {
-              "hasBounds": true,
-              "center": [
-                -0.023999989,
-                1.44900012,
-                6.51
-              ],
-              "size": [
-                1.078,
-                0.618000031,
-                0.2159996
-              ],
-              "min": [
-                -0.562999964,
-                1.1400001,
-                6.40200043
-              ],
-              "max": [
-                0.515,
-                1.75800014,
-                6.618
-              ]
+              "hasBounds": false,
+              "center": null,
+              "size": null,
+              "min": null,
+              "max": null
             },
             "components": [
               {
                 "type": "UnityEngine.Transform",
                 "fields": []
+              },
+              {
+                "type": "EnemySpawner",
+                "fields": [
+                  {
+                    "name": "spawnPoint",
+                    "value": "Transform on \"GameRoot/EnemyRoot/EnemySpawnPoint\" [id:-138548]"
+                  },
+                  {
+                    "name": "enemyPrefab",
+                    "value": "Enemy_Common @ Assets/_Project/Prefabs/Enemies/Enemy_Common.prefab [GUID:7df84625e63b92c4fb0dd2ae68cee383]"
+                  },
+                  {
+                    "name": "combatDirector",
+                    "value": "CombatDirector on \"GameRoot\" [id:81516]"
+                  }
+                ]
               }
             ],
             "children": [
@@ -5376,50 +5361,18 @@
                   ]
                 },
                 "rendererBounds": {
-                  "hasBounds": true,
-                  "center": [
-                    0.0,
-                    1.2,
-                    6.51
-                  ],
-                  "size": [
-                    1.404,
-                    1.94399977,
-                    0.119998932
-                  ],
-                  "min": [
-                    -0.702,
-                    0.228000164,
-                    6.450001
-                  ],
-                  "max": [
-                    0.702,
-                    2.172,
-                    6.56999969
-                  ]
+                  "hasBounds": false,
+                  "center": null,
+                  "size": null,
+                  "min": null,
+                  "max": null
                 },
                 "colliderBounds": {
-                  "hasBounds": true,
-                  "center": [
-                    -0.023999989,
-                    1.44900012,
-                    6.51
-                  ],
-                  "size": [
-                    1.078,
-                    0.618000031,
-                    0.2159996
-                  ],
-                  "min": [
-                    -0.562999964,
-                    1.1400001,
-                    6.40200043
-                  ],
-                  "max": [
-                    0.515,
-                    1.75800014,
-                    6.618
-                  ]
+                  "hasBounds": false,
+                  "center": null,
+                  "size": null,
+                  "min": null,
+                  "max": null
                 },
                 "components": [
                   {
@@ -5427,623 +5380,7 @@
                     "fields": []
                   }
                 ],
-                "children": [
-                  {
-                    "name": "EnemyPlaceHolder",
-                    "path": "GameRoot/EnemyRoot/EnemySpawnPoint/EnemyPlaceHolder",
-                    "activeSelf": true,
-                    "activeInHierarchy": true,
-                    "tag": "Untagged",
-                    "layer": 0,
-                    "staticFlags": "0",
-                    "prefab": {
-                      "instanceStatus": "Connected",
-                      "assetType": "Regular",
-                      "sourceName": "EnemyPlaceHolder",
-                      "sourcePath": "Assets/_Project/Prefabs/Enemies/EnemyPlaceHolder.prefab",
-                      "sourceGuid": "7df84625e63b92c4fb0dd2ae68cee383"
-                    },
-                    "transform": {
-                      "localPosition": [
-                        0.0,
-                        0.0,
-                        0.0
-                      ],
-                      "localRotationEuler": [
-                        0.0,
-                        0.0,
-                        0.0
-                      ],
-                      "localScale": [
-                        1.3,
-                        1.8,
-                        1.0
-                      ],
-                      "worldPosition": [
-                        0.0,
-                        1.2,
-                        6.5
-                      ],
-                      "worldRotationEuler": [
-                        0.0,
-                        0.0,
-                        0.0
-                      ],
-                      "worldScaleLossy": [
-                        1.3,
-                        1.8,
-                        1.0
-                      ]
-                    },
-                    "rendererBounds": {
-                      "hasBounds": true,
-                      "center": [
-                        0.0,
-                        1.2,
-                        6.51
-                      ],
-                      "size": [
-                        1.404,
-                        1.94399977,
-                        0.119998932
-                      ],
-                      "min": [
-                        -0.702,
-                        0.228000164,
-                        6.450001
-                      ],
-                      "max": [
-                        0.702,
-                        2.172,
-                        6.56999969
-                      ]
-                    },
-                    "colliderBounds": {
-                      "hasBounds": true,
-                      "center": [
-                        -0.023999989,
-                        1.44900012,
-                        6.51
-                      ],
-                      "size": [
-                        1.078,
-                        0.618000031,
-                        0.2159996
-                      ],
-                      "min": [
-                        -0.562999964,
-                        1.1400001,
-                        6.40200043
-                      ],
-                      "max": [
-                        0.515,
-                        1.75800014,
-                        6.618
-                      ]
-                    },
-                    "components": [
-                      {
-                        "type": "UnityEngine.Transform",
-                        "fields": []
-                      },
-                      {
-                        "type": "UnityEngine.MeshFilter",
-                        "fields": []
-                      },
-                      {
-                        "type": "UnityEngine.MeshRenderer",
-                        "fields": []
-                      },
-                      {
-                        "type": "BillboardFacing",
-                        "fields": []
-                      },
-                      {
-                        "type": "EnemyApproach",
-                        "fields": [
-                          {
-                            "name": "combatDirector",
-                            "value": "CombatDirector on \"GameRoot\" [id:81516]"
-                          },
-                          {
-                            "name": "spawnPosition",
-                            "value": "(0,1,2,30)"
-                          },
-                          {
-                            "name": "stopPosition",
-                            "value": "(0,1,2,6,5)"
-                          },
-                          {
-                            "name": "approachSpeed",
-                            "value": "40"
-                          },
-                          {
-                            "name": "telegraphTriggerDistance",
-                            "value": "8"
-                          },
-                          {
-                            "name": "chain",
-                            "value": "System.Collections.Generic.List`1[WeakpointDirection]"
-                          },
-                          {
-                            "name": "rageHitPadding",
-                            "value": "1,3"
-                          },
-                          {
-                            "name": "deathPauseSeconds",
-                            "value": "1,5"
-                          },
-                          {
-                            "name": "respawnDelaySeconds",
-                            "value": "1"
-                          },
-                          {
-                            "name": "deathFlashDuration",
-                            "value": "0,3"
-                          },
-                          {
-                            "name": "currentState",
-                            "value": "Idle"
-                          }
-                        ]
-                      }
-                    ],
-                    "children": [
-                      {
-                        "name": "WeakPoint_1",
-                        "path": "GameRoot/EnemyRoot/EnemySpawnPoint/EnemyPlaceHolder/WeakPoint_1",
-                        "activeSelf": true,
-                        "activeInHierarchy": true,
-                        "tag": "Untagged",
-                        "layer": 0,
-                        "staticFlags": "0",
-                        "prefab": {
-                          "instanceStatus": "Connected",
-                          "assetType": "Regular",
-                          "sourceName": "WeakPoint_1",
-                          "sourcePath": "Assets/_Project/Prefabs/Enemies/EnemyPlaceHolder.prefab",
-                          "sourceGuid": "7df84625e63b92c4fb0dd2ae68cee383"
-                        },
-                        "transform": {
-                          "localPosition": [
-                            -0.35,
-                            0.25,
-                            0.01
-                          ],
-                          "localRotationEuler": [
-                            0.0,
-                            0.0,
-                            0.0
-                          ],
-                          "localScale": [
-                            0.12,
-                            0.12,
-                            0.12
-                          ],
-                          "worldPosition": [
-                            -0.454999983,
-                            1.6500001,
-                            6.51
-                          ],
-                          "worldRotationEuler": [
-                            0.0,
-                            0.0,
-                            0.0
-                          ],
-                          "worldScaleLossy": [
-                            0.155999988,
-                            0.215999991,
-                            0.12
-                          ]
-                        },
-                        "rendererBounds": {
-                          "hasBounds": true,
-                          "center": [
-                            -0.454999983,
-                            1.6500001,
-                            6.51
-                          ],
-                          "size": [
-                            0.155999988,
-                            0.215999991,
-                            0.12
-                          ],
-                          "min": [
-                            -0.533,
-                            1.542,
-                            6.45000029
-                          ],
-                          "max": [
-                            -0.376999974,
-                            1.75800014,
-                            6.57
-                          ]
-                        },
-                        "colliderBounds": {
-                          "hasBounds": true,
-                          "center": [
-                            -0.454999983,
-                            1.6500001,
-                            6.51
-                          ],
-                          "size": [
-                            0.215999961,
-                            0.21600008,
-                            0.2159996
-                          ],
-                          "min": [
-                            -0.562999964,
-                            1.542,
-                            6.40200043
-                          ],
-                          "max": [
-                            -0.347,
-                            1.75800014,
-                            6.618
-                          ]
-                        },
-                        "components": [
-                          {
-                            "type": "UnityEngine.Transform",
-                            "fields": []
-                          },
-                          {
-                            "type": "UnityEngine.MeshFilter",
-                            "fields": []
-                          },
-                          {
-                            "type": "UnityEngine.MeshRenderer",
-                            "fields": []
-                          },
-                          {
-                            "type": "UnityEngine.SphereCollider",
-                            "fields": []
-                          }
-                        ],
-                        "children": []
-                      },
-                      {
-                        "name": "WeakPoint_2",
-                        "path": "GameRoot/EnemyRoot/EnemySpawnPoint/EnemyPlaceHolder/WeakPoint_2",
-                        "activeSelf": true,
-                        "activeInHierarchy": true,
-                        "tag": "Untagged",
-                        "layer": 0,
-                        "staticFlags": "0",
-                        "prefab": {
-                          "instanceStatus": "Connected",
-                          "assetType": "Regular",
-                          "sourceName": "WeakPoint_2",
-                          "sourcePath": "Assets/_Project/Prefabs/Enemies/EnemyPlaceHolder.prefab",
-                          "sourceGuid": "7df84625e63b92c4fb0dd2ae68cee383"
-                        },
-                        "transform": {
-                          "localPosition": [
-                            0.0,
-                            0.0,
-                            0.01
-                          ],
-                          "localRotationEuler": [
-                            0.0,
-                            180.0,
-                            0.0
-                          ],
-                          "localScale": [
-                            0.0923076943,
-                            0.06666667,
-                            0.12
-                          ],
-                          "worldPosition": [
-                            0.0,
-                            1.2,
-                            6.51
-                          ],
-                          "worldRotationEuler": [
-                            0.0,
-                            180.0,
-                            0.0
-                          ],
-                          "worldScaleLossy": [
-                            0.12,
-                            0.120000005,
-                            0.12
-                          ]
-                        },
-                        "rendererBounds": {
-                          "hasBounds": true,
-                          "center": [
-                            0.0,
-                            1.2,
-                            6.51
-                          ],
-                          "size": [
-                            0.12,
-                            0.120000005,
-                            0.12
-                          ],
-                          "min": [
-                            -0.06,
-                            1.1400001,
-                            6.45000029
-                          ],
-                          "max": [
-                            0.06,
-                            1.26,
-                            6.57
-                          ]
-                        },
-                        "colliderBounds": {
-                          "hasBounds": true,
-                          "center": [
-                            0.0,
-                            1.2,
-                            6.51
-                          ],
-                          "size": [
-                            0.120000005,
-                            0.119999886,
-                            0.119999886
-                          ],
-                          "min": [
-                            -0.0600000024,
-                            1.1400001,
-                            6.45000029
-                          ],
-                          "max": [
-                            0.0600000024,
-                            1.26,
-                            6.57
-                          ]
-                        },
-                        "components": [
-                          {
-                            "type": "UnityEngine.Transform",
-                            "fields": []
-                          },
-                          {
-                            "type": "UnityEngine.MeshFilter",
-                            "fields": []
-                          },
-                          {
-                            "type": "UnityEngine.MeshRenderer",
-                            "fields": []
-                          },
-                          {
-                            "type": "UnityEngine.SphereCollider",
-                            "fields": []
-                          }
-                        ],
-                        "children": []
-                      },
-                      {
-                        "name": "WeakPoint_3",
-                        "path": "GameRoot/EnemyRoot/EnemySpawnPoint/EnemyPlaceHolder/WeakPoint_3",
-                        "activeSelf": true,
-                        "activeInHierarchy": true,
-                        "tag": "Untagged",
-                        "layer": 0,
-                        "staticFlags": "0",
-                        "prefab": {
-                          "instanceStatus": "Connected",
-                          "assetType": "Regular",
-                          "sourceName": "WeakPoint_3",
-                          "sourcePath": "Assets/_Project/Prefabs/Enemies/EnemyPlaceHolder.prefab",
-                          "sourceGuid": "7df84625e63b92c4fb0dd2ae68cee383"
-                        },
-                        "transform": {
-                          "localPosition": [
-                            0.35,
-                            0.25,
-                            0.01
-                          ],
-                          "localRotationEuler": [
-                            0.0,
-                            180.0,
-                            0.0
-                          ],
-                          "localScale": [
-                            0.0923076943,
-                            0.06666667,
-                            0.12
-                          ],
-                          "worldPosition": [
-                            0.454999983,
-                            1.6500001,
-                            6.51
-                          ],
-                          "worldRotationEuler": [
-                            0.0,
-                            180.0,
-                            0.0
-                          ],
-                          "worldScaleLossy": [
-                            0.12,
-                            0.120000005,
-                            0.12
-                          ]
-                        },
-                        "rendererBounds": {
-                          "hasBounds": true,
-                          "center": [
-                            0.454999983,
-                            1.6500001,
-                            6.51
-                          ],
-                          "size": [
-                            0.12,
-                            0.120000005,
-                            0.12
-                          ],
-                          "min": [
-                            0.394999981,
-                            1.59000015,
-                            6.45000029
-                          ],
-                          "max": [
-                            0.515,
-                            1.71,
-                            6.57
-                          ]
-                        },
-                        "colliderBounds": {
-                          "hasBounds": true,
-                          "center": [
-                            0.454999983,
-                            1.6500001,
-                            6.51
-                          ],
-                          "size": [
-                            0.120000005,
-                            0.119999886,
-                            0.119999886
-                          ],
-                          "min": [
-                            0.394999981,
-                            1.59000015,
-                            6.45000029
-                          ],
-                          "max": [
-                            0.515,
-                            1.71,
-                            6.57
-                          ]
-                        },
-                        "components": [
-                          {
-                            "type": "UnityEngine.Transform",
-                            "fields": []
-                          },
-                          {
-                            "type": "UnityEngine.MeshFilter",
-                            "fields": []
-                          },
-                          {
-                            "type": "UnityEngine.MeshRenderer",
-                            "fields": []
-                          },
-                          {
-                            "type": "UnityEngine.SphereCollider",
-                            "fields": []
-                          }
-                        ],
-                        "children": []
-                      },
-                      {
-                        "name": "OutlineQuad",
-                        "path": "GameRoot/EnemyRoot/EnemySpawnPoint/EnemyPlaceHolder/OutlineQuad",
-                        "activeSelf": false,
-                        "activeInHierarchy": false,
-                        "tag": "Untagged",
-                        "layer": 0,
-                        "staticFlags": "0",
-                        "prefab": {
-                          "instanceStatus": "Connected",
-                          "assetType": "Regular",
-                          "sourceName": "OutlineQuad",
-                          "sourcePath": "Assets/_Project/Prefabs/Enemies/EnemyPlaceHolder.prefab",
-                          "sourceGuid": "7df84625e63b92c4fb0dd2ae68cee383"
-                        },
-                        "transform": {
-                          "localPosition": [
-                            0.0,
-                            0.0,
-                            -0.01
-                          ],
-                          "localRotationEuler": [
-                            0.0,
-                            0.0,
-                            0.0
-                          ],
-                          "localScale": [
-                            1.08,
-                            1.08,
-                            1.08
-                          ],
-                          "worldPosition": [
-                            0.0,
-                            1.2,
-                            6.49
-                          ],
-                          "worldRotationEuler": [
-                            0.0,
-                            0.0,
-                            0.0
-                          ],
-                          "worldScaleLossy": [
-                            1.404,
-                            1.944,
-                            1.08
-                          ]
-                        },
-                        "rendererBounds": {
-                          "hasBounds": true,
-                          "center": [
-                            0.0,
-                            1.2,
-                            6.49
-                          ],
-                          "size": [
-                            1.404,
-                            1.944,
-                            6.61309261E-17
-                          ],
-                          "min": [
-                            -0.702,
-                            0.228000045,
-                            6.49
-                          ],
-                          "max": [
-                            0.702,
-                            2.172,
-                            6.49
-                          ]
-                        },
-                        "colliderBounds": {
-                          "hasBounds": true,
-                          "center": [
-                            0.0,
-                            1.2,
-                            6.49
-                          ],
-                          "size": [
-                            0.0,
-                            0.0,
-                            0.0
-                          ],
-                          "min": [
-                            0.0,
-                            1.2,
-                            6.49
-                          ],
-                          "max": [
-                            0.0,
-                            1.2,
-                            6.49
-                          ]
-                        },
-                        "components": [
-                          {
-                            "type": "UnityEngine.Transform",
-                            "fields": []
-                          },
-                          {
-                            "type": "UnityEngine.MeshFilter",
-                            "fields": []
-                          },
-                          {
-                            "type": "UnityEngine.MeshRenderer",
-                            "fields": []
-                          },
-                          {
-                            "type": "UnityEngine.MeshCollider",
-                            "fields": []
-                          }
-                        ],
-                        "children": []
-                      }
-                    ]
-                  }
-                ]
+                "children": []
               }
             ]
           },
@@ -8973,9 +8310,9 @@
       },
       {
         "relativePath": "Assets\\_Project\\Scripts\\Combat\\CombatDirector.cs",
-        "sizeBytes": 9458,
-        "sha256": "d9926738c6031c8ff90d5832852477d8ece025fbdb46bb3f4d3a77f676e8299f",
-        "text": "using System.Collections;\nusing System.Collections.Generic;\nusing UnityEngine;\n\n/// <summary>\n/// Combat akisinin tek kapisi.\n/// </summary>\npublic class CombatDirector : MonoBehaviour\n{\n    [Header(\"References\")]\n    [SerializeField] private GameConfig config;\n    [SerializeField] private WeakpointSequence weakpointSequence;\n    [SerializeField] private SwipeInput swipeInput;\n    [SerializeField] private WeakpointDirectionView directionView;\n    [SerializeField] private ComboManager comboManager;\n    [SerializeField] private RageManager rageManager;\n    [SerializeField] private EnemyApproach enemyApproach;\n    [SerializeField] private Camera mainCamera;\n\n    [Header(\"Hit Test\")]\n    [SerializeField] private float hitRadiusPx = 80f;\n    [SerializeField] private float minDeltaPx = 8f;\n    [SerializeField] private float rageMinDeltaPx = 2f;\n\n    [Header(\"Retry\")]\n    [SerializeField] private float retryDelaySeconds = 1.0f;\n\n    [Header(\"State (Read-only)\")]\n    [SerializeField] private bool combatActive = false;\n    [SerializeField] private bool executionOpen = false;\n    [SerializeField] private bool firstTouchMade = false;\n    [SerializeField] private int successCount = 0;\n    [SerializeField] private int failCount = 0;\n\n    public event System.Action OnCombatSuccess;\n    public event System.Action<string> OnCombatFail;\n\n    public bool IsCombatActive => combatActive;\n    public bool IsWaitingForRetry => waitingForRetry;\n\n    private List<WeakpointDirection> activeChain = new List<WeakpointDirection>();\n    private bool hitRegisteredThisTarget = false;\n    private bool waitingForRetry = false;\n\n    // Rage execution icin: silüet rect cache\n    private Rect cachedEnemyRect;\n    private bool cachedRectValid = false;\n\n    private void Awake()\n    {\n        if (swipeInput == null)\n            swipeInput = FindFirstObjectByType<SwipeInput>();\n        if (weakpointSequence == null)\n            weakpointSequence = FindFirstObjectByType<WeakpointSequence>();\n        if (directionView == null)\n            directionView = FindFirstObjectByType<WeakpointDirectionView>();\n        if (comboManager == null)\n            comboManager = FindFirstObjectByType<ComboManager>();\n        if (rageManager == null)\n            rageManager = FindFirstObjectByType<RageManager>();\n        if (enemyApproach == null)\n            enemyApproach = FindFirstObjectByType<EnemyApproach>();\n        if (mainCamera == null)\n            mainCamera = Camera.main;\n        Debug.Log(\"[CombatDirector] Awake OK.\");\n    }\n\n    private void OnEnable()\n    {\n        if (weakpointSequence == null) return;\n        weakpointSequence.OnExecutionWindowStart += HandleExecutionWindowStart;\n        weakpointSequence.OnChainAdvance += HandleChainAdvance;\n        weakpointSequence.OnChainSuccess += HandleChainSuccess;\n        weakpointSequence.OnChainFail += HandleChainFail;\n    }\n\n    private void OnDisable()\n    {\n        if (weakpointSequence == null) return;\n        weakpointSequence.OnExecutionWindowStart -= HandleExecutionWindowStart;\n        weakpointSequence.OnChainAdvance -= HandleChainAdvance;\n        weakpointSequence.OnChainSuccess -= HandleChainSuccess;\n        weakpointSequence.OnChainFail -= HandleChainFail;\n    }\n\n    private void Update()\n    {\n        if (!combatActive) return;\n        if (waitingForRetry) return;\n        if (!executionOpen) return;\n        if (weakpointSequence == null || swipeInput == null) return;\n        if (weakpointSequence.CurrentPhase != WeakpointSequence.Phase.ExecutionWindow) return;\n\n        bool isRage = rageManager != null && rageManager.IsRageActive;\n        \n        // --- Finger-lift fail ---\n        if (firstTouchMade && !swipeInput.IsDown)\n        {\n            weakpointSequence.ForceFailExternal(\"FingerLift\");\n            return;\n        }\n\n        if (!swipeInput.IsDown) return;\n\n        // --- Hareket var mi? ---\n        Vector2 delta = swipeInput.RawDeltaPx;\n        float requiredDelta = isRage ? rageMinDeltaPx : minDeltaPx;\n        if (delta.magnitude < requiredDelta) return;\n\n        // ===== RAGE HIT =====\n        if (isRage)\n        {\n            if (hitRegisteredThisTarget) return;\n\n            // Silüet kontrolü: parmak pozisyonu düşmanın ekran rect'i içinde mi?\n            if (enemyApproach == null || mainCamera == null)\n            {\n                Debug.LogWarning(\"[CombatDirector] Rage hit: enemyApproach veya mainCamera null!\");\n                return;\n            }\n\n            // Her frame rect'i güncelle\n            cachedRectValid = enemyApproach.TryGetScreenRect(mainCamera, out cachedEnemyRect);\n\n            Vector2 fingerPos = swipeInput.FingerPosition;\n            bool contains = cachedRectValid && cachedEnemyRect.Contains(fingerPos);\n\n            if (!contains) return;\n\n            // Silüetten geçti → kesme → hit\n            hitRegisteredThisTarget = true;\n            firstTouchMade = true;\n            comboManager?.RegisterHit();\n            FeedbackManager.Instance?.PlayRageHitFeedback();\n            AudioManager.Instance?.PlayHitRage();\n            Debug.Log(\"[CombatDirector] RAGE HIT!\");\n            weakpointSequence.SubmitHit();\n            return;\n        }\n\n        // ===== NORMAL HIT =====\n        if (directionView == null) return;\n\n        Vector2 markerScreenPos;\n        if (!directionView.TryGetActiveMarkerScreenPos(out markerScreenPos)) return;\n\n        Vector2 fp = swipeInput.FingerPosition;\n        float dist = Vector2.Distance(fp, markerScreenPos);\n        if (dist > hitRadiusPx) return;\n\n        if (hitRegisteredThisTarget) return;\n        hitRegisteredThisTarget = true;\n\n        firstTouchMade = true;\n        comboManager?.RegisterHit();\n        rageManager?.RegisterHit();\n        FeedbackManager.Instance?.PlayHitFeedback();\n        AudioManager.Instance?.PlayHitNormal();\n        Debug.Log($\"[CombatDirector] HIT! dist={dist:F0}px\");\n        weakpointSequence.SubmitHit();\n    }\n\n    // --- Event handlers ---\n\n    private void HandleExecutionWindowStart(float duration)\n    {\n        executionOpen = true;\n        firstTouchMade = false;\n        hitRegisteredThisTarget = false;\n        cachedRectValid = false;\n        Debug.Log(\"[CombatDirector] Execution acildi.\");\n\n        // Rage aktifken marker gosterme — silüet weakpoint\n        if (rageManager != null && rageManager.IsRageActive)\n            directionView?.HideAll();\n    }\n\n    private void HandleChainAdvance(int newIndex)\n    {\n        hitRegisteredThisTarget = false;\n        Debug.Log($\"[CombatDirector] Chain advance -> {newIndex}\");\n    }\n\n    private void HandleChainSuccess()\n    {\n        successCount++;\n        combatActive = false;\n        executionOpen = false;\n        firstTouchMade = false;\n        hitRegisteredThisTarget = false;\n        comboManager?.RegisterChainSuccess();\n        enemyApproach?.SetRageVisual(false);\n        FeedbackManager.Instance?.PlayChainSuccessFeedback();\n        AudioManager.Instance?.PlayChainSuccess();\n        OnCombatSuccess?.Invoke();\n        Debug.Log($\"[CombatDirector] BASARI! Toplam={successCount}\");\n    }\n\n    private void HandleChainFail(string reason)\n    {\n        failCount++;\n        executionOpen = false;\n        firstTouchMade = false;\n        hitRegisteredThisTarget = false;\n\n        comboManager?.RegisterTimeout();\n        rageManager?.ResetRage();\n        \n        enemyApproach?.SetRageVisual(false);\n        FeedbackManager.Instance?.PlayFailFeedback();\n        AudioManager.Instance?.PlayFailPunish();\n        OnCombatFail?.Invoke(reason);\n        Debug.Log($\"[CombatDirector] FAIL. Sebep={reason} Toplam={failCount}\");\n\n        if (combatActive && activeChain != null && activeChain.Count > 0)\n            StartCoroutine(RetryAfterDelay());\n        else\n            combatActive = false;\n    }\n\n    private IEnumerator RetryAfterDelay()\n    {\n        waitingForRetry = true;\n        yield return new WaitForSecondsRealtime(retryDelaySeconds);\n        waitingForRetry = false;\n\n        if (!combatActive) yield break;\n\n        Debug.Log(\"[CombatDirector] Retry: ayni dusmanin zinciri yeniden basliyor.\");\n        weakpointSequence.StartExecutionDirectly(activeChain);\n    }\n\n    // --- Public API ---\n\n    public void StartCombatSequence(List<WeakpointDirection> chain)\n    {\n        if (weakpointSequence == null)\n        {\n            Debug.LogError(\"[CombatDirector] WeakpointSequence yok!\");\n            return;\n        }\n\n        bool isRage = rageManager != null && rageManager.IsRageActive;\n\n        // Rage aktifken chain'i tek elemanlı yap — silüet = tek weakpoint\n        if (isRage)\n        {\n            activeChain = new List<WeakpointDirection> { WeakpointDirection.None };\n            Debug.Log(\"[CombatDirector] RAGE: Chain 1 elemana indirildi (silüet = weakpoint).\");\n        }\n        else\n        {\n            activeChain = new List<WeakpointDirection>(chain);\n        }\n\n        combatActive = true;\n        executionOpen = false;\n        firstTouchMade = false;\n        hitRegisteredThisTarget = false;\n        waitingForRetry = false;\n\n        if (isRage)\n        {\n            Debug.Log(\"[CombatDirector] SetRageVisual(true) cagriliyor.\");\n            enemyApproach?.SetRageVisual(true);\n            weakpointSequence.StartExecutionDirectly(activeChain);\n        }\n        else\n        {\n            weakpointSequence.StartSequence(activeChain);\n        }\n    }\n\n    public WeakpointSequence GetSequence() => weakpointSequence;\n}\n"
+        "sizeBytes": 8427,
+        "sha256": "bfa27622c76338af886b56e929e287457e542fb65b7ef500421d34a72ec4e47a",
+        "text": "using System.Collections;\nusing System.Collections.Generic;\nusing UnityEngine;\n\n/// <summary>\n/// Combat akisinin tek kapisi.\n/// </summary>\npublic class CombatDirector : MonoBehaviour\n{\n    [Header(\"References\")]\n    [SerializeField] private GameConfig config;\n    [SerializeField] private WeakpointSequence weakpointSequence;\n    [SerializeField] private SwipeInput swipeInput;\n    [SerializeField] private WeakpointDirectionView directionView;\n    [SerializeField] private ComboManager comboManager;\n    [SerializeField] private RageManager rageManager;\n    [SerializeField] private EnemyApproach enemyApproach;\n    [SerializeField] private Camera mainCamera;\n\n    [Header(\"Hit Test\")]\n    [SerializeField] private float hitRadiusPx = 80f;\n    [SerializeField] private float minDeltaPx = 8f;\n    [SerializeField] private float rageMinDeltaPx = 2f;\n\n    [Header(\"Retry\")]\n    [SerializeField] private float retryDelaySeconds = 1.0f;\n\n    [Header(\"State (Read-only)\")]\n    [SerializeField] private bool combatActive = false;\n    [SerializeField] private bool executionOpen = false;\n    [SerializeField] private bool firstTouchMade = false;\n    [SerializeField] private int successCount = 0;\n    [SerializeField] private int failCount = 0;\n\n    public event System.Action OnCombatSuccess;\n    public event System.Action<string> OnCombatFail;\n\n    public bool IsCombatActive => combatActive;\n    public bool IsWaitingForRetry => waitingForRetry;\n\n    private List<WeakpointDirection> activeChain = new List<WeakpointDirection>();\n    private bool hitRegisteredThisTarget = false;\n    private bool waitingForRetry = false;\n\n\n    private void Awake()\n    {\n        if (swipeInput == null)\n            swipeInput = FindFirstObjectByType<SwipeInput>();\n        if (weakpointSequence == null)\n            weakpointSequence = FindFirstObjectByType<WeakpointSequence>();\n        if (directionView == null)\n            directionView = FindFirstObjectByType<WeakpointDirectionView>();\n        if (comboManager == null)\n            comboManager = FindFirstObjectByType<ComboManager>();\n        if (rageManager == null)\n            rageManager = FindFirstObjectByType<RageManager>();\n        if (enemyApproach == null)\n            enemyApproach = FindFirstObjectByType<EnemyApproach>();\n        if (mainCamera == null)\n            mainCamera = Camera.main;\n        Debug.Log(\"[CombatDirector] Awake OK.\");\n    }\n\n    private void OnEnable()\n    {\n        if (weakpointSequence == null) return;\n        weakpointSequence.OnExecutionWindowStart += HandleExecutionWindowStart;\n        weakpointSequence.OnChainAdvance += HandleChainAdvance;\n        weakpointSequence.OnChainSuccess += HandleChainSuccess;\n        weakpointSequence.OnChainFail += HandleChainFail;\n    }\n\n    private void OnDisable()\n    {\n        if (weakpointSequence == null) return;\n        weakpointSequence.OnExecutionWindowStart -= HandleExecutionWindowStart;\n        weakpointSequence.OnChainAdvance -= HandleChainAdvance;\n        weakpointSequence.OnChainSuccess -= HandleChainSuccess;\n        weakpointSequence.OnChainFail -= HandleChainFail;\n    }\n\n    private void Update()\n    {\n        if (!combatActive) return;\n        if (waitingForRetry) return;\n        if (!executionOpen) return;\n        if (weakpointSequence == null || swipeInput == null) return;\n        if (weakpointSequence.CurrentPhase != WeakpointSequence.Phase.ExecutionWindow) return;\n\n        bool isRage = rageManager != null && rageManager.IsRageActive;\n        \n        // --- Finger-lift fail ---\n        if (firstTouchMade && !swipeInput.IsDown)\n        {\n            weakpointSequence.ForceFailExternal(\"FingerLift\");\n            return;\n        }\n\n        if (!swipeInput.IsDown) return;\n\n        // --- Hareket var mi? ---\n        Vector2 delta = swipeInput.RawDeltaPx;\n        float requiredDelta = isRage ? rageMinDeltaPx : minDeltaPx;\n        if (delta.magnitude < requiredDelta) return;\n\n\n        // ===== NORMAL HIT =====\n        if (directionView == null) return;\n\n        Vector2 markerScreenPos;\n        if (!directionView.TryGetActiveMarkerScreenPos(out markerScreenPos)) return;\n\n        Vector2 fp = swipeInput.FingerPosition;\n        float dist = Vector2.Distance(fp, markerScreenPos);\n        if (dist > hitRadiusPx) return;\n\n        if (hitRegisteredThisTarget) return;\n        hitRegisteredThisTarget = true;\n\n        firstTouchMade = true;\r\n        comboManager?.RegisterHit();\r\n\r\n        if (!isRage)\r\n            rageManager?.RegisterHit();\r\n\r\n        if (isRage)\r\n        {\r\n            FeedbackManager.Instance?.PlayRageHitFeedback();\r\n            AudioManager.Instance?.PlayHitRage();\r\n            Debug.Log($\"[CombatDirector] RAGE HIT! dist={dist:F0}px\");\r\n        }\r\n        else\r\n        {\r\n            FeedbackManager.Instance?.PlayHitFeedback();\r\n            AudioManager.Instance?.PlayHitNormal();\r\n            Debug.Log($\"[CombatDirector] HIT! dist={dist:F0}px\");\r\n        }\r\n\r\n        weakpointSequence.SubmitHit();\n    }\n\n    // --- Event handlers ---\n\n    private void HandleExecutionWindowStart(float duration)\n    {\n        executionOpen = true;\n        firstTouchMade = false;\n        hitRegisteredThisTarget = false;\n        Debug.Log(\"[CombatDirector] Execution acildi.\");\n\n    }\n\n    private void HandleChainAdvance(int newIndex)\n    {\n        hitRegisteredThisTarget = false;\n        Debug.Log($\"[CombatDirector] Chain advance -> {newIndex}\");\n    }\n\n    private void HandleChainSuccess()\n    {\n        successCount++;\n        combatActive = false;\n        executionOpen = false;\n        firstTouchMade = false;\n        hitRegisteredThisTarget = false;\n        comboManager?.RegisterChainSuccess();\n        enemyApproach?.SetRageVisual(false);\n        FeedbackManager.Instance?.PlayChainSuccessFeedback();\n        AudioManager.Instance?.PlayChainSuccess();\n        OnCombatSuccess?.Invoke();\n        Debug.Log($\"[CombatDirector] BASARI! Toplam={successCount}\");\n    }\n\n    private void HandleChainFail(string reason)\n    {\n        failCount++;\n        executionOpen = false;\n        firstTouchMade = false;\n        hitRegisteredThisTarget = false;\n\n        comboManager?.RegisterTimeout();\n        rageManager?.ResetRage();\n        \n        enemyApproach?.SetRageVisual(false);\n        FeedbackManager.Instance?.PlayFailFeedback();\n        AudioManager.Instance?.PlayFailPunish();\n        OnCombatFail?.Invoke(reason);\n        Debug.Log($\"[CombatDirector] FAIL. Sebep={reason} Toplam={failCount}\");\n\n        if (combatActive && activeChain != null && activeChain.Count > 0)\n            StartCoroutine(RetryAfterDelay());\n        else\n            combatActive = false;\n    }\n\n    private IEnumerator RetryAfterDelay()\n    {\n        waitingForRetry = true;\n        yield return new WaitForSecondsRealtime(retryDelaySeconds);\n        waitingForRetry = false;\n\n        if (!combatActive) yield break;\n\n        Debug.Log(\"[CombatDirector] Retry: ayni dusmanin zinciri yeniden basliyor.\");\n        weakpointSequence.StartExecutionDirectly(activeChain);\n    }\n\n    // --- Public API ---\n\n    public void StartCombatSequence(List<WeakpointDirection> chain)\n    {\n        if (weakpointSequence == null)\n        {\n            Debug.LogError(\"[CombatDirector] WeakpointSequence yok!\");\n            return;\n        }\n\n        bool isRage = rageManager != null && rageManager.IsRageActive;\n\n        // Rage aktifken chain'i tek elemanlı yap — silüet = tek weakpoint\n        if (isRage)\r\n        {\r\n            activeChain = new List<WeakpointDirection> { WeakpointDirection.Up };\r\n            Debug.Log(\"[CombatDirector] RAGE: Tek rage weakpoint kullanılacak.\");\r\n        }\r\n        else\r\n        {\r\n            activeChain = new List<WeakpointDirection>(chain);\r\n        }\n\n        combatActive = true;\n        executionOpen = false;\n        firstTouchMade = false;\n        hitRegisteredThisTarget = false;\n        waitingForRetry = false;\n\n        if (isRage)\n        {\n            Debug.Log(\"[CombatDirector] SetRageVisual(true) cagriliyor.\");\n            enemyApproach?.SetRageVisual(true);\n            weakpointSequence.StartExecutionDirectly(activeChain);\n        }\n        else\n        {\n            weakpointSequence.StartSequence(activeChain);\n        }\n    }\n\n    public WeakpointSequence GetSequence() => weakpointSequence;\n\n    public void SetCurrentEnemy(EnemyApproach newEnemyApproach)\r\n    {\r\n        enemyApproach = newEnemyApproach;\r\n    }\n}\n"
       },
       {
         "relativePath": "Assets\\_Project\\Scripts\\Combat\\CombatTriggerTest.cs",
@@ -8991,9 +8328,21 @@
       },
       {
         "relativePath": "Assets\\_Project\\Scripts\\Combat\\EnemyApproach.cs",
-        "sizeBytes": 7360,
-        "sha256": "a2e83f68151733edefd8bbf3623a32eafb179a7f571fd7c423d2778556edcd9c",
-        "text": "using UnityEngine;\r\n\r\n/// <summary>\r\n/// Düşmanın koridordan yaklaşmasını yönetir.\r\n/// </summary>\r\npublic class EnemyApproach : MonoBehaviour\r\n{\r\n    [Header(\"References\")]\r\n    [SerializeField] private CombatDirector combatDirector;\r\n\r\n    [Header(\"Approach Settings\")]\r\n    [SerializeField] private Vector3 spawnPosition = new Vector3(0f, 0f, 30f);\r\n    [SerializeField] private Vector3 stopPosition = new Vector3(0f, 0f, 6f);\r\n    [SerializeField] private float approachSpeed = 4f;\r\n    [SerializeField] private float telegraphTriggerDistance = 8f;\r\n\r\n    [Header(\"Chain Settings\")]\r\n    [SerializeField]\r\n    private System.Collections.Generic.List<WeakpointDirection> chain = new()\r\n    {\r\n        WeakpointDirection.Right,\r\n        WeakpointDirection.Up,\r\n        WeakpointDirection.Left\r\n    };\r\n\r\n    [Header(\"Rage Hit\")]\r\n    [Tooltip(\"Silüet hit alanını genişletme çarpanı. 1.0 = tam bounds, 1.3 = %30 padding\")]\r\n    [SerializeField] private float rageHitPadding = 1.3f;\r\n\r\n    [Header(\"Timing\")]\r\n    [SerializeField] private float deathPauseSeconds = 1.5f;\r\n    [SerializeField] private float respawnDelaySeconds = 1.0f;\r\n    [SerializeField] private float deathFlashDuration = 0.3f;\r\n\r\n    [Header(\"State (Read-only)\")]\r\n    [SerializeField] private State currentState = State.Idle;\r\n\r\n    public enum State { Idle, Approaching, TelegraphTriggered, WaitingForResult, Dead }\r\n\r\n    private Renderer cachedRenderer;\r\n\r\n    private void Awake()\r\n    {\r\n        if (combatDirector == null)\r\n            combatDirector = FindFirstObjectByType<CombatDirector>();\r\n        cachedRenderer = GetComponentInChildren<Renderer>();\r\n    }\r\n\r\n    private void OnEnable()\r\n    {\r\n        if (combatDirector == null) return;\r\n        combatDirector.OnCombatSuccess += HandleCombatSuccess;\r\n        combatDirector.OnCombatFail += HandleCombatFail;\r\n    }\r\n\r\n    private void OnDisable()\r\n    {\r\n        if (combatDirector == null) return;\r\n        combatDirector.OnCombatSuccess -= HandleCombatSuccess;\r\n        combatDirector.OnCombatFail -= HandleCombatFail;\r\n    }\r\n\r\n    private void Start()\r\n    {\r\n        StartApproach();\r\n    }\r\n\r\n    private void Update()\r\n    {\r\n        if (currentState != State.Approaching) return;\r\n\r\n        transform.position = Vector3.MoveTowards(\r\n            transform.position,\r\n            stopPosition,\r\n            approachSpeed * Time.deltaTime\r\n        );\r\n\r\n        float distToCamera = transform.position.z;\r\n        if (distToCamera <= telegraphTriggerDistance)\r\n            TriggerTelegraph();\r\n    }\r\n\r\n    // --- Public: Rage hit testi için ekran sınırları ---\r\n\r\n    /// <summary>\r\n    /// Düşmanın Renderer bounds'unun 8 köşesini ekrana projekte ederek\r\n    /// gerçek ekran Rect'ini döndürür.\r\n    /// Rage hit testi için CombatDirector tarafından kullanılır.\r\n    /// </summary>\r\n    public bool TryGetScreenRect(Camera cam, out Rect screenRect)\r\n    {\r\n        screenRect = Rect.zero;\r\n        if (cam == null || cachedRenderer == null) return false;\r\n\r\n        Bounds bounds = cachedRenderer.bounds;\r\n\r\n        // Bounds'un 8 köşesini hesapla\r\n        Vector3 center = bounds.center;\r\n        Vector3 extents = bounds.extents;\r\n\r\n        Vector3[] corners = new Vector3[8];\r\n        corners[0] = center + new Vector3(-extents.x, -extents.y, -extents.z);\r\n        corners[1] = center + new Vector3(-extents.x, -extents.y, extents.z);\r\n        corners[2] = center + new Vector3(-extents.x, extents.y, -extents.z);\r\n        corners[3] = center + new Vector3(-extents.x, extents.y, extents.z);\r\n        corners[4] = center + new Vector3(extents.x, -extents.y, -extents.z);\r\n        corners[5] = center + new Vector3(extents.x, -extents.y, extents.z);\r\n        corners[6] = center + new Vector3(extents.x, extents.y, -extents.z);\r\n        corners[7] = center + new Vector3(extents.x, extents.y, extents.z);\r\n\r\n        // Her köşeyi ekran koordinatına çevir\r\n        float minX = float.MaxValue;\r\n        float maxX = float.MinValue;\r\n        float minY = float.MaxValue;\r\n        float maxY = float.MinValue;\r\n\r\n        for (int i = 0; i < 8; i++)\r\n        {\r\n            Vector3 sp = cam.WorldToScreenPoint(corners[i]);\r\n\r\n            // Kameranın arkasındaysa geçersiz\r\n            if (sp.z < 0f) return false;\r\n\r\n            if (sp.x < minX) minX = sp.x;\r\n            if (sp.x > maxX) maxX = sp.x;\r\n            if (sp.y < minY) minY = sp.y;\r\n            if (sp.y > maxY) maxY = sp.y;\r\n        }\r\n\r\n        // Padding uygula — hit alanını biraz genişlet\r\n        float w = maxX - minX;\r\n        float h = maxY - minY;\r\n        float padW = w * (rageHitPadding - 1f) * 0.5f;\r\n        float padH = h * (rageHitPadding - 1f) * 0.5f;\r\n\r\n        screenRect = new Rect(minX - padW, minY - padH, w + padW * 2f, h + padH * 2f);\r\n\r\n        return true;\r\n    }\r\n\r\n    // --- Internal ---\r\n\r\n    private void StartApproach()\r\n    {\r\n        transform.position = spawnPosition;\r\n        currentState = State.Approaching;\r\n        Debug.Log(\"[EnemyApproach] Yaklaşma başladı.\");\r\n    }\r\n\r\n    private void TriggerTelegraph()\r\n    {\r\n        currentState = State.TelegraphTriggered;\r\n        Debug.Log(\"[EnemyApproach] Telegraph tetiklendi.\");\r\n        combatDirector.StartCombatSequence(chain);\r\n        currentState = State.WaitingForResult;\r\n    }\r\n\r\n    private void HandleCombatSuccess()\r\n    {\r\n        currentState = State.Dead;\r\n        Debug.Log(\"[EnemyApproach] Düşman öldü. Sonraki başlıyor...\");\r\n        StartCoroutine(DeathFlashThenRespawn());\r\n    }\r\n\r\n    private System.Collections.IEnumerator DeathFlashThenRespawn()\r\n    {\r\n        if (cachedRenderer != null)\r\n        {\r\n            Color original = cachedRenderer.material.color;\r\n            cachedRenderer.material.color = Color.red;\r\n            yield return new WaitForSeconds(deathFlashDuration);\r\n            cachedRenderer.material.color = original;\r\n        }\r\n        StartCoroutine(RespawnAfterDelay());\r\n    }\r\n\r\n    public void SetRageVisual(bool rageActive)\r\n    {\r\n        Transform outline = transform.Find(\"OutlineQuad\");\r\n        if (outline != null)\r\n            outline.gameObject.SetActive(rageActive);\r\n    }\r\n\r\n    private void HandleCombatFail(string reason)\r\n    {\r\n        Debug.Log($\"[EnemyApproach] Fail ({reason}), düşman bekliyor.\");\r\n        StartCoroutine(PunishFlash());\r\n    }\r\n\r\n    private System.Collections.IEnumerator PunishFlash()\r\n    {\r\n        if (cachedRenderer != null)\r\n        {\r\n            Color original = cachedRenderer.material.color;\r\n            cachedRenderer.material.color = Color.white;\r\n            yield return new WaitForSeconds(0.15f);\r\n            cachedRenderer.material.color = original;\r\n        }\r\n    }\r\n\r\n    private System.Collections.IEnumerator RespawnAfterDelay()\r\n    {\r\n        yield return new WaitForSecondsRealtime(deathPauseSeconds);\r\n        yield return new WaitForSecondsRealtime(respawnDelaySeconds);\r\n        StartApproach();\r\n    }\r\n\r\n    private void OnDrawGizmosSelected()\r\n    {\r\n        Gizmos.color = Color.blue;\r\n        Gizmos.DrawWireSphere(spawnPosition, 0.3f);\r\n        Gizmos.color = Color.green;\r\n        Gizmos.DrawWireSphere(stopPosition, 0.3f);\r\n        Gizmos.color = Color.yellow;\r\n        Gizmos.DrawWireSphere(new Vector3(stopPosition.x, stopPosition.y, telegraphTriggerDistance), 0.3f);\r\n    }\r\n}"
+        "sizeBytes": 7807,
+        "sha256": "954ba068214068c7542c2bd4c304ca3eb4bcf9927e795df7e6da3422b25c2b4a",
+        "text": "using UnityEngine;\r\n\r\n/// <summary>\r\n/// Düşmanın koridordan yaklaşmasını yönetir.\r\n/// </summary>\r\npublic class EnemyApproach : MonoBehaviour\r\n{\r\n    [Header(\"References\")]\r\n    [SerializeField] private CombatDirector combatDirector;\r\n    [SerializeField] private EnemyArchetypeData archetypeData;\r\n\r\n    [Header(\"Approach Settings\")]\r\n    [SerializeField] private Vector3 spawnPosition = new Vector3(0f, 0f, 30f);\r\n    [SerializeField] private Vector3 stopPosition = new Vector3(0f, 0f, 6f);\r\n    [SerializeField] private float approachSpeed = 4f;\r\n    [SerializeField] private float telegraphTriggerDistance = 8f;\r\n\r\n   \r\n\r\n    [Header(\"Rage Hit\")]\r\n    [Tooltip(\"Silüet hit alanını genişletme çarpanı. 1.0 = tam bounds, 1.3 = %30 padding\")]\r\n    [SerializeField] private float rageHitPadding = 1.3f;\r\n\r\n    [Header(\"Timing\")]\r\n    [SerializeField] private float deathPauseSeconds = 1.5f;\r\n    [SerializeField] private float respawnDelaySeconds = 1.0f;\r\n    [SerializeField] private float deathFlashDuration = 0.3f;\r\n\r\n    [Header(\"State (Read-only)\")]\r\n    [SerializeField] private State currentState = State.Idle;\r\n\r\n    public enum State { Idle, Approaching, TelegraphTriggered, WaitingForResult, Dead }\r\n\r\n    private Renderer cachedRenderer;\r\n\r\n    private void Awake()\r\n    {\r\n        if (combatDirector == null)\r\n            combatDirector = FindFirstObjectByType<CombatDirector>();\r\n        cachedRenderer = GetComponentInChildren<Renderer>();\r\n    }\r\n\r\n    private void OnEnable()\r\n    {\r\n        if (combatDirector == null) return;\r\n        combatDirector.OnCombatSuccess += HandleCombatSuccess;\r\n        combatDirector.OnCombatFail += HandleCombatFail;\r\n    }\r\n\r\n    private void OnDisable()\r\n    {\r\n        if (combatDirector == null) return;\r\n        combatDirector.OnCombatSuccess -= HandleCombatSuccess;\r\n        combatDirector.OnCombatFail -= HandleCombatFail;\r\n    }\r\n\r\n    private void Start()\r\n    {\r\n        StartApproach();\r\n    }\r\n\r\n    private void Update()\r\n    {\r\n        if (archetypeData == null)\r\n        {\r\n            Debug.LogError(\"[EnemyApproach] archetypeData yok!\");\r\n            return;\r\n        }\r\n\r\n        if (currentState != State.Approaching) return;\r\n\r\n        transform.position = Vector3.MoveTowards(\r\n            transform.position,\r\n            stopPosition,\r\n            archetypeData.approachSpeed * Time.deltaTime\r\n        );\r\n\r\n        float distToCamera = transform.position.z;\r\n        if (distToCamera <= archetypeData.telegraphTriggerDistance)\r\n            TriggerTelegraph();\r\n    }\r\n\r\n    // --- Public: Rage hit testi için ekran sınırları ---\r\n\r\n    /// <summary>\r\n    /// Düşmanın Renderer bounds'unun 8 köşesini ekrana projekte ederek\r\n    /// gerçek ekran Rect'ini döndürür.\r\n    /// Rage hit testi için CombatDirector tarafından kullanılır.\r\n    /// </summary>\r\n    public bool TryGetScreenRect(Camera cam, out Rect screenRect)\r\n    {\r\n        screenRect = Rect.zero;\r\n        if (cam == null || cachedRenderer == null) return false;\r\n\r\n        Bounds bounds = cachedRenderer.bounds;\r\n\r\n        // Bounds'un 8 köşesini hesapla\r\n        Vector3 center = bounds.center;\r\n        Vector3 extents = bounds.extents;\r\n\r\n        Vector3[] corners = new Vector3[8];\r\n        corners[0] = center + new Vector3(-extents.x, -extents.y, -extents.z);\r\n        corners[1] = center + new Vector3(-extents.x, -extents.y, extents.z);\r\n        corners[2] = center + new Vector3(-extents.x, extents.y, -extents.z);\r\n        corners[3] = center + new Vector3(-extents.x, extents.y, extents.z);\r\n        corners[4] = center + new Vector3(extents.x, -extents.y, -extents.z);\r\n        corners[5] = center + new Vector3(extents.x, -extents.y, extents.z);\r\n        corners[6] = center + new Vector3(extents.x, extents.y, -extents.z);\r\n        corners[7] = center + new Vector3(extents.x, extents.y, extents.z);\r\n\r\n        // Her köşeyi ekran koordinatına çevir\r\n        float minX = float.MaxValue;\r\n        float maxX = float.MinValue;\r\n        float minY = float.MaxValue;\r\n        float maxY = float.MinValue;\r\n\r\n        for (int i = 0; i < 8; i++)\r\n        {\r\n            Vector3 sp = cam.WorldToScreenPoint(corners[i]);\r\n\r\n            // Kameranın arkasındaysa geçersiz\r\n            if (sp.z < 0f) return false;\r\n\r\n            if (sp.x < minX) minX = sp.x;\r\n            if (sp.x > maxX) maxX = sp.x;\r\n            if (sp.y < minY) minY = sp.y;\r\n            if (sp.y > maxY) maxY = sp.y;\r\n        }\r\n\r\n        // Padding uygula — hit alanını biraz genişlet\r\n        float w = maxX - minX;\r\n        float h = maxY - minY;\r\n        float padW = w * (rageHitPadding - 1f) * 0.5f;\r\n        float padH = h * (rageHitPadding - 1f) * 0.5f;\r\n\r\n        screenRect = new Rect(minX - padW, minY - padH, w + padW * 2f, h + padH * 2f);\r\n\r\n        return true;\r\n    }\r\n\r\n    // --- Internal ---\r\n\r\n    private void StartApproach()\r\n    {\r\n        transform.position = spawnPosition;\r\n        currentState = State.Approaching;\r\n        Debug.Log(\"[EnemyApproach] Yaklaşma başladı.\");\r\n    }\r\n\r\n    private void TriggerTelegraph()\r\n    {\r\n        currentState = State.TelegraphTriggered;\r\n        Debug.Log(\"[EnemyApproach] Telegraph tetiklendi.\");\r\n\r\n        if (archetypeData == null)\r\n        {\r\n            Debug.LogError(\"[EnemyApproach] archetypeData yok!\");\r\n            return;\r\n        }\r\n\r\n        if (archetypeData.pattern == null || archetypeData.pattern.Length == 0)\r\n        {\r\n            Debug.LogError(\"[EnemyApproach] archetypeData.pattern bos!\");\r\n            return;\r\n        }\r\n\r\n        combatDirector.StartCombatSequence(\r\n            new System.Collections.Generic.List<WeakpointDirection>(archetypeData.pattern)\r\n        );\r\n\r\n        currentState = State.WaitingForResult;\r\n    }\r\n\r\n    private void HandleCombatSuccess()\r\n    {\r\n        currentState = State.Dead;\r\n        Debug.Log(\"[EnemyApproach] Düşman öldü. Sonraki başlıyor...\");\r\n        StartCoroutine(DeathFlashThenRespawn());\r\n    }\r\n\r\n    private System.Collections.IEnumerator DeathFlashThenRespawn()\r\n    {\r\n        if (cachedRenderer != null)\r\n        {\r\n            Color original = cachedRenderer.material.color;\r\n            cachedRenderer.material.color = Color.red;\r\n            yield return new WaitForSeconds(deathFlashDuration);\r\n            cachedRenderer.material.color = original;\r\n        }\r\n        StartCoroutine(RespawnAfterDelay());\r\n    }\r\n\r\n    public void SetRageVisual(bool rageActive)\r\n    {\r\n        Transform outline = transform.Find(\"OutlineQuad\");\r\n        if (outline != null)\r\n            outline.gameObject.SetActive(rageActive);\r\n    }\r\n\r\n    private void HandleCombatFail(string reason)\r\n    {\r\n        Debug.Log($\"[EnemyApproach] Fail ({reason}), düşman bekliyor.\");\r\n        StartCoroutine(PunishFlash());\r\n    }\r\n\r\n    private System.Collections.IEnumerator PunishFlash()\r\n    {\r\n        if (cachedRenderer != null)\r\n        {\r\n            Color original = cachedRenderer.material.color;\r\n            cachedRenderer.material.color = Color.white;\r\n            yield return new WaitForSeconds(0.15f);\r\n            cachedRenderer.material.color = original;\r\n        }\r\n    }\r\n\r\n    private System.Collections.IEnumerator RespawnAfterDelay()\r\n    {\r\n        yield return new WaitForSecondsRealtime(deathPauseSeconds);\r\n        yield return new WaitForSecondsRealtime(respawnDelaySeconds);\r\n        StartApproach();\r\n    }\r\n\r\n    private void OnDrawGizmosSelected()\r\n    {\r\n        Gizmos.color = Color.blue;\r\n        Gizmos.DrawWireSphere(spawnPosition, 0.3f);\r\n        Gizmos.color = Color.green;\r\n        Gizmos.DrawWireSphere(stopPosition, 0.3f);\r\n        Gizmos.color = Color.yellow;\r\n        Gizmos.DrawWireSphere(new Vector3(stopPosition.x, stopPosition.y, telegraphTriggerDistance), 0.3f);\r\n    }\r\n}"
+      },
+      {
+        "relativePath": "Assets\\_Project\\Scripts\\Combat\\EnemyArchetypeData.cs",
+        "sizeBytes": 628,
+        "sha256": "f1b42834416987f72e344e75f43e4c88f0377595559c518affd112144f2c1e81",
+        "text": "using UnityEngine;\r\n\r\npublic enum EnemyArchetypeType\r\n{\r\n    Basic,\r\n    Fast,\r\n    Tank,\r\n    Trick,\r\n    Elite,\r\n    Boss\r\n}\r\n\r\n[CreateAssetMenu(fileName = \"EnemyArchetype_\", menuName = \"BladeRift/Combat/Enemy Archetype Data\")]\r\npublic class EnemyArchetypeData : ScriptableObject\r\n{\r\n    public EnemyArchetypeType archetypeType = EnemyArchetypeType.Basic;\r\n\r\n    public float approachSpeed = 4f;\r\n    public float telegraphTriggerDistance = 8f;\r\n\r\n    public float deathPauseSeconds = 1.5f;\r\n    public float respawnDelaySeconds = 1f;\r\n    public float deathFlashDuration = 0.3f;\r\n\r\n    public WeakpointDirection[] pattern;\r\n}"
+      },
+      {
+        "relativePath": "Assets\\_Project\\Scripts\\Combat\\EnemySpawner.cs",
+        "sizeBytes": 818,
+        "sha256": "199d8a8e1cf555a7abbc73ce824432f4a7ec667bb38e7c88456068dcee4a208a",
+        "text": "using UnityEngine;\r\n\r\npublic class EnemySpawner : MonoBehaviour\r\n{\r\n    [Header(\"Spawn Setup\")]\r\n    [SerializeField] private Transform spawnPoint;\r\n    [SerializeField] private GameObject enemyPrefab;\r\n    [SerializeField] private CombatDirector combatDirector;\r\n\r\n\r\n    private GameObject currentEnemy;\r\n\r\n    private void Start()\r\n    {\r\n        SpawnEnemy();\r\n    }\r\n\r\n    public void SpawnEnemy()\r\n    {\r\n        if (currentEnemy != null)\r\n            Destroy(currentEnemy);\r\n\r\n        currentEnemy = Instantiate(enemyPrefab, spawnPoint.position, spawnPoint.rotation);\r\n        EnemyApproach spawnedApproach = currentEnemy.GetComponent<EnemyApproach>();\r\n        if (spawnedApproach != null && combatDirector != null)\r\n        {\r\n            combatDirector.SetCurrentEnemy(spawnedApproach);\r\n        }\r\n\r\n    }\r\n}"
       },
       {
         "relativePath": "Assets\\_Project\\Scripts\\Combat\\FeedbackManager.cs",
@@ -9069,9 +8418,9 @@
       },
       {
         "relativePath": "Assets\\_Project\\Scripts\\Tools\\ClaudeSnapshotTool.cs",
-        "sizeBytes": 13953,
-        "sha256": "ce7af2f531ce38de52aa96f259484cfee84ece6386ef75d2d08f873873ca4199",
-        "text": "using System;\nusing System.Collections.Generic;\nusing System.IO;\nusing System.Linq;\nusing System.Text;\nusing Newtonsoft.Json;\nusing UnityEngine;\n\n#if UNITY_EDITOR\nusing UnityEditor;\nusing UnityEditor.SceneManagement;\n\npublic class ClaudeSnapshotTool : EditorWindow\n{\n    private string extractCommand = \"\";\n    private string statusMessage = \"\";\n    private bool snapshotReady = false;\n\n    // Sabit yollar — her seferinde üzerine yazılır\n    private static readonly string ToolFolder = \"Assets/_Project/DevTool/ClaudeSnapshot\";\n    private static readonly string SnapshotPath = \"Assets/_Project/DevTool/ClaudeSnapshot/claude_snapshot.json\";\n    private static readonly string ExtractPath = \"Assets/_Project/DevTool/ClaudeSnapshot/claude_extract.md\";\n    private static readonly string IndexPath = \"Assets/_Project/DevTool/ClaudeSnapshot/claude_index.md\";\n\n    // ─────────────────────────────────────\n    // MENU\n    // ─────────────────────────────────────\n\n    [MenuItem(\"Tools/BladeRift/Project State/Claude Snapshot\")]\n    public static void OpenTool()\n    {\n        // 1) Snapshot al\n        TakeSnapshot();\n\n        // 2) Pencereyi aç\n        var window = GetWindow<ClaudeSnapshotTool>(\"Claude Extract\");\n        window.minSize = new Vector2(420, 200);\n        window.snapshotReady = true;\n        window.statusMessage = \"Snapshot alındı. Extract komutunu yapıştır.\";\n        window.Show();\n    }\n\n    // ─────────────────────────────────────\n    // GUI\n    // ─────────────────────────────────────\n\n    private void OnGUI()\n    {\n        GUILayout.Label(\"Claude Snapshot Tool\", EditorStyles.boldLabel);\n        GUILayout.Space(5);\n\n        if (!snapshotReady)\n        {\n            EditorGUILayout.HelpBox(\"Önce menüden Claude Snapshot çalıştır.\", MessageType.Info);\n            return;\n        }\n\n        GUILayout.Label(\"Extract komutu:\");\n        GUILayout.Label(\"Örnek: CombatDirector, RageManager --scene --logs\", EditorStyles.miniLabel);\n        extractCommand = EditorGUILayout.TextField(extractCommand);\n\n        GUILayout.Space(10);\n\n        if (GUILayout.Button(\"Extract\", GUILayout.Height(30)))\n        {\n            RunExtract();\n        }\n\n        GUILayout.Space(10);\n\n        if (!string.IsNullOrEmpty(statusMessage))\n        {\n            EditorGUILayout.HelpBox(statusMessage, MessageType.Info);\n        }\n    }\n\n    // ─────────────────────────────────────\n    // SNAPSHOT\n    // ─────────────────────────────────────\n\n    private static void TakeSnapshot()\n    {\n        Directory.CreateDirectory(ToolFolder);\n\n        var scene = EditorSceneManager.GetActiveScene();\n        if (!scene.IsValid())\n        {\n            Debug.LogError(\"[ClaudeSnapshot] Active scene is not valid.\");\n            return;\n        }\n\n        FullSnapshot full = new FullSnapshot();\n        full.meta.snapshotKind = \"CLAUDE\";\n        full.meta.exportedAtLocalTime = DateTime.Now.ToString(\"yyyy-MM-dd HH:mm:ss\");\n        full.meta.unityVersion = Application.unityVersion;\n        full.meta.platform = Application.platform.ToString();\n        full.meta.activeSceneName = scene.name;\n        full.meta.note = \"Claude AI snapshot.\";\n        full.scene.sceneName = scene.name;\n        full.scene.scenePath = scene.path;\n\n        var roots = scene.GetRootGameObjects();\n        full.meta.rootObjectCount = roots.Length;\n        full.meta.totalGameObjectCount = ProjectStateSerializer.CountAllSceneObjects(scene);\n        full.meta.headCommitShort = ProjectStateGit.SafeGit(\"rev-parse --short HEAD\");\n        full.meta.headCommitFull = ProjectStateGit.SafeGit(\"rev-parse HEAD\");\n        full.meta.headCommitMessage = ProjectStateGit.SafeGit(\"log -1 --pretty=%s\");\n\n        foreach (var root in roots)\n            full.scene.roots.Add(ProjectStateSerializer.SerializeGameObjectRecursive(root, root.name));\n\n        ProjectStateSerializer.FillProjectSnapshot(full.project);\n        ProjectStateSerializer.FillCodeSnapshot(full.code);\n        ProjectStateSerializer.FillDocsSnapshot(full.docs);\n\n        // Konsol loglarını da yakala\n        // (MiniSnapshot'taki gibi ama FullSnapshot'a ek alan olarak değil, ayrıca saklayacağız)\n\n        var settings = new JsonSerializerSettings\n        {\n            Formatting = Formatting.Indented,\n            ReferenceLoopHandling = ReferenceLoopHandling.Ignore\n        };\n        File.WriteAllText(SnapshotPath, JsonConvert.SerializeObject(full, settings), Encoding.UTF8);\n\n        // INDEX her snapshot'ta otomatik üretilir\n        GenerateIndex(full);\n\n        AssetDatabase.Refresh();\n        Debug.Log($\"[ClaudeSnapshot] Snapshot alındı: {SnapshotPath}\");\n    }\n\n    // ─────────────────────────────────────\n    // INDEX — her zaman otomatik üretilir\n    // ─────────────────────────────────────\n\n    private static void GenerateIndex(FullSnapshot full)\n    {\n        var sb = new StringBuilder();\n        sb.AppendLine(\"# CLAUDE INDEX\");\n        sb.AppendLine($\"commit: {full.meta.headCommitShort} | message: {full.meta.headCommitMessage}\");\n        sb.AppendLine($\"scene: {full.meta.activeSceneName} | roots: {full.meta.rootObjectCount} | objects: {full.meta.totalGameObjectCount}\");\n        sb.AppendLine($\"unity: {full.meta.unityVersion} | export: {full.meta.exportedAtLocalTime}\");\n        sb.AppendLine();\n\n        // Compile check\n        bool hasCompileErrors = false;\r\n#if UNITY_EDITOR\n        // Basit kontrol — compile error varsa Unity zaten loglar\r\n        hasCompileErrors = EditorUtility.scriptCompilationFailed;\r\n#endif\n        sb.AppendLine($\"compile: {(hasCompileErrors ? \"ERRORS\" : \"clean\")}\");\n        sb.AppendLine();\n\n        // CS dosya listesi (sadece game code, DevTool/TutorialInfo hariç)\n        sb.AppendLine(\"## Files\");\n        foreach (var f in full.code.csFiles)\n        {\n            string rp = f.relativePath.Replace(\"\\\\\", \"/\");\n            if (rp.Contains(\"ProjectState\") || rp.Contains(\"TutorialInfo\") || rp.Contains(\"DevTool\"))\n                continue;\n\n            string name = Path.GetFileNameWithoutExtension(rp);\n            string size = f.sizeBytes < 1024 ? $\"{f.sizeBytes}B\" : $\"{f.sizeBytes / 1024}K\";\n            sb.AppendLine($\"  {name} ({size}) — {rp}\");\n        }\n        sb.AppendLine();\n\n        // Component map (kısa — her root altında ne var)\n        sb.AppendLine(\"## Components\");\n        foreach (var root in full.scene.roots)\n        {\n            WriteComponentMapCompact(sb, root, 0);\n        }\n        sb.AppendLine();\n\n        File.WriteAllText(IndexPath, sb.ToString(), Encoding.UTF8);\n    }\n\n    private static void WriteComponentMapCompact(StringBuilder sb, GameObjectData obj, int depth)\n    {\n        string indent = new string(' ', depth * 2);\n        var customComps = obj.components\n            .Where(c => !c.type.StartsWith(\"UnityEngine.\") && !c.type.StartsWith(\"TMPro.\"))\n            .Select(c => c.type)\n            .ToList();\n\n        bool hasChildren = obj.children != null && obj.children.Count > 0;\n\n        if (customComps.Count > 0)\n        {\n            sb.AppendLine($\"{indent}{obj.name} [{string.Join(\" | \", customComps)}]\");\n        }\n        else if (depth == 0 || hasChildren)\n        {\n            // Root her zaman göster + child'ı olan ara node'ları da göster\n            sb.AppendLine($\"{indent}{obj.name}\");\n        }\n\n        if (obj.children != null)\n        {\n            foreach (var child in obj.children)\n                WriteComponentMapCompact(sb, child, depth + 1);\n        }\n    }\n\n    // ─────────────────────────────────────\n    // EXTRACT\n    // ─────────────────────────────────────\n\n    private void RunExtract()\n    {\n        if (!File.Exists(SnapshotPath))\n        {\n            statusMessage = \"Snapshot bulunamadı. Önce Claude Snapshot al.\";\n            return;\n        }\n\n        // Snapshot'ı oku\n        FullSnapshot full;\n        try\n        {\n            string json = File.ReadAllText(SnapshotPath, Encoding.UTF8);\n            // BOM varsa temizle\n            if (json.Length > 0 && json[0] == '\\uFEFF')\n                json = json.Substring(1);\n            full = JsonConvert.DeserializeObject<FullSnapshot>(json);\n        }\n        catch (Exception ex)\n        {\n            statusMessage = $\"Snapshot okunamadı: {ex.Message}\";\n            return;\n        }\n\n        // Komutu parse et\n        ParseResult parsed = ParseCommand(extractCommand);\n\n        var sb = new StringBuilder();\n        sb.AppendLine(\"# CLAUDE EXTRACT\");\n        sb.AppendLine($\"snapshot: {full.meta.headCommitShort} | {full.meta.exportedAtLocalTime}\");\n        sb.AppendLine($\"compile: {(EditorUtility.scriptCompilationFailed ? \"ERRORS\" : \"clean\")}\");\n        sb.AppendLine($\"command: {extractCommand}\");\n        sb.AppendLine();\n\n        int fileCount = 0;\n\n        // İstenen CS dosyalarını çıkar\n        if (parsed.fileNames.Count > 0)\n        {\n            foreach (string requested in parsed.fileNames)\n            {\n                var match = full.code.csFiles.FirstOrDefault(f =>\n                {\n                    string name = Path.GetFileNameWithoutExtension(f.relativePath.Replace(\"\\\\\", \"/\"));\n                    return string.Equals(name, requested, StringComparison.OrdinalIgnoreCase);\n                });\n\n                if (match != null)\n                {\n                    sb.AppendLine($\"## {Path.GetFileName(match.relativePath)}\");\n                    sb.AppendLine($\"path: {match.relativePath}\");\n                    sb.AppendLine(\"```csharp\");\n                    sb.AppendLine(match.text);\n                    sb.AppendLine(\"```\");\n                    sb.AppendLine();\n                    fileCount++;\n                }\n                else\n                {\n                    sb.AppendLine($\"## {requested}.cs — BULUNAMADI\");\n                    sb.AppendLine();\n                }\n            }\n        }\n\n        // Scene\n        if (parsed.includeScene)\n        {\n            sb.AppendLine(\"## Scene Hierarchy\");\n            foreach (var root in full.scene.roots)\n            {\n                WriteSceneTree(sb, root, 0);\n            }\n            sb.AppendLine();\n        }\n\n        // Console logs\n        if (parsed.includeLogs)\n        {\n            sb.AppendLine(\"## Console Logs (son 20)\");\n            // FullSnapshot'ta consoleLogs yok, MiniSnapshot'ta var\n            // Burada Unity console'dan direkt okuyalım\n            sb.AppendLine(\"(Console log yakalama için MINI snapshot kullanılabilir)\");\n            sb.AppendLine();\n        }\n\n        // Compile errors\n        if (EditorUtility.scriptCompilationFailed)\n        {\n            sb.AppendLine(\"## Compile Errors\");\n            sb.AppendLine(\"UYARI: Compile hatası mevcut. Detay için Unity Console'a bak.\");\n            sb.AppendLine();\n        }\n\n        File.WriteAllText(ExtractPath, sb.ToString(), Encoding.UTF8);\n        AssetDatabase.Refresh();\n\n        statusMessage = $\"Extract tamamlandı. {fileCount} dosya çıkarıldı.\\n{ExtractPath}\";\n        EditorUtility.RevealInFinder(ExtractPath);\n    }\n\n    private static void WriteSceneTree(StringBuilder sb, GameObjectData obj, int depth)\n    {\n        string indent = new string(' ', depth * 2);\n        var comps = obj.components\n            .Select(c => c.type.Replace(\"UnityEngine.\", \"\").Replace(\"UnityEngine.Rendering.Universal.\", \"\"))\n            .Where(c => c != \"Transform\" && c != \"RectTransform\")\n            .ToList();\n\n        string compStr = comps.Count > 0 ? $\" [{string.Join(\" | \", comps)}]\" : \"\";\n        sb.AppendLine($\"{indent}{obj.name}{compStr}\");\n\n        foreach (var child in obj.children)\n            WriteSceneTree(sb, child, depth + 1);\n    }\n\n    // ─────────────────────────────────────\n    // PARSE\n    // ─────────────────────────────────────\n\n    private struct ParseResult\n    {\n        public List<string> fileNames;\n        public bool includeScene;\n        public bool includeLogs;\n    }\n\n    private static ParseResult ParseCommand(string cmd)\n    {\n        var result = new ParseResult\n        {\n            fileNames = new List<string>(),\n            includeScene = false,\n            includeLogs = false\n        };\n\n        if (string.IsNullOrWhiteSpace(cmd))\n            return result;\n\n        // Flags\n        string remaining = cmd;\n\n        if (remaining.Contains(\"--scene\"))\n        {\n            result.includeScene = true;\n            remaining = remaining.Replace(\"--scene\", \"\").Trim();\n        }\n\n        if (remaining.Contains(\"--logs\"))\n        {\n            result.includeLogs = true;\n            remaining = remaining.Replace(\"--logs\", \"\").Trim();\n        }\n\n        // Kalan kısım virgülle ayrılmış dosya isimleri\n        if (!string.IsNullOrWhiteSpace(remaining))\n        {\n            var names = remaining.Split(new[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries);\n            foreach (var n in names)\n            {\n                string clean = n.Trim().Replace(\".cs\", \"\");\n                if (!string.IsNullOrEmpty(clean))\n                    result.fileNames.Add(clean);\n            }\n        }\n\n        return result;\n    }\n}\r\n\r\n#endif"
+        "sizeBytes": 14328,
+        "sha256": "5cb11f0d40d14924e7813d7bf11b1f896caeb91e2bc0e8bc83a4ec502a009322",
+        "text": "using System;\r\nusing System.Collections.Generic;\r\nusing System.IO;\r\nusing System.Linq;\r\nusing System.Text;\r\nusing Newtonsoft.Json;\r\nusing UnityEngine;\r\n\r\n#if UNITY_EDITOR\r\nusing UnityEditor;\r\nusing UnityEditor.SceneManagement;\r\n\r\npublic class ClaudeSnapshotTool : EditorWindow\r\n{\r\n    private string extractCommand = \"\";\r\n    private string statusMessage = \"\";\r\n    private bool snapshotReady = false;\r\n\r\n    // Sabit yollar — her seferinde üzerine yazılır\r\n    private static readonly string ToolFolder = \"Assets/_Project/DevTool/ClaudeSnapshot\";\r\n    private static readonly string SnapshotPath = \"Assets/_Project/DevTool/ClaudeSnapshot/claude_snapshot.json\";\r\n    private static readonly string ExtractPath = \"Assets/_Project/DevTool/ClaudeSnapshot/claude_extract.md\";\r\n    private static readonly string IndexPath = \"Assets/_Project/DevTool/ClaudeSnapshot/claude_index.md\";\r\n\r\n    // ─────────────────────────────────────\r\n    // MENU\r\n    // ─────────────────────────────────────\r\n\r\n    [MenuItem(\"Tools/BladeRift/Project State/Claude Snapshot\")]\r\n    public static void OpenTool()\r\n    {\r\n        // 1) Snapshot al\r\n        TakeSnapshot();\r\n\r\n        // 2) Pencereyi aç\r\n        var window = GetWindow<ClaudeSnapshotTool>(\"Claude Extract\");\r\n        window.minSize = new Vector2(420, 200);\r\n        window.snapshotReady = true;\r\n        window.statusMessage = \"Snapshot alındı. Extract komutunu yapıştır.\";\r\n        window.Show();\r\n    }\r\n\r\n    // ─────────────────────────────────────\r\n    // GUI\r\n    // ─────────────────────────────────────\r\n\r\n    private void OnGUI()\r\n    {\r\n        GUILayout.Label(\"Claude Snapshot Tool\", EditorStyles.boldLabel);\r\n        GUILayout.Space(5);\r\n\r\n        if (!snapshotReady)\r\n        {\r\n            EditorGUILayout.HelpBox(\"Önce menüden Claude Snapshot çalıştır.\", MessageType.Info);\r\n            return;\r\n        }\r\n\r\n        GUILayout.Label(\"Extract komutu:\");\r\n        GUILayout.Label(\"Örnek: CombatDirector, RageManager --scene --logs\", EditorStyles.miniLabel);\r\n        extractCommand = EditorGUILayout.TextField(extractCommand);\r\n\r\n        GUILayout.Space(10);\r\n\r\n        if (GUILayout.Button(\"Extract\", GUILayout.Height(30)))\r\n        {\r\n            RunExtract();\r\n        }\r\n\r\n        GUILayout.Space(10);\r\n\r\n        if (!string.IsNullOrEmpty(statusMessage))\r\n        {\r\n            EditorGUILayout.HelpBox(statusMessage, MessageType.Info);\r\n        }\r\n    }\r\n\r\n    // ─────────────────────────────────────\r\n    // SNAPSHOT\r\n    // ─────────────────────────────────────\r\n\r\n    private static void TakeSnapshot()\r\n    {\r\n        Directory.CreateDirectory(ToolFolder);\r\n\r\n        var scene = EditorSceneManager.GetActiveScene();\r\n        if (!scene.IsValid())\r\n        {\r\n            Debug.LogError(\"[ClaudeSnapshot] Active scene is not valid.\");\r\n            return;\r\n        }\r\n\r\n        FullSnapshot full = new FullSnapshot();\r\n        full.meta.snapshotKind = \"CLAUDE\";\r\n        full.meta.exportedAtLocalTime = DateTime.Now.ToString(\"yyyy-MM-dd HH:mm:ss\");\r\n        full.meta.unityVersion = Application.unityVersion;\r\n        full.meta.platform = Application.platform.ToString();\r\n        full.meta.activeSceneName = scene.name;\r\n        full.meta.note = \"Claude AI snapshot.\";\r\n        full.scene.sceneName = scene.name;\r\n        full.scene.scenePath = scene.path;\r\n\r\n        var roots = scene.GetRootGameObjects();\r\n        full.meta.rootObjectCount = roots.Length;\r\n        full.meta.totalGameObjectCount = ProjectStateSerializer.CountAllSceneObjects(scene);\r\n        full.meta.headCommitShort = ProjectStateGit.SafeGit(\"rev-parse --short HEAD\");\r\n        full.meta.headCommitFull = ProjectStateGit.SafeGit(\"rev-parse HEAD\");\r\n        full.meta.headCommitMessage = ProjectStateGit.SafeGit(\"log -1 --pretty=%s\");\r\n\r\n        foreach (var root in roots)\r\n            full.scene.roots.Add(ProjectStateSerializer.SerializeGameObjectRecursive(root, root.name));\r\n\r\n        ProjectStateSerializer.FillProjectSnapshot(full.project);\r\n        ProjectStateSerializer.FillCodeSnapshot(full.code);\r\n        ProjectStateSerializer.FillDocsSnapshot(full.docs);\r\n\r\n        // Konsol loglarını da yakala\r\n        // (MiniSnapshot'taki gibi ama FullSnapshot'a ek alan olarak değil, ayrıca saklayacağız)\r\n\r\n        var settings = new JsonSerializerSettings\r\n        {\r\n            Formatting = Formatting.Indented,\r\n            ReferenceLoopHandling = ReferenceLoopHandling.Ignore\r\n        };\r\n        File.WriteAllText(SnapshotPath, JsonConvert.SerializeObject(full, settings), Encoding.UTF8);\r\n\r\n        // INDEX her snapshot'ta otomatik üretilir\r\n        GenerateIndex(full);\r\n\r\n        AssetDatabase.Refresh();\r\n        Debug.Log($\"[ClaudeSnapshot] Snapshot alındı: {SnapshotPath}\");\r\n    }\r\n\r\n    // ─────────────────────────────────────\r\n    // INDEX — her zaman otomatik üretilir\r\n    // ─────────────────────────────────────\r\n\r\n    private static void GenerateIndex(FullSnapshot full)\r\n    {\r\n        var sb = new StringBuilder();\r\n        sb.AppendLine(\"# CLAUDE INDEX\");\r\n        sb.AppendLine($\"commit: {full.meta.headCommitShort} | message: {full.meta.headCommitMessage}\");\r\n        sb.AppendLine($\"scene: {full.meta.activeSceneName} | roots: {full.meta.rootObjectCount} | objects: {full.meta.totalGameObjectCount}\");\r\n        sb.AppendLine($\"unity: {full.meta.unityVersion} | export: {full.meta.exportedAtLocalTime}\");\r\n        sb.AppendLine();\r\n\r\n        // Compile check\r\n        bool hasCompileErrors = false;\r\n#if UNITY_EDITOR\r\n        // Basit kontrol — compile error varsa Unity zaten loglar\r\n        hasCompileErrors = EditorUtility.scriptCompilationFailed;\r\n#endif\r\n        sb.AppendLine($\"compile: {(hasCompileErrors ? \"ERRORS\" : \"clean\")}\");\r\n        sb.AppendLine();\r\n\r\n        // CS dosya listesi (sadece game code, DevTool/TutorialInfo hariç)\r\n        sb.AppendLine(\"## Files\");\r\n        foreach (var f in full.code.csFiles)\r\n        {\r\n            string rp = f.relativePath.Replace(\"\\\\\", \"/\");\r\n            if (rp.Contains(\"ProjectState\") || rp.Contains(\"TutorialInfo\") || rp.Contains(\"DevTool\"))\r\n                continue;\r\n\r\n            string name = Path.GetFileNameWithoutExtension(rp);\r\n            string size = f.sizeBytes < 1024 ? $\"{f.sizeBytes}B\" : $\"{f.sizeBytes / 1024}K\";\r\n            sb.AppendLine($\"  {name} ({size}) — {rp}\");\r\n        }\r\n        sb.AppendLine();\r\n\r\n        // Component map (kısa — her root altında ne var)\r\n        sb.AppendLine(\"## Components\");\r\n        foreach (var root in full.scene.roots)\r\n        {\r\n            WriteComponentMapCompact(sb, root, 0);\r\n        }\r\n        sb.AppendLine();\r\n\r\n        File.WriteAllText(IndexPath, sb.ToString(), Encoding.UTF8);\r\n    }\r\n\r\n    private static void WriteComponentMapCompact(StringBuilder sb, GameObjectData obj, int depth)\r\n    {\r\n        string indent = new string(' ', depth * 2);\r\n        var customComps = obj.components\r\n            .Where(c => !c.type.StartsWith(\"UnityEngine.\") && !c.type.StartsWith(\"TMPro.\"))\r\n            .Select(c => c.type)\r\n            .ToList();\r\n\r\n        bool hasChildren = obj.children != null && obj.children.Count > 0;\r\n\r\n        if (customComps.Count > 0)\r\n        {\r\n            sb.AppendLine($\"{indent}{obj.name} [{string.Join(\" | \", customComps)}]\");\r\n        }\r\n        else if (depth == 0 || hasChildren)\r\n        {\r\n            // Root her zaman göster + child'ı olan ara node'ları da göster\r\n            sb.AppendLine($\"{indent}{obj.name}\");\r\n        }\r\n\r\n        if (obj.children != null)\r\n        {\r\n            foreach (var child in obj.children)\r\n                WriteComponentMapCompact(sb, child, depth + 1);\r\n        }\r\n    }\r\n\r\n    // ─────────────────────────────────────\r\n    // EXTRACT\r\n    // ─────────────────────────────────────\r\n\r\n    private void RunExtract()\r\n    {\r\n        if (!File.Exists(SnapshotPath))\r\n        {\r\n            statusMessage = \"Snapshot bulunamadı. Önce Claude Snapshot al.\";\r\n            return;\r\n        }\r\n\r\n        // Snapshot'ı oku\r\n        FullSnapshot full;\r\n        try\r\n        {\r\n            string json = File.ReadAllText(SnapshotPath, Encoding.UTF8);\r\n            // BOM varsa temizle\r\n            if (json.Length > 0 && json[0] == '\\uFEFF')\r\n                json = json.Substring(1);\r\n            full = JsonConvert.DeserializeObject<FullSnapshot>(json);\r\n        }\r\n        catch (Exception ex)\r\n        {\r\n            statusMessage = $\"Snapshot okunamadı: {ex.Message}\";\r\n            return;\r\n        }\r\n\r\n        // Komutu parse et\r\n        ParseResult parsed = ParseCommand(extractCommand);\r\n\r\n        var sb = new StringBuilder();\r\n        sb.AppendLine(\"# CLAUDE EXTRACT\");\r\n        sb.AppendLine($\"snapshot: {full.meta.headCommitShort} | {full.meta.exportedAtLocalTime}\");\r\n        sb.AppendLine($\"compile: {(EditorUtility.scriptCompilationFailed ? \"ERRORS\" : \"clean\")}\");\r\n        sb.AppendLine($\"command: {extractCommand}\");\r\n        sb.AppendLine();\r\n\r\n        int fileCount = 0;\r\n\r\n        // İstenen CS dosyalarını çıkar\r\n        if (parsed.fileNames.Count > 0)\r\n        {\r\n            foreach (string requested in parsed.fileNames)\r\n            {\r\n                var match = full.code.csFiles.FirstOrDefault(f =>\r\n                {\r\n                    string name = Path.GetFileNameWithoutExtension(f.relativePath.Replace(\"\\\\\", \"/\"));\r\n                    return string.Equals(name, requested, StringComparison.OrdinalIgnoreCase);\r\n                });\r\n\r\n                if (match != null)\r\n                {\r\n                    sb.AppendLine($\"## {Path.GetFileName(match.relativePath)}\");\r\n                    sb.AppendLine($\"path: {match.relativePath}\");\r\n                    sb.AppendLine(\"```csharp\");\r\n                    sb.AppendLine(match.text);\r\n                    sb.AppendLine(\"```\");\r\n                    sb.AppendLine();\r\n                    fileCount++;\r\n                }\r\n                else\r\n                {\r\n                    sb.AppendLine($\"## {requested}.cs — BULUNAMADI\");\r\n                    sb.AppendLine();\r\n                }\r\n            }\r\n        }\r\n\r\n        // Scene\r\n        if (parsed.includeScene)\r\n        {\r\n            sb.AppendLine(\"## Scene Hierarchy\");\r\n            foreach (var root in full.scene.roots)\r\n            {\r\n                WriteSceneTree(sb, root, 0);\r\n            }\r\n            sb.AppendLine();\r\n        }\r\n\r\n        // Console logs\r\n        if (parsed.includeLogs)\r\n        {\r\n            sb.AppendLine(\"## Console Logs (son 20)\");\r\n            // FullSnapshot'ta consoleLogs yok, MiniSnapshot'ta var\r\n            // Burada Unity console'dan direkt okuyalım\r\n            sb.AppendLine(\"(Console log yakalama için MINI snapshot kullanılabilir)\");\r\n            sb.AppendLine();\r\n        }\r\n\r\n        // Compile errors\r\n        if (EditorUtility.scriptCompilationFailed)\r\n        {\r\n            sb.AppendLine(\"## Compile Errors\");\r\n            sb.AppendLine(\"UYARI: Compile hatası mevcut. Detay için Unity Console'a bak.\");\r\n            sb.AppendLine();\r\n        }\r\n\r\n        File.WriteAllText(ExtractPath, sb.ToString(), Encoding.UTF8);\r\n        AssetDatabase.Refresh();\r\n\r\n        statusMessage = $\"Extract tamamlandı. {fileCount} dosya çıkarıldı.\\n{ExtractPath}\";\r\n        EditorUtility.RevealInFinder(ExtractPath);\r\n    }\r\n\r\n    private static void WriteSceneTree(StringBuilder sb, GameObjectData obj, int depth)\r\n    {\r\n        string indent = new string(' ', depth * 2);\r\n        var comps = obj.components\r\n            .Select(c => c.type.Replace(\"UnityEngine.\", \"\").Replace(\"UnityEngine.Rendering.Universal.\", \"\"))\r\n            .Where(c => c != \"Transform\" && c != \"RectTransform\")\r\n            .ToList();\r\n\r\n        string compStr = comps.Count > 0 ? $\" [{string.Join(\" | \", comps)}]\" : \"\";\r\n        sb.AppendLine($\"{indent}{obj.name}{compStr}\");\r\n\r\n        foreach (var child in obj.children)\r\n            WriteSceneTree(sb, child, depth + 1);\r\n    }\r\n\r\n    // ─────────────────────────────────────\r\n    // PARSE\r\n    // ─────────────────────────────────────\r\n\r\n    private struct ParseResult\r\n    {\r\n        public List<string> fileNames;\r\n        public bool includeScene;\r\n        public bool includeLogs;\r\n    }\r\n\r\n    private static ParseResult ParseCommand(string cmd)\r\n    {\r\n        var result = new ParseResult\r\n        {\r\n            fileNames = new List<string>(),\r\n            includeScene = false,\r\n            includeLogs = false\r\n        };\r\n\r\n        if (string.IsNullOrWhiteSpace(cmd))\r\n            return result;\r\n\r\n        // Flags\r\n        string remaining = cmd;\r\n\r\n        if (remaining.Contains(\"--scene\"))\r\n        {\r\n            result.includeScene = true;\r\n            remaining = remaining.Replace(\"--scene\", \"\").Trim();\r\n        }\r\n\r\n        if (remaining.Contains(\"--logs\"))\r\n        {\r\n            result.includeLogs = true;\r\n            remaining = remaining.Replace(\"--logs\", \"\").Trim();\r\n        }\r\n\r\n        // Kalan kısım virgülle ayrılmış dosya isimleri\r\n        if (!string.IsNullOrWhiteSpace(remaining))\r\n        {\r\n            var names = remaining.Split(new[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries);\r\n            foreach (var n in names)\r\n            {\r\n                string clean = n.Trim().Replace(\".cs\", \"\");\r\n                if (!string.IsNullOrEmpty(clean))\r\n                    result.fileNames.Add(clean);\r\n            }\r\n        }\r\n\r\n        return result;\r\n    }\r\n}\r\n\r\n#endif"
       },
       {
         "relativePath": "Assets\\_Project\\Scripts\\UI\\BackgroundScroller.cs",

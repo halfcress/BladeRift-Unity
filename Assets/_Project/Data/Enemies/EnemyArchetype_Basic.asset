@@ -18,3 +18,4 @@ MonoBehaviour:
   deathPauseSeconds: 1.5
   respawnDelaySeconds: 1
   deathFlashDuration: 0.3
+  pattern: 040000000100000003000000

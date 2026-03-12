@@ -350,7 +350,7 @@ GameObject:
   - component: {fileID: 437930077057710397}
   - component: {fileID: 4508982553312467135}
   m_Layer: 0
-  m_Name: Enemy_Common
+  m_Name: Enemy_Fast
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -457,15 +457,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyApproach
   combatDirector: {fileID: 0}
-  archetypeData: {fileID: 11400000, guid: 42a01012f6a19b44bad8003e5311e7c8, type: 2}
+  archetypeData: {fileID: 11400000, guid: 690344b7a0007fa4fa94a030779e94d4, type: 2}
   spawnPosition: {x: 0, y: 1.2, z: 30}
   stopPosition: {x: 0, y: 1.2, z: 6.5}
   approachSpeed: 40
   telegraphTriggerDistance: 8
   rageHitPadding: 1.3
-  deathPauseSeconds: 1.5
-  respawnDelaySeconds: 1
-  deathFlashDuration: 0.3
   currentState: 0
 --- !u!1 &9216236371359207532
 GameObject:

@@ -201,3 +201,25 @@
 
 ### Decision
 - [ ] Sonraki adim
+
+
+## 2026-03-12 20:16:52 - Compile Error Detected
+
+### Problem
+- Unity compile hatasi tespit edildi.
+- Hata detaylari icin Console penceresini kontrol et.
+
+### Context
+- Commit: 623811f
+- Commit message: Prefabs
+
+### Attempts
+- [ ] Console hatalarini incele
+- [ ] Ilgili .cs dosyasini duzelt
+
+### Result
+- [ ] Fail
+- [ ] Fixed
+
+### Decision
+- [ ] Sonraki adim

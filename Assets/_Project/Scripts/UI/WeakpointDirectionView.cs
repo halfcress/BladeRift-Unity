@@ -24,13 +24,18 @@ public class WeakpointDirectionView : MonoBehaviour
 
     [Header("Gorunum")]
     [SerializeField] private Color activeColor = Color.red;
+    [SerializeField] private Color rageColor = new Color(1f, 0.5f, 0f, 1f);
     [SerializeField] private Color dimColor    = new Color(1f, 0.3f, 0.3f, 0.3f);
+    [SerializeField] private RageManager rageManager;
 
     [Header("Debug (read-only)")]
     [SerializeField] private int currentTargetIndex = 0;
 
     private void Awake()
     {
+        if (rageManager == null)
+            rageManager = FindFirstObjectByType<RageManager>();
+
         if (markerRects.Count == 0) AutoFindMarkers();
         ApplyPositions();
         HideAll();
@@ -67,17 +72,30 @@ public void ShowTelegraphStep(int index, WeakpointDirection direction)
         if (index < 0 || index >= markerRects.Count) return;
         currentTargetIndex = index;
         markerRects[index].gameObject.SetActive(true);
-        SetColor(index, activeColor);
+        bool rage = rageManager != null && rageManager.IsRageActive;
+        SetColor(index, rage ? rageColor : activeColor);
     }
 
     public void ShowExecutionTarget(int index, WeakpointDirection direction)
     {
         currentTargetIndex = index;
+
+        bool rage = rageManager != null && rageManager.IsRageActive;
+
         for (int i = 0; i < markerRects.Count; i++)
         {
             if (markerRects[i] == null) continue;
+
             markerRects[i].gameObject.SetActive(true);
-            SetColor(i, i == index ? activeColor : dimColor);
+
+            if (i == index)
+            {
+                SetColor(i, rage ? rageColor : activeColor);
+            }
+            else
+            {
+                SetColor(i, dimColor);
+            }
         }
     }
 
