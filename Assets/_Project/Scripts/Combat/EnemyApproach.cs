@@ -7,6 +7,7 @@ public class EnemyApproach : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] private CombatDirector combatDirector;
+    [SerializeField] private EnemyArchetypeData archetypeData;
 
     [Header("Approach Settings")]
     [SerializeField] private Vector3 spawnPosition = new Vector3(0f, 0f, 30f);
@@ -14,14 +15,7 @@ public class EnemyApproach : MonoBehaviour
     [SerializeField] private float approachSpeed = 4f;
     [SerializeField] private float telegraphTriggerDistance = 8f;
 
-    [Header("Chain Settings")]
-    [SerializeField]
-    private System.Collections.Generic.List<WeakpointDirection> chain = new()
-    {
-        WeakpointDirection.Right,
-        WeakpointDirection.Up,
-        WeakpointDirection.Left
-    };
+   
 
     [Header("Rage Hit")]
     [Tooltip("Silüet hit alanını genişletme çarpanı. 1.0 = tam bounds, 1.3 = %30 padding")]
@@ -72,11 +66,11 @@ public class EnemyApproach : MonoBehaviour
         transform.position = Vector3.MoveTowards(
             transform.position,
             stopPosition,
-            approachSpeed * Time.deltaTime
+            archetypeData.approachSpeed * Time.deltaTime
         );
 
         float distToCamera = transform.position.z;
-        if (distToCamera <= telegraphTriggerDistance)
+        if (distToCamera <= archetypeData.telegraphTriggerDistance)
             TriggerTelegraph();
     }
 
@@ -151,7 +145,23 @@ public class EnemyApproach : MonoBehaviour
     {
         currentState = State.TelegraphTriggered;
         Debug.Log("[EnemyApproach] Telegraph tetiklendi.");
-        combatDirector.StartCombatSequence(chain);
+
+        if (archetypeData == null)
+        {
+            Debug.LogError("[EnemyApproach] archetypeData yok!");
+            return;
+        }
+
+        if (archetypeData.pattern == null || archetypeData.pattern.Length == 0)
+        {
+            Debug.LogError("[EnemyApproach] archetypeData.pattern bos!");
+            return;
+        }
+
+        combatDirector.StartCombatSequence(
+            new System.Collections.Generic.List<WeakpointDirection>(archetypeData.pattern)
+        );
+
         currentState = State.WaitingForResult;
     }
 

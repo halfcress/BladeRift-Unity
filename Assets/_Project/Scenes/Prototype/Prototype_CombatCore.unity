@@ -3962,7 +3962,7 @@ MonoBehaviour:
   combatDirector: {fileID: 1801425164}
   spawnPosition: {x: 0, y: 1.2, z: 30}
   stopPosition: {x: 0, y: 1.2, z: 6.5}
-  approachSpeed: 4
+  approachSpeed: 40
   telegraphTriggerDistance: 8
   chain: 040000000100000003000000
   rageHitPadding: 1.3
@@ -5582,8 +5582,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WeakpointSequence
   directionView: {fileID: 1566683667}
   config: {fileID: 11400000, guid: 117562ed1ce73be4fa805138534869da, type: 2}
-  telegraphRevealInterval: 1
-  telegraphHoldSeconds: 1
+  telegraphRevealInterval: 0.1
+  telegraphHoldSeconds: 0.2
   chain: 
   currentIndex: 0
   currentPhase: 0
