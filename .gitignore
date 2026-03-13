@@ -89,3 +89,10 @@ Assets/_Project/Docs/State/SNAPSHOT_INDEX.md.meta
 
 # README ve CHAT_STATE push'a girsin (bunlar anlamli dokuman)
 # DEBUG_JOURNAL ve MILESTONE_LOG push'a girsin (proje tarihi)
+# Claude snapshot generated files
+Assets/_Project/DevTool/ClaudeSnapshot/claude_extract.md
+Assets/_Project/DevTool/ClaudeSnapshot/claude_extract.md.meta
+Assets/_Project/DevTool/ClaudeSnapshot/claude_index.md
+Assets/_Project/DevTool/ClaudeSnapshot/claude_index.md.meta
+Assets/_Project/DevTool/ClaudeSnapshot/claude_snapshot.json
+Assets/_Project/DevTool/ClaudeSnapshot/claude_snapshot.json.meta
