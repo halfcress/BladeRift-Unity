@@ -177,10 +177,11 @@ public class EnemyArchetypeData : ScriptableObject
             }
         }
 
-        int requiredUniqueZones = controlledPatternLength <= 2 ? 2 : 3;
+        int effectiveLength = GetEffectivePatternLength();
+        int requiredUniqueZones = effectiveLength <= 2 ? 2 : 3;
         if (uniqueZones.Count < requiredUniqueZones)
         {
-            error = $"PatternLength={controlledPatternLength} için en az {requiredUniqueZones} benzersiz aktif zone gerekli. Şu an {uniqueZones.Count} var.";
+            error = $"EffectivePatternLength={effectiveLength} için en az {requiredUniqueZones} benzersiz aktif zone gerekli. Şu an {uniqueZones.Count} var.";
             return false;
         }
 
@@ -200,22 +201,23 @@ public class EnemyArchetypeData : ScriptableObject
             return CloneFixedPattern();
 
         List<ZoneWeightEntry> enabledPool = CollectEnabledPool();
-        List<WeakpointZone> result = new(controlledPatternLength);
+        int effectiveLength = GetEffectivePatternLength();
+        List<WeakpointZone> result = new(effectiveLength);
 
-        for (int i = 0; i < controlledPatternLength; i++)
+        for (int i = 0; i < effectiveLength; i++)
         {
-            List<ZoneWeightEntry> candidates = CollectValidCandidates(enabledPool, result);
+            List<ZoneWeightEntry> candidates = CollectValidCandidates(enabledPool, result, i, effectiveLength);
             if (candidates.Count == 0)
             {
-                Debug.LogError($"[EnemyArchetypeData] {name}: Index {i} için geçerli candidate kalmadı. Mevcut pattern={FormatPattern(result)}", this);
+                Debug.LogError($"[EnemyArchetypeData] {name}: Index {i} için geçerli complexity-aware candidate kalmadı. Mevcut pattern={FormatPattern(result)}", this);
                 return Array.Empty<WeakpointZone>();
             }
 
-            result.Add(PickWeighted(candidates));
+            result.Add(PickWeightedWithComplexity(candidates, i, effectiveLength));
         }
 
         if (debugLogGeneratedPattern)
-            Debug.Log($"[EnemyArchetypeData] {name}: Generated pattern = {FormatPattern(result)}", this);
+            Debug.Log($"[EnemyArchetypeData] {name}: Generated pattern = {FormatPattern(result)} | Complexity={patternComplexity} | Length={effectiveLength}", this);
 
         return result.ToArray();
     }
@@ -263,7 +265,18 @@ public class EnemyArchetypeData : ScriptableObject
         return enabledPool;
     }
 
-    private List<ZoneWeightEntry> CollectValidCandidates(List<ZoneWeightEntry> enabledPool, List<WeakpointZone> currentPattern)
+    private int GetEffectivePatternLength()
+    {
+        return patternComplexity switch
+        {
+            EnemyPatternComplexity.Simple => Mathf.Clamp(controlledPatternLength, 2, 3),
+            EnemyPatternComplexity.Standard => Mathf.Clamp(controlledPatternLength, 2, 4),
+            EnemyPatternComplexity.Dense => Mathf.Clamp(controlledPatternLength, 3, 6),
+            _ => Mathf.Clamp(controlledPatternLength, 2, 6)
+        };
+    }
+
+    private List<ZoneWeightEntry> CollectValidCandidates(List<ZoneWeightEntry> enabledPool, List<WeakpointZone> currentPattern, int index, int totalLength)
     {
         List<ZoneWeightEntry> candidates = new();
 
@@ -278,17 +291,47 @@ public class EnemyArchetypeData : ScriptableObject
             if (currentPattern.Count >= 2 && candidate == currentPattern[^2])
                 continue;
 
+            if (!IsZoneAllowedByComplexity(candidate, index, totalLength))
+                continue;
+
             candidates.Add(entry);
         }
 
         return candidates;
     }
 
-    private WeakpointZone PickWeighted(List<ZoneWeightEntry> candidates)
+    private bool IsZoneAllowedByComplexity(WeakpointZone zone, int index, int totalLength)
+    {
+        bool isTorso = zone == WeakpointZone.LeftTorso || zone == WeakpointZone.RightTorso;
+        bool isHead = zone == WeakpointZone.Head;
+
+        switch (patternComplexity)
+        {
+            case EnemyPatternComplexity.Simple:
+                if (index == 0 && (isHead || isTorso))
+                    return false;
+                if (index <= 1 && isTorso)
+                    return false;
+                return true;
+
+            case EnemyPatternComplexity.Standard:
+                if (index == 0 && isTorso)
+                    return false;
+                return true;
+
+            case EnemyPatternComplexity.Dense:
+                return true;
+
+            default:
+                return true;
+        }
+    }
+
+    private WeakpointZone PickWeightedWithComplexity(List<ZoneWeightEntry> candidates, int index, int totalLength)
     {
         float totalWeight = 0f;
         for (int i = 0; i < candidates.Count; i++)
-            totalWeight += Mathf.Max(0f, candidates[i].weight);
+            totalWeight += GetComplexityAdjustedWeight(candidates[i], index, totalLength);
 
         if (totalWeight <= 0f)
             return candidates[UnityEngine.Random.Range(0, candidates.Count)].zone;
@@ -298,12 +341,44 @@ public class EnemyArchetypeData : ScriptableObject
 
         for (int i = 0; i < candidates.Count; i++)
         {
-            cumulative += Mathf.Max(0f, candidates[i].weight);
+            cumulative += GetComplexityAdjustedWeight(candidates[i], index, totalLength);
             if (roll <= cumulative)
                 return candidates[i].zone;
         }
 
         return candidates[^1].zone;
+    }
+
+    private float GetComplexityAdjustedWeight(ZoneWeightEntry entry, int index, int totalLength)
+    {
+        float weight = Mathf.Max(0f, entry.weight);
+        bool isTorso = entry.zone == WeakpointZone.LeftTorso || entry.zone == WeakpointZone.RightTorso;
+        bool isHead = entry.zone == WeakpointZone.Head;
+        bool isShoulder = entry.zone == WeakpointZone.LeftShoulder || entry.zone == WeakpointZone.RightShoulder;
+        bool isChest = entry.zone == WeakpointZone.Chest;
+
+        switch (patternComplexity)
+        {
+            case EnemyPatternComplexity.Simple:
+                if (isChest) weight *= 1.35f;
+                if (isShoulder) weight *= 1.2f;
+                if (isHead) weight *= 0.7f;
+                if (isTorso) weight *= 0.45f;
+                break;
+
+            case EnemyPatternComplexity.Standard:
+                if (index == totalLength - 1 && isHead)
+                    weight *= 1.15f;
+                break;
+
+            case EnemyPatternComplexity.Dense:
+                if (isHead) weight *= 1.35f;
+                if (isTorso) weight *= 1.25f;
+                if (isChest) weight *= 0.9f;
+                break;
+        }
+
+        return Mathf.Max(0f, weight);
     }
 
     private WeakpointZone[] CloneFixedPattern()

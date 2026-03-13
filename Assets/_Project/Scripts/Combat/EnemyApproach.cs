@@ -5,6 +5,7 @@ using UnityEngine;
 
 /// <summary>
 /// Düşmanın koridordan yaklaşmasını yönetir.
+/// Archetype içindeki approachBehaviorType burada gerçek harekete bağlanır.
 /// </summary>
 public class EnemyApproach : MonoBehaviour
 {
@@ -19,6 +20,16 @@ public class EnemyApproach : MonoBehaviour
     [SerializeField] private Vector3 spawnPosition = new Vector3(0f, 0f, 30f);
     [SerializeField] private Vector3 stopPosition = new Vector3(0f, 0f, 6f);
 
+    [Header("Approach Behavior Tuning")]
+    [SerializeField] private float sideLeanAmplitude = 0.8f;
+    [SerializeField] private float sideLeanFrequency = 4f;
+    [SerializeField] private float dashSlowMultiplier = 0.9f;
+    [SerializeField] private float dashBurstMultiplier = 1.9f;
+    [SerializeField] private float dashBurstDistance = 3f;
+    [SerializeField] private float heavyWalkBaseMultiplier = 0.72f;
+    [SerializeField] private float heavyWalkPulseAmplitude = 0.28f;
+    [SerializeField] private float heavyWalkPulseFrequency = 1.8f;
+
     [Header("Rage Hit")]
     [Tooltip("Silüet hit alanını genişletme çarpanı. 1.0 = tam bounds, 1.3 = %30 padding")]
     [SerializeField] private float rageHitPadding = 1.3f;
@@ -32,6 +43,8 @@ public class EnemyApproach : MonoBehaviour
 
     private Renderer cachedRenderer;
     private bool validated = false;
+    private float approachElapsed = 0f;
+    private bool punishRoutineRunning = false;
 
     private void Awake()
     {
@@ -81,11 +94,8 @@ public class EnemyApproach : MonoBehaviour
 
         if (currentState != State.Approaching) return;
 
-        transform.position = Vector3.MoveTowards(
-            transform.position,
-            stopPosition,
-            archetypeData.approachSpeed * Time.deltaTime
-        );
+        approachElapsed += Time.deltaTime;
+        ApplyApproachMovement();
 
         float distToCamera = transform.position.z;
         if (distToCamera <= archetypeData.telegraphTriggerDistance)
@@ -139,8 +149,67 @@ public class EnemyApproach : MonoBehaviour
     private void StartApproach()
     {
         transform.position = spawnPosition;
+        approachElapsed = 0f;
         currentState = State.Approaching;
-        Debug.Log("[EnemyApproach] Yaklaşma başladı.");
+        Debug.Log($"[EnemyApproach] Yaklaşma başladı. Behavior={archetypeData.approachBehaviorType}");
+    }
+
+    private void ApplyApproachMovement()
+    {
+        switch (archetypeData.approachBehaviorType)
+        {
+            case EnemyApproachBehaviorType.SideLean:
+                MoveSideLean();
+                break;
+
+            case EnemyApproachBehaviorType.Dash:
+                MoveDash();
+                break;
+
+            case EnemyApproachBehaviorType.HeavyWalk:
+                MoveHeavyWalk();
+                break;
+
+            case EnemyApproachBehaviorType.Straight:
+            default:
+                MoveStraight(archetypeData.approachSpeed);
+                break;
+        }
+    }
+
+    private void MoveStraight(float speed)
+    {
+        transform.position = Vector3.MoveTowards(
+            transform.position,
+            stopPosition,
+            speed * Time.deltaTime
+        );
+    }
+
+    private void MoveSideLean()
+    {
+        MoveStraight(archetypeData.approachSpeed);
+
+        float progressToTrigger = Mathf.InverseLerp(spawnPosition.z, archetypeData.telegraphTriggerDistance, transform.position.z);
+        float amplitude = Mathf.Lerp(sideLeanAmplitude, 0f, progressToTrigger);
+
+        Vector3 p = transform.position;
+        p.x = stopPosition.x + Mathf.Sin(approachElapsed * sideLeanFrequency) * amplitude;
+        transform.position = p;
+    }
+
+    private void MoveDash()
+    {
+        float burstLineZ = archetypeData.telegraphTriggerDistance + dashBurstDistance;
+        float speedMultiplier = transform.position.z > burstLineZ ? dashSlowMultiplier : dashBurstMultiplier;
+        MoveStraight(archetypeData.approachSpeed * speedMultiplier);
+    }
+
+    private void MoveHeavyWalk()
+    {
+        float pulse01 = 0.5f + 0.5f * Mathf.Sin(approachElapsed * heavyWalkPulseFrequency * Mathf.PI * 2f);
+        float speedMultiplier = heavyWalkBaseMultiplier + pulse01 * heavyWalkPulseAmplitude;
+        MoveStraight(archetypeData.approachSpeed * speedMultiplier);
     }
 
     private void ValidateWeakpointSetupOrBreak()
@@ -215,25 +284,110 @@ public class EnemyApproach : MonoBehaviour
     private void HandleCombatSuccess()
     {
         currentState = State.Dead;
-        Debug.Log("[EnemyApproach] Düşman öldü. Spawner yeni düşman üretecek...");
+        Debug.Log($"[EnemyApproach] Düşman öldü. DeathBehavior={archetypeData.deathBehaviorType}");
         StartCoroutine(DeathThenDespawn());
     }
 
     private IEnumerator DeathThenDespawn()
     {
-        if (cachedRenderer != null)
-        {
-            Color original = cachedRenderer.material.color;
-            cachedRenderer.material.color = Color.red;
-            yield return new WaitForSeconds(archetypeData.deathFlashDuration);
-            cachedRenderer.material.color = original;
-        }
+        Color originalColor = cachedRenderer != null ? cachedRenderer.material.color : Color.white;
+        Vector3 originalScale = transform.localScale;
 
-        yield return new WaitForSecondsRealtime(archetypeData.deathPauseSeconds);
-        yield return new WaitForSecondsRealtime(archetypeData.respawnDelaySeconds);
+        switch (archetypeData.deathBehaviorType)
+        {
+            case EnemyDeathBehaviorType.HeavySplit:
+                yield return HeavySplitDeath(originalColor, originalScale);
+                break;
+
+            case EnemyDeathBehaviorType.Burst:
+                yield return BurstDeath(originalColor, originalScale);
+                break;
+
+            case EnemyDeathBehaviorType.EliteFinisher:
+                yield return EliteFinisherDeath(originalColor, originalScale);
+                break;
+
+            case EnemyDeathBehaviorType.StandardSplit:
+            default:
+                yield return StandardSplitDeath(originalColor, originalScale);
+                break;
+        }
 
         spawner?.OnEnemyKilledImmediate();
         Destroy(gameObject);
+    }
+
+    private IEnumerator StandardSplitDeath(Color originalColor, Vector3 originalScale)
+    {
+        yield return FlashColor(Color.red, archetypeData.deathFlashDuration, originalColor);
+        yield return PulseScale(originalScale, 1.04f, archetypeData.deathFlashDuration * 0.75f);
+        yield return new WaitForSecondsRealtime(archetypeData.deathPauseSeconds);
+        yield return new WaitForSecondsRealtime(archetypeData.respawnDelaySeconds);
+    }
+
+    private IEnumerator HeavySplitDeath(Color originalColor, Vector3 originalScale)
+    {
+        yield return FlashColor(new Color(1f, 0.25f, 0.25f, 1f), archetypeData.deathFlashDuration * 1.15f, originalColor);
+        yield return PulseScale(originalScale, 1.10f, archetypeData.deathFlashDuration);
+        yield return FlashColor(Color.red, archetypeData.deathFlashDuration * 0.8f, originalColor);
+        yield return new WaitForSecondsRealtime(archetypeData.deathPauseSeconds * 1.35f);
+        yield return new WaitForSecondsRealtime(archetypeData.respawnDelaySeconds * 1.15f);
+    }
+
+    private IEnumerator BurstDeath(Color originalColor, Vector3 originalScale)
+    {
+        yield return FlashColor(Color.white, archetypeData.deathFlashDuration * 0.35f, originalColor);
+        yield return FlashColor(Color.red, archetypeData.deathFlashDuration * 0.5f, originalColor);
+        yield return PulseScale(originalScale, 1.14f, archetypeData.deathFlashDuration * 0.45f);
+        yield return new WaitForSecondsRealtime(archetypeData.deathPauseSeconds * 0.45f);
+        yield return new WaitForSecondsRealtime(archetypeData.respawnDelaySeconds * 0.6f);
+    }
+
+    private IEnumerator EliteFinisherDeath(Color originalColor, Vector3 originalScale)
+    {
+        yield return FlashColor(Color.white, archetypeData.deathFlashDuration * 0.45f, originalColor);
+        yield return PulseScale(originalScale, 1.08f, archetypeData.deathFlashDuration * 0.5f);
+        yield return FlashColor(new Color(1f, 0.15f, 0.15f, 1f), archetypeData.deathFlashDuration * 0.9f, originalColor);
+        yield return PulseScale(originalScale, 1.16f, archetypeData.deathFlashDuration * 0.8f);
+        yield return new WaitForSecondsRealtime(archetypeData.deathPauseSeconds * 1.6f);
+        yield return new WaitForSecondsRealtime(archetypeData.respawnDelaySeconds * 1.25f);
+    }
+
+    private IEnumerator FlashColor(Color flashColor, float duration, Color originalColor)
+    {
+        if (cachedRenderer == null)
+            yield break;
+
+        cachedRenderer.material.color = flashColor;
+        yield return new WaitForSecondsRealtime(Mathf.Max(0.01f, duration));
+        cachedRenderer.material.color = originalColor;
+    }
+
+    private IEnumerator PulseScale(Vector3 originalScale, float multiplier, float duration)
+    {
+        float clampedDuration = Mathf.Max(0.01f, duration);
+        Vector3 targetScale = originalScale * multiplier;
+
+        float half = clampedDuration * 0.5f;
+        float t = 0f;
+        while (t < half)
+        {
+            t += Time.unscaledDeltaTime;
+            float lerp = Mathf.Clamp01(t / half);
+            transform.localScale = Vector3.Lerp(originalScale, targetScale, lerp);
+            yield return null;
+        }
+
+        t = 0f;
+        while (t < half)
+        {
+            t += Time.unscaledDeltaTime;
+            float lerp = Mathf.Clamp01(t / half);
+            transform.localScale = Vector3.Lerp(targetScale, originalScale, lerp);
+            yield return null;
+        }
+
+        transform.localScale = originalScale;
     }
 
     public void SetRageVisual(bool rageActive)
@@ -245,19 +399,118 @@ public class EnemyApproach : MonoBehaviour
 
     private void HandleCombatFail(string reason)
     {
-        Debug.Log($"[EnemyApproach] Fail ({reason}), düşman bekliyor.");
-        StartCoroutine(PunishFlash());
+        if (currentState == State.Dead)
+            return;
+
+        if (punishRoutineRunning)
+            return;
+
+        Debug.Log($"[EnemyApproach] Fail ({reason}), punish={archetypeData.punishBehaviorType}");
+        StartCoroutine(PlayPunishBehavior());
     }
 
-    private IEnumerator PunishFlash()
+    private IEnumerator PlayPunishBehavior()
     {
-        if (cachedRenderer != null)
+        punishRoutineRunning = true;
+
+        Color originalColor = cachedRenderer != null ? cachedRenderer.material.color : Color.white;
+        Vector3 originalScale = transform.localScale;
+        Vector3 originalPosition = transform.localPosition;
+
+        switch (archetypeData.punishBehaviorType)
         {
-            Color original = cachedRenderer.material.color;
-            cachedRenderer.material.color = Color.white;
-            yield return new WaitForSeconds(0.15f);
-            cachedRenderer.material.color = original;
+            case EnemyPunishBehaviorType.HeavyPunish:
+                yield return HeavyPunishBehavior(originalColor, originalScale, originalPosition);
+                break;
+
+            case EnemyPunishBehaviorType.FakeOut:
+                yield return FakeOutPunishBehavior(originalColor, originalScale, originalPosition);
+                break;
+
+            case EnemyPunishBehaviorType.ArmorBreak:
+                yield return ArmorBreakPunishBehavior(originalColor, originalScale, originalPosition);
+                break;
+
+            case EnemyPunishBehaviorType.StandardRetry:
+            default:
+                yield return StandardRetryPunishBehavior(originalColor, originalScale, originalPosition);
+                break;
         }
+
+        if (cachedRenderer != null)
+            cachedRenderer.material.color = originalColor;
+
+        transform.localScale = originalScale;
+        transform.localPosition = originalPosition;
+        punishRoutineRunning = false;
+    }
+
+    private IEnumerator StandardRetryPunishBehavior(Color originalColor, Vector3 originalScale, Vector3 originalPosition)
+    {
+        yield return FlashColor(Color.white, 0.12f, originalColor);
+    }
+
+    private IEnumerator HeavyPunishBehavior(Color originalColor, Vector3 originalScale, Vector3 originalPosition)
+    {
+        yield return FlashColor(new Color(1f, 0.2f, 0.2f, 1f), 0.10f, originalColor);
+        yield return PulseScale(originalScale, 1.08f, 0.18f);
+        yield return ShakeLocalPosition(originalPosition, 0.10f, 0.08f, 28f);
+    }
+
+    private IEnumerator FakeOutPunishBehavior(Color originalColor, Vector3 originalScale, Vector3 originalPosition)
+    {
+        yield return FlashColor(Color.white, 0.08f, originalColor);
+        yield return NudgeSideToSide(originalPosition, 0.18f, 0.35f);
+        yield return FlashColor(new Color(1f, 0.85f, 0.85f, 1f), 0.06f, originalColor);
+    }
+
+    private IEnumerator ArmorBreakPunishBehavior(Color originalColor, Vector3 originalScale, Vector3 originalPosition)
+    {
+        yield return FlashColor(new Color(1f, 1f, 0.55f, 1f), 0.07f, originalColor);
+        yield return FlashColor(Color.white, 0.06f, originalColor);
+        yield return PulseScale(originalScale, 1.12f, 0.20f);
+        yield return ShakeLocalPosition(originalPosition, 0.12f, 0.10f, 34f);
+    }
+
+    private IEnumerator ShakeLocalPosition(Vector3 originalPosition, float duration, float amplitude, float frequency)
+    {
+        float elapsed = 0f;
+        while (elapsed < duration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            float offsetX = Mathf.Sin(elapsed * frequency * Mathf.PI * 2f) * amplitude;
+            transform.localPosition = originalPosition + new Vector3(offsetX, 0f, 0f);
+            yield return null;
+        }
+
+        transform.localPosition = originalPosition;
+    }
+
+    private IEnumerator NudgeSideToSide(Vector3 originalPosition, float totalDuration, float distance)
+    {
+        float half = Mathf.Max(0.01f, totalDuration * 0.5f);
+        Vector3 left = originalPosition + new Vector3(-distance, 0f, 0f);
+        Vector3 right = originalPosition + new Vector3(distance, 0f, 0f);
+
+        float t = 0f;
+        while (t < half)
+        {
+            t += Time.unscaledDeltaTime;
+            float lerp = Mathf.Clamp01(t / half);
+            transform.localPosition = Vector3.Lerp(originalPosition, left, lerp);
+            yield return null;
+        }
+
+        t = 0f;
+        while (t < half)
+        {
+            t += Time.unscaledDeltaTime;
+            float lerp = Mathf.Clamp01(t / half);
+            transform.localPosition = Vector3.Lerp(left, right, lerp);
+            yield return null;
+        }
+
+        transform.localPosition = originalPosition;
     }
 
     private void OnDrawGizmosSelected()
