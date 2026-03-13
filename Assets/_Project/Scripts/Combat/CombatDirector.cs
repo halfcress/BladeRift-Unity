@@ -37,6 +37,7 @@ public class CombatDirector : MonoBehaviour
 
     public bool IsCombatActive => combatActive;
     public bool IsWaitingForRetry => waitingForRetry;
+    public bool IsWorldBlocked => combatActive || (enemyApproach != null && enemyApproach.IsInDeathSequence);
 
     private List<WeakpointZone> activeChain = new();
     private bool hitRegisteredThisTarget = false;

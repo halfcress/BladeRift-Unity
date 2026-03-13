@@ -6,12 +6,13 @@ public class CorridorLoop : MonoBehaviour
     [Header("References")]
     [SerializeField] private Transform reference;           // Main Camera
     [SerializeField] private List<Transform> segments;      // Corridor_01, Corridor_02, ...
+    [SerializeField] private CombatDirector combatDirector; // GameRoot Ã¼zerindeki CombatDirector
 
     [Header("Motion")]
     [SerializeField] private float speed = 6f;
 
     [Header("Recycle")]
-    [Tooltip("Segment tamamen kameranýn arkasýna geçince recycle olsun.")]
+    [Tooltip("Segment tamamen kameranÄ±n arkasÄ±na geÃ§ince recycle olsun.")]
     [SerializeField] private float recycleBehind = 5f;
 
     private void Reset()
@@ -20,20 +21,32 @@ public class CorridorLoop : MonoBehaviour
             reference = Camera.main.transform;
     }
 
+    private void Awake()
+    {
+        if (combatDirector == null)
+            combatDirector = GetComponent<CombatDirector>();
+
+        if (combatDirector == null)
+            combatDirector = FindFirstObjectByType<CombatDirector>();
+    }
+
     private void Start()
     {
         if (reference == null && Camera.main != null)
-            reference = Camera.main .transform;
+            reference = Camera.main.transform;
 
-        // Baþlangýçta segmentleri gerçek uçlarýna göre arka arkaya diz
+        // BaÅŸlangÄ±Ã§ta segmentleri gerÃ§ek uÃ§larÄ±na gÃ¶re arka arkaya diz
         AlignSegmentsByBounds();
     }
 
     private void Update()
     {
+        if (combatDirector != null && combatDirector.IsWorldBlocked)
+            return;
+
         if (segments == null || segments.Count == 0) return;
 
-        // 1) Hepsini geriye kaydýr
+        // 1) Hepsini geriye kaydÄ±r
         float dz = speed * Time.deltaTime;
         for (int i = 0; i < segments.Count; i++)
         {
@@ -43,7 +56,7 @@ public class CorridorLoop : MonoBehaviour
 
         if (reference == null) return;
 
-        // 2) Kamera arkasýna tamamen düþen segmentleri en öne yapýþtýr
+        // 2) Kamera arkasÄ±na tamamen dÃ¼ÅŸen segmentleri en Ã¶ne yapÄ±ÅŸtÄ±r
         float thresholdZ = reference.position.z - recycleBehind;
 
         for (int i = 0; i < segments.Count; i++)
@@ -53,16 +66,16 @@ public class CorridorLoop : MonoBehaviour
 
             Bounds b = GetWorldBounds(seg);
 
-            // Segmentin en ön ucu bile threshold'un arkasýna geçtiyse tamamen arkada demektir
+            // Segmentin en Ã¶n ucu bile threshold'un arkasÄ±na geÃ§tiyse tamamen arkada demektir
             if (b.max.z < thresholdZ)
             {
                 float frontMostMaxZ = FindFrontMostMaxZ();
 
-                // Bu segmentin current bounds.min.z ile pivot arasýndaki offset'i koruyarak taþý
+                // Bu segmentin current bounds.min.z ile pivot arasÄ±ndaki offset'i koruyarak taÅŸÄ±
                 float pivotToMin = seg.position.z - b.min.z;
 
                 Vector3 p = seg.position;
-                p.z = frontMostMaxZ + pivotToMin;   // minZ => frontMostMaxZ olacak þekilde
+                p.z = frontMostMaxZ + pivotToMin;   // minZ => frontMostMaxZ olacak ÅŸekilde
                 seg.position = p;
             }
         }
@@ -70,12 +83,12 @@ public class CorridorLoop : MonoBehaviour
 
     private void AlignSegmentsByBounds()
     {
-        // segments listesindeki sýraya göre diziyoruz: 0 en arkada, sonra 1,2...
-        // Ýstersen 0'ý baþlangýç segmentin olarak sahnede istediðin yere koy, diðerleri ona yapýþsýn.
+        // segments listesindeki sÄ±raya gÃ¶re diziyoruz: 0 en arkada, sonra 1,2...
+        // Ä°stersen 0'Ä± baÅŸlangÄ±Ã§ segmentin olarak sahnede istediÄŸin yere koy, diÄŸerleri ona yapÄ±ÅŸsÄ±n.
 
         if (segments == null || segments.Count == 0) return;
 
-        // Ýlk segmenti referans al
+        // Ä°lk segmenti referans al
         Transform first = segments[0];
         if (first == null) return;
 
@@ -91,11 +104,11 @@ public class CorridorLoop : MonoBehaviour
             float pivotToMin = seg.position.z - b.min.z;
 
             Vector3 p = seg.position;
-            // Bu segmentin minZ'sini bir öncekinin maxZ'sine yapýþtýr
+            // Bu segmentin minZ'sini bir Ã¶ncekinin maxZ'sine yapÄ±ÅŸtÄ±r
             p.z = currentFrontMaxZ + pivotToMin;
             seg.position = p;
 
-            // Yeni front max güncelle
+            // Yeni front max gÃ¼ncelle
             Bounds newB = GetWorldBounds(seg);
             currentFrontMaxZ = newB.max.z;
         }
@@ -115,11 +128,11 @@ public class CorridorLoop : MonoBehaviour
 
     private Bounds GetWorldBounds(Transform root)
     {
-        // Root altýndaki TÜM rendererlardan birleþik bounds çýkarýr (asýl fix burada)
+        // Root altÄ±ndaki TÃœM rendererlardan birleÅŸik bounds Ã§Ä±karÄ±r
         Renderer[] rs = root.GetComponentsInChildren<Renderer>();
         if (rs == null || rs.Length == 0)
         {
-            // Renderer yoksa fallback: küçük bir bounds
+            // Renderer yoksa fallback: kÃ¼Ã§Ã¼k bir bounds
             return new Bounds(root.position, Vector3.one);
         }
 

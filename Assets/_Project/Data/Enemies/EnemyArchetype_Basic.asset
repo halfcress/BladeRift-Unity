@@ -13,9 +13,34 @@ MonoBehaviour:
   m_Name: EnemyArchetype_Basic
   m_EditorClassIdentifier: Assembly-CSharp::EnemyArchetypeData
   archetypeType: 0
-  approachSpeed: 4
+  patternComplexity: 0
+  approachBehaviorType: 0
+  punishBehaviorType: 0
+  deathBehaviorType: 0
+  approachSpeed: 8
   telegraphTriggerDistance: 8
   deathPauseSeconds: 1.5
   respawnDelaySeconds: 1
   deathFlashDuration: 0.3
-  pattern: 040000000100000003000000
+  fixedZonePattern: 040000000200000003000000
+  useControlledRandom: 1
+  controlledPatternLength: 3
+  zonePool:
+  - zone: 1
+    enabled: 1
+    weight: 1
+  - zone: 2
+    enabled: 1
+    weight: 2
+  - zone: 3
+    enabled: 1
+    weight: 2
+  - zone: 4
+    enabled: 1
+    weight: 3
+  - zone: 5
+    enabled: 1
+    weight: 1
+  - zone: 6
+    enabled: 1
+    weight: 1

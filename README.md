@@ -44,7 +44,7 @@ Mobil odaklı, 1. şahıs dungeon koridorunda geçen, **tek input (swipe)** ile 
 
 ---
 
-*Auto-updated: 2026-03-12 11:02:25*
+*Auto-updated: 2026-03-13 13:58:49*
 
 ## Project Status
 
@@ -52,9 +52,9 @@ Mobil odaklı, 1. şahıs dungeon koridorunda geçen, **tek input (swipe)** ile 
 |-------|-------|
 | Scene | `Prototype_CombatCore` |
 | Unity | `6000.3.10f1` |
-| Last Snapshot | `2026-03-12 11:02:25` |
-| Commit | `a342690` — states update |
-| Objects in Scene | 63 |
+| Last Snapshot | `2026-03-13 13:58:48` |
+| Commit | `a0e769c` — Bridge patch (working) |
+| Objects in Scene | 59 |
 
 ## Scripts
 
@@ -66,16 +66,20 @@ Mobil odaklı, 1. şahıs dungeon koridorunda geçen, **tek input (swipe)** ile 
 - `CombatTriggerTest.cs`
 - `ComboManager.cs`
 - `EnemyApproach.cs`
+- `EnemyArchetypeData.cs`
+- `EnemySpawner.cs`
+- `EnemyWeakpointAnchors.cs`
 - `FeedbackManager.cs`
 - `RageManager.cs`
 - `SlashTrail.cs`
-- `WeakpointDirection.cs`
 - `WeakpointSequence.cs`
+- `WeakpointZone.cs`
 
 **Core**
 - `AudioManager.cs`
 - `CorridorLoop.cs`
 - `GameConfig.cs`
+- `SpawnDirector.cs`
 
 **Input**
 - `SwipeDebugHUD.cs`
@@ -84,6 +88,7 @@ Mobil odaklı, 1. şahıs dungeon koridorunda geçen, **tek input (swipe)** ile 
 
 **Tools**
 - `BillboardFacing.cs`
+- `ClaudeSnapshotTool.cs`
 
 **UI**
 - `BackgroundScroller.cs`

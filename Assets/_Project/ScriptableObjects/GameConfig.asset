@@ -14,8 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GameConfig
   executionWindowSeconds: 2
   timeScaleDuringExecution: 0.8
-  telegraphStepSeconds: 0.7
-  requireExactDirectionMatch: 1
+  telegraphStepSeconds: 0.08
   basicExecutionDamage: 100
   eliteExecutionDamage: 60
   bossExecutionDamage: 40

@@ -12,10 +12,35 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3593fdbc4e55c6b4b9f7c0c28606a37d, type: 3}
   m_Name: EnemyArchetype_Fast
   m_EditorClassIdentifier: Assembly-CSharp::EnemyArchetypeData
-  archetypeType: 0
-  approachSpeed: 6
-  telegraphTriggerDistance: 7
-  deathPauseSeconds: 1.2
-  respawnDelaySeconds: 0.8
-  deathFlashDuration: 0.25
-  pattern: 0400000003000000
+  archetypeType: 1
+  patternComplexity: 1
+  approachBehaviorType: 2
+  punishBehaviorType: 0
+  deathBehaviorType: 0
+  approachSpeed: 15
+  telegraphTriggerDistance: 6.5
+  deathPauseSeconds: 0.9
+  respawnDelaySeconds: 0.45
+  deathFlashDuration: 0.18
+  fixedZonePattern: 010000000200000004000000
+  useControlledRandom: 1
+  controlledPatternLength: 3
+  zonePool:
+  - zone: 1
+    enabled: 1
+    weight: 1
+  - zone: 2
+    enabled: 1
+    weight: 1
+  - zone: 3
+    enabled: 1
+    weight: 1
+  - zone: 4
+    enabled: 1
+    weight: 1
+  - zone: 5
+    enabled: 1
+    weight: 1
+  - zone: 6
+    enabled: 1
+    weight: 1

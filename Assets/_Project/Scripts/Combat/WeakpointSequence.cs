@@ -5,17 +5,12 @@ using UnityEngine;
 /// <summary>
 /// Weakpoint zincirinin tum mantigini yonetir.
 ///
-/// Telegraph akisi:
-///   1) TelegraphReveal: marker'lar sirayla belirir (1 -> 1+2 -> 1+2+3)
-///   2) TelegraphHold:   hepsi birlikte kisa sure durur
-///   3) ExecutionWindow: sadece aktif weakpoint kalir, oyuncu swipe yapar
+/// Akis:
+///   1) PreviewScan: pattern zone'lari tek marker ile hizli tur atar
+///   2) ExecutionWindow: current / next / next+1 rehber katmani acilir
 ///
-/// Retry akisi (telegraph olmadan):
-///   - StartExecutionDirectly() ile dogrudan ExecutionWindow'a geçilir
-///
-/// Fail kaynaklari:
-///   - Timeout (UpdateExecutionWindow)
-///   - FingerLift (CombatDirector -> ForceFailExternal)
+/// Retry akisi:
+///   - StartExecutionDirectly() preview olmadan dogrudan ExecutionWindow'a geçer
 /// </summary>
 public class WeakpointSequence : MonoBehaviour
 {
@@ -30,22 +25,20 @@ public class WeakpointSequence : MonoBehaviour
     [SerializeField] private WeakpointDirectionView directionView;
     [SerializeField] private GameConfig config;
 
-    [Header("Ayarlar")]
-    [Tooltip("Her marker'in arasindaki sure (saniye)")]
-    [SerializeField] private float telegraphRevealInterval = 1f;
-    [Tooltip("Tum marker'lar gorunce bekleme suresi (saniye)")]
-    [SerializeField] private float telegraphHoldSeconds = 1f;
+    [Header("Preview")]
+    [Tooltip("Preview bittikten sonra execution'a geçmeden once kisa bekleme.")]
+    [SerializeField] private float previewPostDelaySeconds = 0.05f;
 
     [Header("Chain (Read-only)")]
     [SerializeField] private List<WeakpointZone> chain = new();
     [SerializeField] private int currentIndex = 0;
+    [SerializeField] private int previewIndex = 0;
 
     [Header("State (Read-only)")]
     [SerializeField] private Phase currentPhase = Phase.Idle;
     [SerializeField] private float phaseTimer = 0f;
-    [SerializeField] private int revealedCount = 0;
 
-    public enum Phase { Idle, TelegraphReveal, TelegraphHold, ExecutionWindow, Done }
+    public enum Phase { Idle, PreviewScan, PreviewToExecutionDelay, ExecutionWindow, Done }
 
     public Phase CurrentPhase => currentPhase;
     public int CurrentIndex => currentIndex;
@@ -64,14 +57,14 @@ public class WeakpointSequence : MonoBehaviour
 
         chain = new List<WeakpointZone>(zones);
         currentIndex = 0;
-        revealedCount = 0;
+        previewIndex = 0;
         phaseTimer = 0f;
-        currentPhase = Phase.TelegraphReveal;
+        currentPhase = Phase.PreviewScan;
 
         directionView?.HideAll();
-        RevealNextMarker();
+        ShowPreviewCurrentZone();
 
-        Debug.Log($"WeakpointSequence: Zincir basladi (telegraph). Adim={chain.Count}");
+        Debug.Log($"WeakpointSequence: Zincir basladi (preview scan). Adim={chain.Count}");
     }
 
     public void StartExecutionDirectly(List<WeakpointZone> zones)
@@ -84,7 +77,7 @@ public class WeakpointSequence : MonoBehaviour
 
         chain = new List<WeakpointZone>(zones);
         currentIndex = 0;
-        revealedCount = chain.Count;
+        previewIndex = 0;
         phaseTimer = 0f;
 
         directionView?.HideAll();
@@ -104,7 +97,7 @@ public class WeakpointSequence : MonoBehaviour
         if (currentIndex >= chain.Count)
             CompleteChain();
         else
-            ShowExecutionTarget();
+            ShowExecutionNavigation();
     }
 
     public void ForceCompleteChain()
@@ -126,7 +119,7 @@ public class WeakpointSequence : MonoBehaviour
     {
         currentPhase = Phase.Idle;
         currentIndex = 0;
-        revealedCount = 0;
+        previewIndex = 0;
         chain.Clear();
         phaseTimer = 0f;
         Time.timeScale = 1f;
@@ -141,11 +134,11 @@ public class WeakpointSequence : MonoBehaviour
 
         switch (currentPhase)
         {
-            case Phase.TelegraphReveal:
-                UpdateTelegraphReveal();
+            case Phase.PreviewScan:
+                UpdatePreviewScan();
                 break;
-            case Phase.TelegraphHold:
-                UpdateTelegraphHold();
+            case Phase.PreviewToExecutionDelay:
+                UpdatePreviewToExecutionDelay();
                 break;
             case Phase.ExecutionWindow:
                 UpdateExecutionWindow();
@@ -153,20 +146,24 @@ public class WeakpointSequence : MonoBehaviour
         }
     }
 
-    private void UpdateTelegraphReveal()
+    private void UpdatePreviewScan()
     {
-        if (phaseTimer < telegraphRevealInterval) return;
+        if (phaseTimer < config.telegraphStepSeconds) return;
         phaseTimer = 0f;
 
-        if (revealedCount < chain.Count)
-            RevealNextMarker();
-        else
-            EnterTelegraphHold();
+        previewIndex++;
+        if (previewIndex >= chain.Count)
+        {
+            EnterPreviewToExecutionDelay();
+            return;
+        }
+
+        ShowPreviewCurrentZone();
     }
 
-    private void UpdateTelegraphHold()
+    private void UpdatePreviewToExecutionDelay()
     {
-        if (phaseTimer >= telegraphHoldSeconds)
+        if (phaseTimer >= previewPostDelaySeconds)
             OpenExecutionWindow();
     }
 
@@ -176,23 +173,22 @@ public class WeakpointSequence : MonoBehaviour
             FailChain("Timeout");
     }
 
-    private void RevealNextMarker()
+    private void ShowPreviewCurrentZone()
     {
-        if (directionView == null || revealedCount >= chain.Count) return;
+        if (directionView == null) return;
+        if (previewIndex < 0 || previewIndex >= chain.Count) return;
 
-        directionView.ShowTelegraphStep(revealedCount, chain[revealedCount]);
-        OnTelegraphStep?.Invoke(revealedCount);
+        directionView.ShowPreviewZone(chain[previewIndex]);
+        OnTelegraphStep?.Invoke(previewIndex);
         AudioManager.Instance?.PlayTelegraphStep();
-        Debug.Log($"WeakpointSequence: Telegraph goster index={revealedCount} zone={chain[revealedCount]}");
-
-        revealedCount++;
+        Debug.Log($"WeakpointSequence: Preview zone index={previewIndex} zone={chain[previewIndex]}");
     }
 
-    private void EnterTelegraphHold()
+    private void EnterPreviewToExecutionDelay()
     {
-        currentPhase = Phase.TelegraphHold;
+        currentPhase = Phase.PreviewToExecutionDelay;
         phaseTimer = 0f;
-        Debug.Log("WeakpointSequence: TelegraphHold basladi.");
+        Debug.Log("WeakpointSequence: Preview bitti, execution'a geçiliyor.");
     }
 
     private void OpenExecutionWindow()
@@ -203,16 +199,15 @@ public class WeakpointSequence : MonoBehaviour
 
         Time.timeScale = config.timeScaleDuringExecution;
 
-        ShowExecutionTarget();
+        ShowExecutionNavigation();
         OnExecutionWindowStart?.Invoke(config.executionWindowSeconds);
         Debug.Log($"WeakpointSequence: ExecutionWindow acildi. Sure={config.executionWindowSeconds}s");
     }
 
-    private void ShowExecutionTarget()
+    private void ShowExecutionNavigation()
     {
         if (directionView == null) return;
-        directionView.HideAll();
-        directionView.ShowTelegraphStep(currentIndex, CurrentTarget);
+        directionView.ShowExecutionNavigation(chain, currentIndex);
     }
 
     private void CompleteChain()

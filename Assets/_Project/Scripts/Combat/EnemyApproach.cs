@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -10,6 +11,8 @@ public class EnemyApproach : MonoBehaviour
     [Header("References")]
     [SerializeField] private CombatDirector combatDirector;
     [SerializeField] private EnemyArchetypeData archetypeData;
+    [SerializeField] private EnemyWeakpointAnchors weakpointAnchors;
+    [SerializeField] private WeakpointDirectionView directionView;
     private EnemySpawner spawner;
 
     [Header("Approach Settings")]
@@ -25,12 +28,21 @@ public class EnemyApproach : MonoBehaviour
 
     public enum State { Idle, Approaching, TelegraphTriggered, WaitingForResult, Dead }
 
+    public bool IsInDeathSequence => currentState == State.Dead;
+
     private Renderer cachedRenderer;
+    private bool validated = false;
 
     private void Awake()
     {
         if (combatDirector == null)
             combatDirector = FindFirstObjectByType<CombatDirector>();
+
+        if (directionView == null)
+            directionView = FindFirstObjectByType<WeakpointDirectionView>();
+
+        if (weakpointAnchors == null)
+            weakpointAnchors = GetComponentInChildren<EnemyWeakpointAnchors>();
 
         spawner = FindFirstObjectByType<EnemySpawner>();
         cachedRenderer = GetComponentInChildren<Renderer>();
@@ -52,6 +64,10 @@ public class EnemyApproach : MonoBehaviour
 
     private void Start()
     {
+        ValidateWeakpointSetupOrBreak();
+        if (!validated)
+            return;
+
         StartApproach();
     }
 
@@ -59,7 +75,7 @@ public class EnemyApproach : MonoBehaviour
     {
         if (archetypeData == null)
         {
-            Debug.LogError("[EnemyApproach] archetypeData yok!");
+            Debug.LogError("[EnemyApproach] archetypeData yok!", this);
             return;
         }
 
@@ -76,11 +92,6 @@ public class EnemyApproach : MonoBehaviour
             TriggerTelegraph();
     }
 
-    /// <summary>
-    /// Düşmanın Renderer bounds'unun 8 köşesini ekrana projekte ederek
-    /// gerçek ekran Rect'ini döndürür.
-    /// Rage hit testi için CombatDirector tarafından kullanılır.
-    /// </summary>
     public bool TryGetScreenRect(Camera cam, out Rect screenRect)
     {
         screenRect = Rect.zero;
@@ -132,24 +143,72 @@ public class EnemyApproach : MonoBehaviour
         Debug.Log("[EnemyApproach] Yaklaşma başladı.");
     }
 
+    private void ValidateWeakpointSetupOrBreak()
+    {
+        validated = false;
+
+        if (archetypeData == null)
+        {
+            BreakInvalidSetup("[EnemyApproach] archetypeData yok!");
+            return;
+        }
+
+        if (!archetypeData.ValidateRuntimeConfig(out string archetypeError))
+        {
+            BreakInvalidSetup($"[EnemyApproach] INVALID ARCHETYPE CONFIG | Enemy={name} | Archetype={archetypeData.name} | {archetypeError}");
+            return;
+        }
+
+        if (weakpointAnchors == null)
+        {
+            BreakInvalidSetup($"[EnemyApproach] {name}: EnemyWeakpointAnchors component yok!");
+            return;
+        }
+
+        List<WeakpointZone> requiredZones = archetypeData.GetEnabledZones();
+        if (requiredZones == null || requiredZones.Count == 0)
+        {
+            BreakInvalidSetup($"[EnemyApproach] {name}: archetype içinde aktif weakpoint zone yok!");
+            return;
+        }
+
+        if (!weakpointAnchors.ValidateRequiredZones(requiredZones, out string anchorError))
+        {
+            BreakInvalidSetup($"[EnemyApproach] INVALID WEAKPOINT SETUP | Enemy={name} | Archetype={archetypeData.name} | {anchorError}");
+            return;
+        }
+
+        validated = true;
+    }
+
+    private void BreakInvalidSetup(string message)
+    {
+        Debug.LogError(message, this);
+        currentState = State.Idle;
+        enabled = false;
+        Debug.Break();
+    }
+
     private void TriggerTelegraph()
     {
         currentState = State.TelegraphTriggered;
         Debug.Log("[EnemyApproach] Telegraph tetiklendi.");
 
-        if (archetypeData == null)
+        if (!validated)
         {
-            Debug.LogError("[EnemyApproach] archetypeData yok!");
+            BreakInvalidSetup($"[EnemyApproach] {name}: validate edilmeden combat başlatılmaya çalışıldı.");
             return;
         }
 
-        if (archetypeData.fixedZonePattern == null || archetypeData.fixedZonePattern.Length == 0)
+        WeakpointZone[] builtPattern = archetypeData.BuildPattern();
+        if (builtPattern == null || builtPattern.Length == 0)
         {
-            Debug.LogError("[EnemyApproach] archetypeData.fixedZonePattern boş!");
+            BreakInvalidSetup($"[EnemyApproach] {name}: BuildPattern boş döndü!");
             return;
         }
 
-        combatDirector.StartCombatSequence(new List<WeakpointZone>(archetypeData.fixedZonePattern));
+        directionView?.BindEnemyAnchors(weakpointAnchors);
+        combatDirector.StartCombatSequence(new List<WeakpointZone>(builtPattern));
         currentState = State.WaitingForResult;
     }
 
