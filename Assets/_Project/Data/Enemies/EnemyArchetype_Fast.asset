@@ -13,11 +13,11 @@ MonoBehaviour:
   m_Name: EnemyArchetype_Fast
   m_EditorClassIdentifier: Assembly-CSharp::EnemyArchetypeData
   archetypeType: 1
-  patternComplexity: 1
+  patternComplexity: 2
   approachBehaviorType: 2
-  punishBehaviorType: 0
-  deathBehaviorType: 0
-  approachSpeed: 15
+  punishBehaviorType: 2
+  deathBehaviorType: 1
+  approachSpeed: 8
   telegraphTriggerDistance: 6.5
   deathPauseSeconds: 0.9
   respawnDelaySeconds: 0.45
@@ -44,3 +44,4 @@ MonoBehaviour:
   - zone: 6
     enabled: 1
     weight: 1
+  debugLogGeneratedPattern: 1

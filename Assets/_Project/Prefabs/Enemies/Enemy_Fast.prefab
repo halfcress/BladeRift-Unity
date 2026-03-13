@@ -656,6 +656,14 @@ MonoBehaviour:
   directionView: {fileID: 0}
   spawnPosition: {x: 0, y: 1.2, z: 30}
   stopPosition: {x: 0, y: 1.2, z: 6.5}
+  sideLeanAmplitude: 0.8
+  sideLeanFrequency: 4
+  dashSlowMultiplier: 0.9
+  dashBurstMultiplier: 1.9
+  dashBurstDistance: 3
+  heavyWalkBaseMultiplier: 0.72
+  heavyWalkPulseAmplitude: 0.28
+  heavyWalkPulseFrequency: 1.8
   rageHitPadding: 1.3
   currentState: 0
 --- !u!114 &-1125473084101262421

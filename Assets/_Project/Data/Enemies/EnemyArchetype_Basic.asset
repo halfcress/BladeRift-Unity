@@ -15,7 +15,7 @@ MonoBehaviour:
   archetypeType: 0
   patternComplexity: 0
   approachBehaviorType: 0
-  punishBehaviorType: 0
+  punishBehaviorType: 1
   deathBehaviorType: 0
   approachSpeed: 8
   telegraphTriggerDistance: 8
@@ -44,3 +44,4 @@ MonoBehaviour:
   - zone: 6
     enabled: 1
     weight: 1
+  debugLogGeneratedPattern: 1

@@ -17,7 +17,8 @@ public enum EnemyPatternComplexity
 {
     Simple,
     Standard,
-    Dense
+    Dense,
+    
 }
 
 public enum EnemyApproachBehaviorType
@@ -272,6 +273,7 @@ public class EnemyArchetypeData : ScriptableObject
             EnemyPatternComplexity.Simple => Mathf.Clamp(controlledPatternLength, 2, 3),
             EnemyPatternComplexity.Standard => Mathf.Clamp(controlledPatternLength, 2, 4),
             EnemyPatternComplexity.Dense => Mathf.Clamp(controlledPatternLength, 3, 6),
+
             _ => Mathf.Clamp(controlledPatternLength, 2, 6)
         };
     }
@@ -376,6 +378,7 @@ public class EnemyArchetypeData : ScriptableObject
                 if (isTorso) weight *= 1.25f;
                 if (isChest) weight *= 0.9f;
                 break;
+
         }
 
         return Mathf.Max(0f, weight);

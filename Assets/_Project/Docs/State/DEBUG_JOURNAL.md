@@ -267,3 +267,25 @@
 
 ### Decision
 - [ ] Sonraki adim
+
+
+## 2026-03-13 20:19:30 - Compile Error Detected
+
+### Problem
+- Unity compile hatasi tespit edildi.
+- Hata detaylari icin Console penceresini kontrol et.
+
+### Context
+- Commit: 07b5490
+- Commit message: Archetype fixes.
+
+### Attempts
+- [ ] Console hatalarini incele
+- [ ] Ilgili .cs dosyasini duzelt
+
+### Result
+- [ ] Fail
+- [ ] Fixed
+
+### Decision
+- [ ] Sonraki adim
