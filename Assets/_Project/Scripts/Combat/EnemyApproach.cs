@@ -1,3 +1,5 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -13,15 +15,10 @@ public class EnemyApproach : MonoBehaviour
     [Header("Approach Settings")]
     [SerializeField] private Vector3 spawnPosition = new Vector3(0f, 0f, 30f);
     [SerializeField] private Vector3 stopPosition = new Vector3(0f, 0f, 6f);
-    [SerializeField] private float approachSpeed = 4f;
-    [SerializeField] private float telegraphTriggerDistance = 8f;
-
-   
 
     [Header("Rage Hit")]
     [Tooltip("Silüet hit alanını genişletme çarpanı. 1.0 = tam bounds, 1.3 = %30 padding")]
     [SerializeField] private float rageHitPadding = 1.3f;
-
 
     [Header("State (Read-only)")]
     [SerializeField] private State currentState = State.Idle;
@@ -34,7 +31,8 @@ public class EnemyApproach : MonoBehaviour
     {
         if (combatDirector == null)
             combatDirector = FindFirstObjectByType<CombatDirector>();
-            spawner = FindFirstObjectByType<EnemySpawner>();
+
+        spawner = FindFirstObjectByType<EnemySpawner>();
         cachedRenderer = GetComponentInChildren<Renderer>();
     }
 
@@ -78,8 +76,6 @@ public class EnemyApproach : MonoBehaviour
             TriggerTelegraph();
     }
 
-    // --- Public: Rage hit testi için ekran sınırları ---
-
     /// <summary>
     /// Düşmanın Renderer bounds'unun 8 köşesini ekrana projekte ederek
     /// gerçek ekran Rect'ini döndürür.
@@ -91,8 +87,6 @@ public class EnemyApproach : MonoBehaviour
         if (cam == null || cachedRenderer == null) return false;
 
         Bounds bounds = cachedRenderer.bounds;
-
-        // Bounds'un 8 köşesini hesapla
         Vector3 center = bounds.center;
         Vector3 extents = bounds.extents;
 
@@ -106,7 +100,6 @@ public class EnemyApproach : MonoBehaviour
         corners[6] = center + new Vector3(extents.x, extents.y, -extents.z);
         corners[7] = center + new Vector3(extents.x, extents.y, extents.z);
 
-        // Her köşeyi ekran koordinatına çevir
         float minX = float.MaxValue;
         float maxX = float.MinValue;
         float minY = float.MaxValue;
@@ -115,8 +108,6 @@ public class EnemyApproach : MonoBehaviour
         for (int i = 0; i < 8; i++)
         {
             Vector3 sp = cam.WorldToScreenPoint(corners[i]);
-
-            // Kameranın arkasındaysa geçersiz
             if (sp.z < 0f) return false;
 
             if (sp.x < minX) minX = sp.x;
@@ -125,18 +116,14 @@ public class EnemyApproach : MonoBehaviour
             if (sp.y > maxY) maxY = sp.y;
         }
 
-        // Padding uygula — hit alanını biraz genişlet
         float w = maxX - minX;
         float h = maxY - minY;
         float padW = w * (rageHitPadding - 1f) * 0.5f;
         float padH = h * (rageHitPadding - 1f) * 0.5f;
 
         screenRect = new Rect(minX - padW, minY - padH, w + padW * 2f, h + padH * 2f);
-
         return true;
     }
-
-    // --- Internal ---
 
     private void StartApproach()
     {
@@ -156,16 +143,13 @@ public class EnemyApproach : MonoBehaviour
             return;
         }
 
-        if (archetypeData.pattern == null || archetypeData.pattern.Length == 0)
+        if (archetypeData.fixedZonePattern == null || archetypeData.fixedZonePattern.Length == 0)
         {
-            Debug.LogError("[EnemyApproach] archetypeData.pattern bos!");
+            Debug.LogError("[EnemyApproach] archetypeData.fixedZonePattern boş!");
             return;
         }
 
-        combatDirector.StartCombatSequence(
-            new System.Collections.Generic.List<WeakpointDirection>(archetypeData.pattern)
-        );
-
+        combatDirector.StartCombatSequence(new List<WeakpointZone>(archetypeData.fixedZonePattern));
         currentState = State.WaitingForResult;
     }
 
@@ -176,7 +160,7 @@ public class EnemyApproach : MonoBehaviour
         StartCoroutine(DeathThenDespawn());
     }
 
-    private System.Collections.IEnumerator DeathThenDespawn()
+    private IEnumerator DeathThenDespawn()
     {
         if (cachedRenderer != null)
         {
@@ -192,6 +176,7 @@ public class EnemyApproach : MonoBehaviour
         spawner?.OnEnemyKilledImmediate();
         Destroy(gameObject);
     }
+
     public void SetRageVisual(bool rageActive)
     {
         Transform outline = transform.Find("OutlineQuad");
@@ -205,7 +190,7 @@ public class EnemyApproach : MonoBehaviour
         StartCoroutine(PunishFlash());
     }
 
-    private System.Collections.IEnumerator PunishFlash()
+    private IEnumerator PunishFlash()
     {
         if (cachedRenderer != null)
         {
@@ -220,9 +205,12 @@ public class EnemyApproach : MonoBehaviour
     {
         Gizmos.color = Color.blue;
         Gizmos.DrawWireSphere(spawnPosition, 0.3f);
+
         Gizmos.color = Color.green;
         Gizmos.DrawWireSphere(stopPosition, 0.3f);
+
+        float telegraphDistance = archetypeData != null ? archetypeData.telegraphTriggerDistance : 8f;
         Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(new Vector3(stopPosition.x, stopPosition.y, telegraphTriggerDistance), 0.3f);
+        Gizmos.DrawWireSphere(new Vector3(stopPosition.x, stopPosition.y, telegraphDistance), 0.3f);
     }
 }

@@ -8,7 +8,7 @@ using UnityEngine;
 /// Telegraph akisi:
 ///   1) TelegraphReveal: marker'lar sirayla belirir (1 -> 1+2 -> 1+2+3)
 ///   2) TelegraphHold:   hepsi birlikte kisa sure durur
-///   3) ExecutionWindow: sadece 1. weakpoint kalir, oyuncu swipe yapar
+///   3) ExecutionWindow: sadece aktif weakpoint kalir, oyuncu swipe yapar
 ///
 /// Retry akisi (telegraph olmadan):
 ///   - StartExecutionDirectly() ile dogrudan ExecutionWindow'a geçilir
@@ -19,16 +19,12 @@ using UnityEngine;
 /// </summary>
 public class WeakpointSequence : MonoBehaviour
 {
-    // ─── Events ──────────────────────────────────────────────────────────
-
     public event Action<int> OnTelegraphStep;
     public event Action<float> OnExecutionWindowStart;
     public event Action OnExecutionWindowEnd;
     public event Action<int> OnChainAdvance;
     public event Action OnChainSuccess;
     public event Action<string> OnChainFail;
-
-    // ─── Inspector ───────────────────────────────────────────────────────
 
     [Header("Referanslar")]
     [SerializeField] private WeakpointDirectionView directionView;
@@ -41,7 +37,7 @@ public class WeakpointSequence : MonoBehaviour
     [SerializeField] private float telegraphHoldSeconds = 1f;
 
     [Header("Chain (Read-only)")]
-    [SerializeField] private List<WeakpointDirection> chain = new();
+    [SerializeField] private List<WeakpointZone> chain = new();
     [SerializeField] private int currentIndex = 0;
 
     [Header("State (Read-only)")]
@@ -49,74 +45,54 @@ public class WeakpointSequence : MonoBehaviour
     [SerializeField] private float phaseTimer = 0f;
     [SerializeField] private int revealedCount = 0;
 
-    // ─── Enum ────────────────────────────────────────────────────────────
-
     public enum Phase { Idle, TelegraphReveal, TelegraphHold, ExecutionWindow, Done }
-
-    // ─── Properties ──────────────────────────────────────────────────────
 
     public Phase CurrentPhase => currentPhase;
     public int CurrentIndex => currentIndex;
     public int ChainLength => chain.Count;
 
-    public WeakpointDirection CurrentTarget =>
-        (currentIndex < chain.Count) ? chain[currentIndex] : WeakpointDirection.None;
+    public WeakpointZone CurrentTarget =>
+        (currentIndex < chain.Count) ? chain[currentIndex] : WeakpointZone.None;
 
-    // ─── Public API ──────────────────────────────────────────────────────
-
-    /// <summary>
-    /// Telegraph dahil tam akisi baslatir. Yeni dusmanlar icin kullanilir.
-    /// </summary>
-    public void StartSequence(List<WeakpointDirection> directions)
+    public void StartSequence(List<WeakpointZone> zones)
     {
-        if (directions == null || directions.Count == 0)
+        if (zones == null || zones.Count == 0)
         {
             Debug.LogWarning("WeakpointSequence: Bos zincir baslatılamaz.");
             return;
         }
 
-        chain = new List<WeakpointDirection>(directions);
+        chain = new List<WeakpointZone>(zones);
         currentIndex = 0;
         revealedCount = 0;
         phaseTimer = 0f;
         currentPhase = Phase.TelegraphReveal;
 
         directionView?.HideAll();
-
-        // Ilk marker'i hemen goster
         RevealNextMarker();
 
         Debug.Log($"WeakpointSequence: Zincir basladi (telegraph). Adim={chain.Count}");
     }
 
-    /// <summary>
-    /// Telegraph olmadan dogrudan ExecutionWindow'a gecer.
-    /// Fail sonrasi retry icin kullanilir.
-    /// </summary>
-    public void StartExecutionDirectly(List<WeakpointDirection> directions)
+    public void StartExecutionDirectly(List<WeakpointZone> zones)
     {
-        if (directions == null || directions.Count == 0)
+        if (zones == null || zones.Count == 0)
         {
             Debug.LogWarning("WeakpointSequence: Bos zincir.");
             return;
         }
 
-        chain = new List<WeakpointDirection>(directions);
+        chain = new List<WeakpointZone>(zones);
         currentIndex = 0;
-        revealedCount = chain.Count; // telegraph atlandigi icin tamam say
+        revealedCount = chain.Count;
         phaseTimer = 0f;
 
         directionView?.HideAll();
-
         OpenExecutionWindow();
 
         Debug.Log($"WeakpointSequence: Dogrudan execution basladi (retry). Adim={chain.Count}");
     }
 
-    /// <summary>
-    /// CombatDirector'dan dogrudan hit bildirimi.
-    /// Normal execution icin: tek weakpoint ilerletir.
-    /// </summary>
     public void SubmitHit()
     {
         if (currentPhase != Phase.ExecutionWindow) return;
@@ -131,10 +107,6 @@ public class WeakpointSequence : MonoBehaviour
             ShowExecutionTarget();
     }
 
-    /// <summary>
-    /// Rage hit icin: tum chain'i atlayip direkt success uretir.
-    /// Tek slash ile aninda execution tamamlanir.
-    /// </summary>
     public void ForceCompleteChain()
     {
         if (currentPhase != Phase.ExecutionWindow) return;
@@ -144,9 +116,6 @@ public class WeakpointSequence : MonoBehaviour
         CompleteChain();
     }
 
-    /// <summary>
-    /// CombatDirector finger-lift tespiti yaptiginda bu metotu cagirir.
-    /// </summary>
     public void ForceFailExternal(string reason)
     {
         if (currentPhase != Phase.ExecutionWindow) return;
@@ -164,8 +133,6 @@ public class WeakpointSequence : MonoBehaviour
         directionView?.HideAll();
     }
 
-    // ─── Update ──────────────────────────────────────────────────────────
-
     private void Update()
     {
         if (config == null) return;
@@ -174,9 +141,15 @@ public class WeakpointSequence : MonoBehaviour
 
         switch (currentPhase)
         {
-            case Phase.TelegraphReveal: UpdateTelegraphReveal(); break;
-            case Phase.TelegraphHold: UpdateTelegraphHold(); break;
-            case Phase.ExecutionWindow: UpdateExecutionWindow(); break;
+            case Phase.TelegraphReveal:
+                UpdateTelegraphReveal();
+                break;
+            case Phase.TelegraphHold:
+                UpdateTelegraphHold();
+                break;
+            case Phase.ExecutionWindow:
+                UpdateExecutionWindow();
+                break;
         }
     }
 
@@ -203,8 +176,6 @@ public class WeakpointSequence : MonoBehaviour
             FailChain("Timeout");
     }
 
-    // ─── Internal ────────────────────────────────────────────────────────
-
     private void RevealNextMarker()
     {
         if (directionView == null || revealedCount >= chain.Count) return;
@@ -212,7 +183,7 @@ public class WeakpointSequence : MonoBehaviour
         directionView.ShowTelegraphStep(revealedCount, chain[revealedCount]);
         OnTelegraphStep?.Invoke(revealedCount);
         AudioManager.Instance?.PlayTelegraphStep();
-        Debug.Log($"WeakpointSequence: Telegraph goster index={revealedCount} dir={chain[revealedCount]}");
+        Debug.Log($"WeakpointSequence: Telegraph goster index={revealedCount} zone={chain[revealedCount]}");
 
         revealedCount++;
     }
@@ -233,7 +204,6 @@ public class WeakpointSequence : MonoBehaviour
         Time.timeScale = config.timeScaleDuringExecution;
 
         ShowExecutionTarget();
-
         OnExecutionWindowStart?.Invoke(config.executionWindowSeconds);
         Debug.Log($"WeakpointSequence: ExecutionWindow acildi. Sure={config.executionWindowSeconds}s");
     }
@@ -241,7 +211,6 @@ public class WeakpointSequence : MonoBehaviour
     private void ShowExecutionTarget()
     {
         if (directionView == null) return;
-        // Sadece siradaki aktif marker gorunur, diğerleri gizli
         directionView.HideAll();
         directionView.ShowTelegraphStep(currentIndex, CurrentTarget);
     }

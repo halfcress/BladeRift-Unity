@@ -223,3 +223,47 @@
 
 ### Decision
 - [ ] Sonraki adim
+
+
+## 2026-03-13 12:08:45 - Compile Error Detected
+
+### Problem
+- Unity compile hatasi tespit edildi.
+- Hata detaylari icin Console penceresini kontrol et.
+
+### Context
+- Commit: 9cfbd56
+- Commit message: Ignore Claude snapshot generated files
+
+### Attempts
+- [ ] Console hatalarini incele
+- [ ] Ilgili .cs dosyasini duzelt
+
+### Result
+- [ ] Fail
+- [ ] Fixed
+
+### Decision
+- [ ] Sonraki adim
+
+
+## 2026-03-13 12:10:51 - Compile Error Detected
+
+### Problem
+- Unity compile hatasi tespit edildi.
+- Hata detaylari icin Console penceresini kontrol et.
+
+### Context
+- Commit: 9cfbd56
+- Commit message: Ignore Claude snapshot generated files
+
+### Attempts
+- [ ] Console hatalarini incele
+- [ ] Ilgili .cs dosyasini duzelt
+
+### Result
+- [ ] Fail
+- [ ] Fixed
+
+### Decision
+- [ ] Sonraki adim

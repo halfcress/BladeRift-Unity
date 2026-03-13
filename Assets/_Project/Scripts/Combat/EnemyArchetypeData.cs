@@ -22,5 +22,7 @@ public class EnemyArchetypeData : ScriptableObject
     public float respawnDelaySeconds = 1f;
     public float deathFlashDuration = 0.3f;
 
-    public WeakpointDirection[] pattern;
+    [Header("Weakpoint Pattern (Bridge)")]
+    [Tooltip("Geçici bridge veri. Controlled-random gelene kadar sabit zone dizisi kullanılır.")]
+    public WeakpointZone[] fixedZonePattern;
 }

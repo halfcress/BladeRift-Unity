@@ -38,10 +38,9 @@ public class CombatDirector : MonoBehaviour
     public bool IsCombatActive => combatActive;
     public bool IsWaitingForRetry => waitingForRetry;
 
-    private List<WeakpointDirection> activeChain = new List<WeakpointDirection>();
+    private List<WeakpointZone> activeChain = new();
     private bool hitRegisteredThisTarget = false;
     private bool waitingForRetry = false;
-
 
     private void Awake()
     {
@@ -59,6 +58,7 @@ public class CombatDirector : MonoBehaviour
             enemyApproach = FindFirstObjectByType<EnemyApproach>();
         if (mainCamera == null)
             mainCamera = Camera.main;
+
         Debug.Log("[CombatDirector] Awake OK.");
     }
 
@@ -89,8 +89,7 @@ public class CombatDirector : MonoBehaviour
         if (weakpointSequence.CurrentPhase != WeakpointSequence.Phase.ExecutionWindow) return;
 
         bool isRage = rageManager != null && rageManager.IsRageActive;
-        
-        // --- Finger-lift fail ---
+
         if (firstTouchMade && !swipeInput.IsDown)
         {
             weakpointSequence.ForceFailExternal("FingerLift");
@@ -99,13 +98,10 @@ public class CombatDirector : MonoBehaviour
 
         if (!swipeInput.IsDown) return;
 
-        // --- Hareket var mi? ---
         Vector2 delta = swipeInput.RawDeltaPx;
         float requiredDelta = isRage ? rageMinDeltaPx : minDeltaPx;
         if (delta.magnitude < requiredDelta) return;
 
-
-        // ===== NORMAL HIT =====
         if (directionView == null) return;
 
         Vector2 markerScreenPos;
@@ -140,15 +136,12 @@ public class CombatDirector : MonoBehaviour
         weakpointSequence.SubmitHit();
     }
 
-    // --- Event handlers ---
-
     private void HandleExecutionWindowStart(float duration)
     {
         executionOpen = true;
         firstTouchMade = false;
         hitRegisteredThisTarget = false;
         Debug.Log("[CombatDirector] Execution acildi.");
-
     }
 
     private void HandleChainAdvance(int newIndex)
@@ -181,7 +174,7 @@ public class CombatDirector : MonoBehaviour
 
         comboManager?.RegisterTimeout();
         rageManager?.ResetRage();
-        
+
         enemyApproach?.SetRageVisual(false);
         FeedbackManager.Instance?.PlayFailFeedback();
         AudioManager.Instance?.PlayFailPunish();
@@ -206,9 +199,7 @@ public class CombatDirector : MonoBehaviour
         weakpointSequence.StartExecutionDirectly(activeChain);
     }
 
-    // --- Public API ---
-
-    public void StartCombatSequence(List<WeakpointDirection> chain)
+    public void StartCombatSequence(List<WeakpointZone> chain)
     {
         if (weakpointSequence == null)
         {
@@ -218,15 +209,14 @@ public class CombatDirector : MonoBehaviour
 
         bool isRage = rageManager != null && rageManager.IsRageActive;
 
-        // Rage aktifken chain'i tek elemanlı yap — silüet = tek weakpoint
         if (isRage)
         {
-            activeChain = new List<WeakpointDirection> { WeakpointDirection.Up };
+            activeChain = new List<WeakpointZone> { WeakpointZone.Chest };
             Debug.Log("[CombatDirector] RAGE: Tek rage weakpoint kullanılacak.");
         }
         else
         {
-            activeChain = new List<WeakpointDirection>(chain);
+            activeChain = new List<WeakpointZone>(chain);
         }
 
         combatActive = true;

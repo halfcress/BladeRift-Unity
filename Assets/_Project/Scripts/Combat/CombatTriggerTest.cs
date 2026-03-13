@@ -1,31 +1,26 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// SADECE TEST AMACLI. Nihai sistem değildir.
-/// Play'e basınca 1 saniye bekler, sonra otomatik bir zincir başlatır.
-/// Konsol loglarını izleyerek hit/miss test edebilirsin.
+/// Editor / scene icinde combat zincirini manuel tetiklemek icin basit test scripti.
+/// Direction yerine Zone domain'i ile calisir.
 /// </summary>
 public class CombatTriggerTest : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] private CombatDirector combatDirector;
 
-    [Header("Test Chain")]
-    [SerializeField] private List<WeakpointDirection> testChain = new List<WeakpointDirection>
+    [Header("Test Pattern")]
+    [SerializeField] private WeakpointZone[] testPattern =
     {
-        WeakpointDirection.Right,
-        WeakpointDirection.Up,
-        WeakpointDirection.Left
+        WeakpointZone.Chest,
+        WeakpointZone.LeftShoulder,
+        WeakpointZone.RightShoulder
     };
 
-    [Header("Settings")]
-    [Tooltip("Play'den kaç saniye sonra zincir baslasin.")]
-    [SerializeField] private float delaySeconds = 1.5f;
-
-    [Tooltip("Zincir bitince kaç saniye sonra yeniden baslasin. 0 = tekrar baslatma.")]
-    [SerializeField] private float repeatAfterSeconds = 3f;
+    [Header("Input")]
+    [SerializeField] private KeyCode triggerKey = KeyCode.T;
+    [SerializeField] private bool triggerOnStart = false;
 
     private void Awake()
     {
@@ -35,31 +30,32 @@ public class CombatTriggerTest : MonoBehaviour
 
     private void Start()
     {
-        StartCoroutine(TriggerLoop());
+        if (triggerOnStart)
+            Trigger();
     }
 
-private IEnumerator TriggerLoop()
+    private void Update()
     {
-        while (true)
+        if (Input.GetKeyDown(triggerKey))
+            Trigger();
+    }
+
+    [ContextMenu("Trigger Combat Test")]
+    public void Trigger()
+    {
+        if (combatDirector == null)
         {
-            yield return new WaitForSecondsRealtime(delaySeconds);
-
-            Debug.Log("CombatTriggerTest: Zincir baslatiliyor...");
-            combatDirector.StartCombatSequence(new List<WeakpointDirection>(testChain));
-
-            // Zincir bitene kadar bekle (Done veya Idle olana kadar)
-            yield return new WaitUntil(() =>
-            {
-                var seq = combatDirector.GetSequence();
-                if (seq == null) return true;
-                var phase = seq.CurrentPhase;
-                return !combatDirector.IsCombatActive && !combatDirector.IsWaitingForRetry;
-            });
-
-            if (repeatAfterSeconds <= 0f)
-                yield break;
-
-            yield return new WaitForSecondsRealtime(repeatAfterSeconds);
+            Debug.LogError("[CombatTriggerTest] CombatDirector yok!");
+            return;
         }
+
+        if (testPattern == null || testPattern.Length == 0)
+        {
+            Debug.LogError("[CombatTriggerTest] testPattern bos!");
+            return;
+        }
+
+        combatDirector.StartCombatSequence(new List<WeakpointZone>(testPattern));
+        Debug.Log($"[CombatTriggerTest] Test chain tetiklendi. Count={testPattern.Length}");
     }
 }
