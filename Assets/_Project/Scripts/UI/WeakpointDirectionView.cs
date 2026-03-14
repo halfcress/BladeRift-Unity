@@ -30,22 +30,31 @@ public class WeakpointDirectionView : MonoBehaviour
     private class MarkerParts
     {
         public RectTransform root;
-        public RectTransform coreRect;
-        public RectTransform innerRingRect;
-        public RectTransform outerRingRect;
+        public RectTransform backplateRect;
         public RectTransform glowRect;
+        public RectTransform coronaARect;
+        public RectTransform coronaBRect;
+        public RectTransform outerRingRect;
+        public RectTransform innerRingRect;
+        public RectTransform coreRect;
         public RectTransform shimmerRect;
 
-        public Image coreImage;
-        public Image innerRingImage;
-        public Image outerRingImage;
+        public Image backplateImage;
         public Image glowImage;
+        public Image coronaAImage;
+        public Image coronaBImage;
+        public Image outerRingImage;
+        public Image innerRingImage;
+        public Image coreImage;
         public Image shimmerImage;
 
-        public Vector3 coreBaseScale = Vector3.one;
-        public Vector3 innerBaseScale = Vector3.one;
-        public Vector3 outerBaseScale = Vector3.one;
+        public Vector3 backplateBaseScale = Vector3.one;
         public Vector3 glowBaseScale = Vector3.one;
+        public Vector3 coronaABaseScale = Vector3.one;
+        public Vector3 coronaBBaseScale = Vector3.one;
+        public Vector3 outerBaseScale = Vector3.one;
+        public Vector3 innerBaseScale = Vector3.one;
+        public Vector3 coreBaseScale = Vector3.one;
         public Vector3 shimmerBaseScale = Vector3.one;
 
         public WeakpointZone zone = WeakpointZone.None;
@@ -129,26 +138,53 @@ public class WeakpointDirectionView : MonoBehaviour
 
             MarkerParts parts = new MarkerParts();
             parts.root = root;
-            parts.coreRect = root.Find("Core") as RectTransform;
-            parts.innerRingRect = root.Find("InnerRing") as RectTransform;
-            parts.outerRingRect = root.Find("OuterRing") as RectTransform;
+            parts.backplateRect = root.Find("Backplate") as RectTransform;
             parts.glowRect = root.Find("Glow") as RectTransform;
+            parts.coronaARect = FindOptionalRect(root, "CoronaA", "FlameA");
+            parts.coronaBRect = FindOptionalRect(root, "CoronaB", "FlameB");
+            parts.outerRingRect = root.Find("OuterRing") as RectTransform;
+            parts.innerRingRect = root.Find("InnerRing") as RectTransform;
+            parts.coreRect = root.Find("Core") as RectTransform;
             parts.shimmerRect = root.Find("Shimmer") as RectTransform;
 
-            parts.coreImage = parts.coreRect != null ? parts.coreRect.GetComponent<Image>() : null;
-            parts.innerRingImage = parts.innerRingRect != null ? parts.innerRingRect.GetComponent<Image>() : null;
-            parts.outerRingImage = parts.outerRingRect != null ? parts.outerRingRect.GetComponent<Image>() : null;
-            parts.glowImage = parts.glowRect != null ? parts.glowRect.GetComponent<Image>() : null;
-            parts.shimmerImage = parts.shimmerRect != null ? parts.shimmerRect.GetComponent<Image>() : null;
+            parts.backplateImage = GetImage(parts.backplateRect);
+            parts.glowImage = GetImage(parts.glowRect);
+            parts.coronaAImage = GetImage(parts.coronaARect);
+            parts.coronaBImage = GetImage(parts.coronaBRect);
+            parts.outerRingImage = GetImage(parts.outerRingRect);
+            parts.innerRingImage = GetImage(parts.innerRingRect);
+            parts.coreImage = GetImage(parts.coreRect);
+            parts.shimmerImage = GetImage(parts.shimmerRect);
 
-            parts.coreBaseScale = parts.coreRect != null ? parts.coreRect.localScale : Vector3.one;
-            parts.innerBaseScale = parts.innerRingRect != null ? parts.innerRingRect.localScale : Vector3.one;
-            parts.outerBaseScale = parts.outerRingRect != null ? parts.outerRingRect.localScale : Vector3.one;
-            parts.glowBaseScale = parts.glowRect != null ? parts.glowRect.localScale : Vector3.one;
-            parts.shimmerBaseScale = parts.shimmerRect != null ? parts.shimmerRect.localScale : Vector3.one;
+            parts.backplateBaseScale = GetBaseScale(parts.backplateRect);
+            parts.glowBaseScale = GetBaseScale(parts.glowRect);
+            parts.coronaABaseScale = GetBaseScale(parts.coronaARect);
+            parts.coronaBBaseScale = GetBaseScale(parts.coronaBRect);
+            parts.outerBaseScale = GetBaseScale(parts.outerRingRect);
+            parts.innerBaseScale = GetBaseScale(parts.innerRingRect);
+            parts.coreBaseScale = GetBaseScale(parts.coreRect);
+            parts.shimmerBaseScale = GetBaseScale(parts.shimmerRect);
 
             markers.Add(parts);
         }
+    }
+
+    private static RectTransform FindOptionalRect(RectTransform root, string primary, string fallback)
+    {
+        RectTransform rect = root.Find(primary) as RectTransform;
+        if (rect != null)
+            return rect;
+        return root.Find(fallback) as RectTransform;
+    }
+
+    private static Image GetImage(RectTransform rect)
+    {
+        return rect != null ? rect.GetComponent<Image>() : null;
+    }
+
+    private static Vector3 GetBaseScale(RectTransform rect)
+    {
+        return rect != null ? rect.localScale : Vector3.one;
     }
 
     public void BindEnemyAnchors(EnemyWeakpointAnchors anchors)
@@ -215,6 +251,7 @@ public class WeakpointDirectionView : MonoBehaviour
     {
         if (markerIndex < 0 || markerIndex >= markers.Count) return;
         if (zone == WeakpointZone.None) return;
+
         if (boundAnchors == null)
         {
             Debug.LogError("[WeakpointDirectionView] EnemyWeakpointAnchors bağlanmamış. Marker gösterilemiyor.", this);
@@ -277,24 +314,29 @@ public class WeakpointDirectionView : MonoBehaviour
     {
         if (profile == null) return;
 
-        SetImage(parts.coreImage, profile.baseColor, profile.baseAlpha);
-        SetImage(parts.innerRingImage, profile.ringColor, profile.ringAlpha);
-        SetImage(parts.outerRingImage, profile.ringColor, profile.outerRingAlpha);
+        SetImage(parts.backplateImage, profile.backplateColor, profile.backplateAlpha);
         SetImage(parts.glowImage, profile.glowColor, profile.glowAlpha);
+        SetImage(parts.coronaAImage, profile.coronaAColor, profile.coronaAAlpha);
+        SetImage(parts.coronaBImage, profile.coronaBColor, profile.coronaBAlpha);
+        SetImage(parts.outerRingImage, profile.ringColor, profile.outerRingAlpha);
+        SetImage(parts.innerRingImage, profile.ringColor, profile.ringAlpha);
+        SetImage(parts.coreImage, profile.baseColor, profile.baseAlpha);
         SetImage(parts.shimmerImage, profile.shimmerColor, profile.shimmerAlpha);
 
-        if (parts.coreRect != null) parts.coreRect.localScale = parts.coreBaseScale * profile.scale;
-        if (parts.innerRingRect != null) parts.innerRingRect.localScale = parts.innerBaseScale * profile.scale;
+        if (parts.backplateRect != null) parts.backplateRect.localScale = parts.backplateBaseScale * (profile.backplateScale * profile.scale);
+        if (parts.glowRect != null) parts.glowRect.localScale = parts.glowBaseScale * (profile.glowScale * profile.scale);
+        if (parts.coronaARect != null) parts.coronaARect.localScale = parts.coronaABaseScale * (profile.coronaAScale * profile.scale);
+        if (parts.coronaBRect != null) parts.coronaBRect.localScale = parts.coronaBBaseScale * (profile.coronaBScale * profile.scale);
         if (parts.outerRingRect != null) parts.outerRingRect.localScale = parts.outerBaseScale * profile.scale;
-        if (parts.glowRect != null) parts.glowRect.localScale = parts.glowBaseScale * profile.glowScale * profile.scale;
+        if (parts.innerRingRect != null) parts.innerRingRect.localScale = parts.innerBaseScale * profile.scale;
+        if (parts.coreRect != null) parts.coreRect.localScale = parts.coreBaseScale * profile.scale;
         if (parts.shimmerRect != null) parts.shimmerRect.localScale = parts.shimmerBaseScale * profile.scale;
 
-        if (parts.innerRingRect != null)
-            parts.innerRingRect.localRotation = Quaternion.identity;
-        if (parts.outerRingRect != null)
-            parts.outerRingRect.localRotation = Quaternion.identity;
-        if (parts.shimmerRect != null)
-            parts.shimmerRect.localRotation = Quaternion.identity;
+        if (parts.coronaARect != null) parts.coronaARect.localRotation = Quaternion.identity;
+        if (parts.coronaBRect != null) parts.coronaBRect.localRotation = Quaternion.identity;
+        if (parts.outerRingRect != null) parts.outerRingRect.localRotation = Quaternion.identity;
+        if (parts.innerRingRect != null) parts.innerRingRect.localRotation = Quaternion.identity;
+        if (parts.shimmerRect != null) parts.shimmerRect.localRotation = Quaternion.identity;
     }
 
     private void UpdateMarkerAnimations(float time)
@@ -316,18 +358,48 @@ public class WeakpointDirectionView : MonoBehaviour
                 pulse += Mathf.Lerp(-profile.pulseAmplitude, profile.pulseAmplitude, t);
             }
 
-            if (parts.coreRect != null) parts.coreRect.localScale = parts.coreBaseScale * (profile.scale * pulse);
-            if (parts.innerRingRect != null) parts.innerRingRect.localScale = parts.innerBaseScale * (profile.scale * pulse);
-            if (parts.outerRingRect != null) parts.outerRingRect.localScale = parts.outerBaseScale * (profile.scale * pulse);
+            float coronaPulse = 1f;
+            if (profile.coronaPulseAmplitude > 0f && profile.coronaPulseSpeed > 0f)
+            {
+                float t = (Mathf.Sin(time * profile.coronaPulseSpeed * Mathf.PI * 2f) + 1f) * 0.5f;
+                coronaPulse += Mathf.Lerp(-profile.coronaPulseAmplitude, profile.coronaPulseAmplitude, t);
+            }
+
+            float flickerA = 1f;
+            float flickerB = 1f;
+            if (profile.coronaFlickerStrength > 0f && profile.coronaFlickerSpeed > 0f)
+            {
+                flickerA = 1f - profile.coronaFlickerStrength + profile.coronaFlickerStrength * (0.5f + 0.5f * Mathf.Sin(time * profile.coronaFlickerSpeed * 6.2831855f));
+                flickerB = 1f - profile.coronaFlickerStrength + profile.coronaFlickerStrength * (0.5f + 0.5f * Mathf.Sin((time * profile.coronaFlickerSpeed * 1.173f + 0.37f) * 6.2831855f));
+            }
+
+            if (parts.backplateRect != null) parts.backplateRect.localScale = parts.backplateBaseScale * (profile.backplateScale * profile.scale * pulse);
             if (parts.glowRect != null) parts.glowRect.localScale = parts.glowBaseScale * (profile.glowScale * profile.scale * pulse);
+
+            if (parts.coronaARect != null)
+                parts.coronaARect.localScale = parts.coronaABaseScale * (profile.coronaAScale * profile.scale * pulse * coronaPulse);
+            if (parts.coronaBRect != null)
+                parts.coronaBRect.localScale = parts.coronaBBaseScale * (profile.coronaBScale * profile.scale * pulse * coronaPulse);
+
+            if (parts.outerRingRect != null) parts.outerRingRect.localScale = parts.outerBaseScale * (profile.scale * pulse);
+            if (parts.innerRingRect != null) parts.innerRingRect.localScale = parts.innerBaseScale * (profile.scale * pulse);
+            if (parts.coreRect != null) parts.coreRect.localScale = parts.coreBaseScale * (profile.scale * pulse);
             if (parts.shimmerRect != null) parts.shimmerRect.localScale = parts.shimmerBaseScale * (profile.scale * pulse);
+
+            if (parts.coronaAImage != null)
+                SetImage(parts.coronaAImage, profile.coronaAColor, profile.coronaAAlpha * flickerA);
+            if (parts.coronaBImage != null)
+                SetImage(parts.coronaBImage, profile.coronaBColor, profile.coronaBAlpha * flickerB);
+
+            if (parts.coronaARect != null && Mathf.Abs(profile.coronaARotationSpeed) > 0.01f)
+                parts.coronaARect.localRotation = Quaternion.Euler(0f, 0f, time * profile.coronaARotationSpeed);
+            if (parts.coronaBRect != null && Mathf.Abs(profile.coronaBRotationSpeed) > 0.01f)
+                parts.coronaBRect.localRotation = Quaternion.Euler(0f, 0f, time * profile.coronaBRotationSpeed);
 
             if (parts.innerRingRect != null && Mathf.Abs(profile.innerRotationSpeed) > 0.01f)
                 parts.innerRingRect.localRotation = Quaternion.Euler(0f, 0f, time * profile.innerRotationSpeed);
-
             if (parts.outerRingRect != null && Mathf.Abs(profile.outerRotationSpeed) > 0.01f)
                 parts.outerRingRect.localRotation = Quaternion.Euler(0f, 0f, time * profile.outerRotationSpeed);
-
             if (parts.shimmerRect != null && profile.shimmerSweepSpeed > 0f)
                 parts.shimmerRect.localRotation = Quaternion.Euler(0f, 0f, time * profile.shimmerSweepSpeed);
         }
@@ -369,7 +441,7 @@ public class WeakpointDirectionView : MonoBehaviour
     {
         if (img == null) return;
         Color c = color;
-        c.a = alpha;
+        c.a = Mathf.Clamp01(alpha);
         img.color = c;
     }
 }

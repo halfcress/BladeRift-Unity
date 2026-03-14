@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 89e7c311ac60b7d479246f4826695fb0, type: 3}
   m_Name: GameConfig
   m_EditorClassIdentifier: Assembly-CSharp::GameConfig
-  executionWindowSeconds: 2
+  executionWindowSeconds: 2.2
   timeScaleDuringExecution: 0.8
-  telegraphStepSeconds: 0.08
+  telegraphStepSeconds: 0.1
   basicExecutionDamage: 100
   eliteExecutionDamage: 60
   bossExecutionDamage: 40
@@ -25,3 +25,259 @@ MonoBehaviour:
   rageDurationSeconds: 5
   weakpointJitterPx: 7
   activeWeakpointJitterMultiplier: 2
+  normalPreviewVisual:
+    backplateColor: {r: 0.07, g: 0.02, b: 0.02, a: 1}
+    backplateAlpha: 0
+    backplateScale: 1.5
+    baseColor: {r: 1, g: 0.96, b: 0.92, a: 1}
+    baseAlpha: 1
+    scale: 0.95
+    ringColor: {r: 1, g: 0.2, b: 0.08, a: 1}
+    ringAlpha: 1
+    outerRingAlpha: 0.18
+    glowColor: {r: 1, g: 0.18, b: 0.06, a: 1}
+    glowAlpha: 1
+    glowScale: 1.4
+    coronaAColor: {r: 1, g: 0.34, b: 0.1, a: 1}
+    coronaAAlpha: 0
+    coronaAScale: 1.55
+    coronaARotationSpeed: 24
+    coronaBColor: {r: 1, g: 0.83, b: 0.34, a: 1}
+    coronaBAlpha: 0
+    coronaBScale: 1.9
+    coronaBRotationSpeed: -18
+    coronaPulseAmplitude: 0
+    coronaPulseSpeed: 0
+    coronaFlickerStrength: 0
+    coronaFlickerSpeed: 0
+    shimmerColor: {r: 1, g: 1, b: 1, a: 1}
+    shimmerAlpha: 1
+    shimmerSweepSpeed: 0
+    pulseAmplitude: 0
+    pulseSpeed: 0
+    innerRotationSpeed: 10
+    outerRotationSpeed: -6
+  normalCurrentVisual:
+    backplateColor: {r: 0.11764706, g: 0.03137255, b: 0.03137255, a: 1}
+    backplateAlpha: 0.88
+    backplateScale: 1.18
+    baseColor: {r: 1, g: 1, b: 1, a: 1}
+    baseAlpha: 1
+    scale: 1.46
+    ringColor: {r: 1, g: 0.972549, b: 0.9411765, a: 1}
+    ringAlpha: 1
+    outerRingAlpha: 0.78
+    glowColor: {r: 1, g: 0.26666668, b: 0.2, a: 1}
+    glowAlpha: 0.62
+    glowScale: 1.18
+    coronaAColor: {r: 1, g: 0.34, b: 0.1, a: 1}
+    coronaAAlpha: 0.96
+    coronaAScale: 1.54
+    coronaARotationSpeed: 26
+    coronaBColor: {r: 1, g: 0.83, b: 0.34, a: 1}
+    coronaBAlpha: 0.62
+    coronaBScale: 1.9
+    coronaBRotationSpeed: -20
+    coronaPulseAmplitude: 0.09
+    coronaPulseSpeed: 2.05
+    coronaFlickerStrength: 0.18
+    coronaFlickerSpeed: 8.5
+    shimmerColor: {r: 1, g: 1, b: 1, a: 1}
+    shimmerAlpha: 0.24
+    shimmerSweepSpeed: 0.95
+    pulseAmplitude: 0.034
+    pulseSpeed: 1.3
+    innerRotationSpeed: 17
+    outerRotationSpeed: -10
+  normalNextVisual:
+    backplateColor: {r: 0.06, g: 0.02, b: 0.02, a: 1}
+    backplateAlpha: 0.16
+    backplateScale: 1.38
+    baseColor: {r: 0.70980394, g: 0.65882355, b: 0.65882355, a: 1}
+    baseAlpha: 0.62
+    scale: 0.92
+    ringColor: {r: 0.6392157, g: 0.6392157, b: 0.6392157, a: 1}
+    ringAlpha: 0.52
+    outerRingAlpha: 0.22
+    glowColor: {r: 0.8000001, g: 0, b: 0, a: 1}
+    glowAlpha: 0.18
+    glowScale: 1.18
+    coronaAColor: {r: 1, g: 0.34, b: 0.1, a: 1}
+    coronaAAlpha: 0
+    coronaAScale: 1.55
+    coronaARotationSpeed: 24
+    coronaBColor: {r: 1, g: 0.83, b: 0.34, a: 1}
+    coronaBAlpha: 0
+    coronaBScale: 1.9
+    coronaBRotationSpeed: -18
+    coronaPulseAmplitude: 0
+    coronaPulseSpeed: 0
+    coronaFlickerStrength: 0
+    coronaFlickerSpeed: 0
+    shimmerColor: {r: 1, g: 1, b: 1, a: 1}
+    shimmerAlpha: 0.06
+    shimmerSweepSpeed: 0.45
+    pulseAmplitude: 0.01
+    pulseSpeed: 0.85
+    innerRotationSpeed: 9
+    outerRotationSpeed: -5
+  normalNextPlusOneVisual:
+    backplateColor: {r: 0.05, g: 0.02, b: 0.02, a: 1}
+    backplateAlpha: 0.05
+    backplateScale: 1.3
+    baseColor: {r: 1, g: 0.96, b: 0.92, a: 1}
+    baseAlpha: 0.34
+    scale: 0.74
+    ringColor: {r: 0.8000001, g: 0.7686275, b: 0.7372549, a: 1}
+    ringAlpha: 0.26
+    outerRingAlpha: 0.1
+    glowColor: {r: 0.6392157, g: 0, b: 0, a: 1}
+    glowAlpha: 0.08
+    glowScale: 1.12
+    coronaAColor: {r: 1, g: 0.34, b: 0.1, a: 1}
+    coronaAAlpha: 0
+    coronaAScale: 1.55
+    coronaARotationSpeed: 24
+    coronaBColor: {r: 1, g: 0.83, b: 0.34, a: 1}
+    coronaBAlpha: 0
+    coronaBScale: 1.9
+    coronaBRotationSpeed: -18
+    coronaPulseAmplitude: 0
+    coronaPulseSpeed: 0
+    coronaFlickerStrength: 0
+    coronaFlickerSpeed: 0
+    shimmerColor: {r: 1, g: 1, b: 1, a: 0}
+    shimmerAlpha: 0
+    shimmerSweepSpeed: 0
+    pulseAmplitude: 0
+    pulseSpeed: 0
+    innerRotationSpeed: 5
+    outerRotationSpeed: -3
+  ragePreviewVisual:
+    backplateColor: {r: 0.07, g: 0.02, b: 0.02, a: 1}
+    backplateAlpha: 0
+    backplateScale: 1.5
+    baseColor: {r: 1, g: 0.86, b: 0.62, a: 1}
+    baseAlpha: 0.8
+    scale: 1
+    ringColor: {r: 1, g: 0.52, b: 0.14, a: 1}
+    ringAlpha: 0.55
+    outerRingAlpha: 0.25
+    glowColor: {r: 1, g: 0.48, b: 0.12, a: 1}
+    glowAlpha: 0.2
+    glowScale: 1.4
+    coronaAColor: {r: 1, g: 0.6, b: 0.12, a: 1}
+    coronaAAlpha: 0
+    coronaAScale: 1.55
+    coronaARotationSpeed: 24
+    coronaBColor: {r: 1, g: 0.92, b: 0.42, a: 1}
+    coronaBAlpha: 0
+    coronaBScale: 1.9
+    coronaBRotationSpeed: -18
+    coronaPulseAmplitude: 0
+    coronaPulseSpeed: 0
+    coronaFlickerStrength: 0
+    coronaFlickerSpeed: 0
+    shimmerColor: {r: 1, g: 1, b: 1, a: 1}
+    shimmerAlpha: 0
+    shimmerSweepSpeed: 0
+    pulseAmplitude: 0
+    pulseSpeed: 0
+    innerRotationSpeed: 12
+    outerRotationSpeed: -8
+  rageCurrentVisual:
+    backplateColor: {r: 0.08, g: 0.03, b: 0.01, a: 1}
+    backplateAlpha: 0.48
+    backplateScale: 1.5
+    baseColor: {r: 1, g: 0.86, b: 0.62, a: 1}
+    baseAlpha: 1
+    scale: 1.08
+    ringColor: {r: 1, g: 0.52, b: 0.14, a: 1}
+    ringAlpha: 0.96
+    outerRingAlpha: 0.78
+    glowColor: {r: 1, g: 0.48, b: 0.12, a: 1}
+    glowAlpha: 0.82
+    glowScale: 1.4
+    coronaAColor: {r: 1, g: 0.62, b: 0.15, a: 1}
+    coronaAAlpha: 1
+    coronaAScale: 1.56
+    coronaARotationSpeed: 28
+    coronaBColor: {r: 1, g: 0.9, b: 0.45, a: 1}
+    coronaBAlpha: 0.68
+    coronaBScale: 1.96
+    coronaBRotationSpeed: -22
+    coronaPulseAmplitude: 0.1
+    coronaPulseSpeed: 2.2
+    coronaFlickerStrength: 0.2
+    coronaFlickerSpeed: 9.5
+    shimmerColor: {r: 1, g: 1, b: 1, a: 1}
+    shimmerAlpha: 0.32
+    shimmerSweepSpeed: 36
+    pulseAmplitude: 0.045
+    pulseSpeed: 1.8
+    innerRotationSpeed: 24
+    outerRotationSpeed: -14
+  rageNextVisual:
+    backplateColor: {r: 0.08, g: 0.03, b: 0.01, a: 1}
+    backplateAlpha: 0.14
+    backplateScale: 1.34
+    baseColor: {r: 1, g: 0.86, b: 0.62, a: 1}
+    baseAlpha: 0.44
+    scale: 0.84
+    ringColor: {r: 1, g: 0.52, b: 0.14, a: 1}
+    ringAlpha: 0.42
+    outerRingAlpha: 0.18
+    glowColor: {r: 1, g: 0.48, b: 0.12, a: 1}
+    glowAlpha: 0.16
+    glowScale: 1.4
+    coronaAColor: {r: 1, g: 0.34, b: 0.1, a: 1}
+    coronaAAlpha: 0
+    coronaAScale: 1.55
+    coronaARotationSpeed: 24
+    coronaBColor: {r: 1, g: 0.83, b: 0.34, a: 1}
+    coronaBAlpha: 0
+    coronaBScale: 1.9
+    coronaBRotationSpeed: -18
+    coronaPulseAmplitude: 0
+    coronaPulseSpeed: 0
+    coronaFlickerStrength: 0
+    coronaFlickerSpeed: 0
+    shimmerColor: {r: 1, g: 1, b: 1, a: 1}
+    shimmerAlpha: 0.05
+    shimmerSweepSpeed: 18
+    pulseAmplitude: 0.012
+    pulseSpeed: 1.05
+    innerRotationSpeed: 15
+    outerRotationSpeed: -9
+  rageNextPlusOneVisual:
+    backplateColor: {r: 0.08, g: 0.03, b: 0.01, a: 1}
+    backplateAlpha: 0.05
+    backplateScale: 1.28
+    baseColor: {r: 1, g: 0.86, b: 0.62, a: 1}
+    baseAlpha: 0.18
+    scale: 0.64
+    ringColor: {r: 1, g: 0.52, b: 0.14, a: 1}
+    ringAlpha: 0.16
+    outerRingAlpha: 0.06
+    glowColor: {r: 1, g: 0.48, b: 0.12, a: 1}
+    glowAlpha: 0.04
+    glowScale: 1.4
+    coronaAColor: {r: 1, g: 0.34, b: 0.1, a: 1}
+    coronaAAlpha: 0
+    coronaAScale: 1.55
+    coronaARotationSpeed: 24
+    coronaBColor: {r: 1, g: 0.83, b: 0.34, a: 1}
+    coronaBAlpha: 0
+    coronaBScale: 1.9
+    coronaBRotationSpeed: -18
+    coronaPulseAmplitude: 0
+    coronaPulseSpeed: 0
+    coronaFlickerStrength: 0
+    coronaFlickerSpeed: 0
+    shimmerColor: {r: 1, g: 1, b: 1, a: 1}
+    shimmerAlpha: 0
+    shimmerSweepSpeed: 0
+    pulseAmplitude: 0
+    pulseSpeed: 0
+    innerRotationSpeed: 9
+    outerRotationSpeed: -5

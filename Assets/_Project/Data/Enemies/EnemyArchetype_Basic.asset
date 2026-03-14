@@ -24,7 +24,7 @@ MonoBehaviour:
   deathFlashDuration: 0.3
   fixedZonePattern: 040000000200000003000000
   useControlledRandom: 1
-  controlledPatternLength: 3
+  controlledPatternLength: 6
   zonePool:
   - zone: 1
     enabled: 1

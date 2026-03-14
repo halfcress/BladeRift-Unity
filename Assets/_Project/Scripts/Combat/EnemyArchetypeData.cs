@@ -268,14 +268,10 @@ public class EnemyArchetypeData : ScriptableObject
 
     private int GetEffectivePatternLength()
     {
-        return patternComplexity switch
-        {
-            EnemyPatternComplexity.Simple => Mathf.Clamp(controlledPatternLength, 2, 3),
-            EnemyPatternComplexity.Standard => Mathf.Clamp(controlledPatternLength, 2, 4),
-            EnemyPatternComplexity.Dense => Mathf.Clamp(controlledPatternLength, 3, 6),
+        if (!useControlledRandom)
+            return fixedZonePattern != null ? fixedZonePattern.Length : 0;
 
-            _ => Mathf.Clamp(controlledPatternLength, 2, 6)
-        };
+        return Mathf.Clamp(controlledPatternLength, 2, 6);
     }
 
     private List<ZoneWeightEntry> CollectValidCandidates(List<ZoneWeightEntry> enabledPool, List<WeakpointZone> currentPattern, int index, int totalLength)
